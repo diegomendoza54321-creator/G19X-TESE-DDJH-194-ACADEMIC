@@ -63,12 +63,15 @@ MotorRevisionLegal es una herramienta en español que apoya la revisión de cont
 
 ---
 
-## Requisitos previos
+## Requisitos previos e instalación rápida
 
-> Esta sección se completará una vez que se definan y verifiquen las tecnologías definitivas.
-> **No instalar dependencias basándose en esta lista hasta que esté confirmada.**
+> **Pendiente — no usar hasta que esté verificado.**
+>
+> Las tecnologías, dependencias y comandos reales se confirmarán durante el desarrollo. Esta sección se completará únicamente con instrucciones verificadas en un entorno limpio.
+>
+> Para el ingeniero evaluador: cuando el sistema esté listo, aquí aparecerán los requisitos mínimos (versiones de Python, Node.js, etc.) y los pasos de instalación resumidos. La guía detallada y verificada estará en [`docs/guia-instalacion.md`](docs/guia-instalacion.md).
 
-*(pendiente)*
+*(pendiente — no instalar dependencias ni ejecutar comandos hasta contar con la guía validada)*
 
 ---
 
@@ -82,6 +85,7 @@ MotorRevisionLegal/
 ├── backend/          # API y lógica de análisis (Python / FastAPI)
 ├── frontend/         # Interfaz de usuario (React / TypeScript)
 ├── docs/             # Documentación del proyecto
+│   ├── MVP.md
 │   ├── PRD.md
 │   ├── requisitos.md
 │   ├── arquitectura.md
@@ -110,6 +114,7 @@ MotorRevisionLegal/
 
 | Documento | Descripción |
 |---|---|
+| [docs/MVP.md](docs/MVP.md) | Alcance del MVP: funciones, flujo, criterios de aceptación y condiciones de término |
 | [docs/PRD.md](docs/PRD.md) | Documento de requisitos del producto |
 | [docs/requisitos.md](docs/requisitos.md) | Requisitos funcionales y no funcionales |
 | [docs/arquitectura.md](docs/arquitectura.md) | Arquitectura propuesta del sistema |

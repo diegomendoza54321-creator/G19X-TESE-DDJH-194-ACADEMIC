@@ -1,7 +1,7 @@
 # Lista de Control de Entregables
 
 **Proyecto:** MotorRevisionLegal  
-**Versión:** 0.1 — Estado inicial  
+**Versión:** 0.2 — Lista de 10 entregables oficiales  
 **Estado:** Lista de control creada — ningún entregable está completo todavía
 
 ---
@@ -47,10 +47,10 @@
 
 | Campo | Detalle |
 |---|---|
-| **Propósito** | Describir la arquitectura, las decisiones técnicas y el funcionamiento interno del sistema para la evaluación académica. |
-| **Contenido esperado** | Descripción de la arquitectura, tecnologías utilizadas, flujo del sistema, decisiones tomadas y justificaciones. |
-| **Estado** | ⬜ En elaboración — existe un borrador de arquitectura en [`docs/arquitectura.md`](arquitectura.md). |
-| **Qué falta** | Completar y validar la arquitectura durante el desarrollo; consolidar en el formato requerido por la institución. |
+| **Propósito** | Describir la arquitectura, las decisiones técnicas tomadas y el funcionamiento interno del sistema implementado, para la evaluación académica. Es un entregable distinto al manual técnico (ver entregable 8). |
+| **Contenido esperado** | Arquitectura real implementada, tecnologías utilizadas con justificación, flujo del sistema, decisiones técnicas y sus razones. |
+| **Estado** | ⬜ No disponible como entregable final — existe un borrador de arquitectura propuesta en [`docs/arquitectura.md`](arquitectura.md) que servirá de base. |
+| **Qué falta** | Completar durante el desarrollo; consolidar en el formato requerido por la institución. **El formato exacto del documento técnico está pendiente de confirmar con la institución receptora.** |
 
 ---
 
@@ -72,7 +72,7 @@
 | **Propósito** | Permitir que otra persona instale y ejecute el sistema siguiendo instrucciones verificadas paso a paso. |
 | **Contenido esperado** | Requisitos previos verificados, comandos de instalación probados, configuración del entorno, solución de problemas comunes. |
 | **Estado** | ⬜ Esqueleto creado como marcador — **pendiente de completar y validar**. Ver [`docs/guia-instalacion.md`](guia-instalacion.md). |
-| **Qué falta** | Completar durante el desarrollo, verificar cada paso en un entorno limpio antes de considerar el documento como terminado. |
+| **Qué falta** | Completar durante el desarrollo; verificar cada paso en un entorno limpio antes de considerar el documento como terminado. |
 
 ---
 
@@ -91,7 +91,7 @@
 
 | Campo | Detalle |
 |---|---|
-| **Propósito** | Documentar el sistema para desarrolladores o responsables de mantenimiento. |
+| **Propósito** | Documentar el sistema para desarrolladores o responsables de mantenimiento. Es un entregable distinto al documento técnico (ver entregable 4). |
 | **Contenido esperado** | Estructura del código, descripción de módulos, API del backend, variables de entorno, instrucciones de prueba y despliegue. |
 | **Estado** | ⬜ Esqueleto creado como marcador — **pendiente de completar y validar**. Ver [`docs/manual-tecnico.md`](manual-tecnico.md). |
 | **Qué falta** | Completar conforme avance la implementación; documentar decisiones técnicas reales, no supuestas. |
@@ -100,12 +100,25 @@
 
 ## 9. MVP (Producto Mínimo Viable)
 
+Este entregable tiene dos componentes con estados distintos:
+
+### 9a. Documento de alcance del MVP
+
 | Campo | Detalle |
 |---|---|
-| **Propósito** | Demostrar el flujo completo de la herramienta con las funciones esenciales funcionando de extremo a extremo. |
-| **Contenido esperado** | Sistema funcionando con: carga de contrato, extracción de texto, clasificación con confirmación del usuario, análisis y generación del informe con citas reales. |
-| **Estado** | ⬜ No disponible — el desarrollo no ha comenzado. Ver definición en [`docs/PRD.md`](PRD.md). |
-| **Qué falta** | Completar la documentación; comenzar la implementación; verificar cada función del MVP contra los criterios de aceptación definidos. |
+| **Propósito** | Definir qué incluye y excluye la primera versión funcional, el flujo principal, los criterios de aceptación y las condiciones de término. |
+| **Contenido esperado** | Funciones incluidas, funciones excluidas, flujo principal, decisiones pendientes, criterios de aceptación verificables y condiciones de término. |
+| **Estado** | 🔶 Borrador inicial disponible — requiere validación con el tutor y la organización receptora. Ver [`docs/MVP.md`](MVP.md). |
+| **Qué falta** | Validar con el tutor de residencias; resolver decisiones pendientes (IA, autenticación, almacenamiento, tamaño de archivo, criterios jurídicos). |
+
+### 9b. MVP funcionando (producto de software)
+
+| Campo | Detalle |
+|---|---|
+| **Propósito** | Demostrar el flujo completo de la herramienta con las funciones esenciales funcionando de extremo a extremo, para evaluación y presentación de la residencia. |
+| **Contenido esperado** | Sistema funcionando: carga de contrato, extracción de texto, clasificación con confirmación del usuario, análisis y generación del informe con citas reales. |
+| **Estado** | ⬜ No disponible — el desarrollo no ha comenzado. El documento de alcance (`docs/MVP.md`) no es el producto funcionando. |
+| **Qué falta** | Implementar y verificar cada función del MVP contra los criterios de aceptación de [`docs/MVP.md`](MVP.md); ejecutar el plan de pruebas; desplegar el sistema. |
 
 ---
 
