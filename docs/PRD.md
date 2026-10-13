@@ -41,7 +41,7 @@ Proporcionar un análisis estructurado de contratos de prestación de servicios 
 4. Identificar y reportar posibles ambigüedades, omisiones, contradicciones aparentes y riesgos.
 5. Respaldar cada hallazgo con una cita textual del documento original.
 6. Presentar recomendaciones claras, con sus limitaciones explícitas.
-7. Entregar un informe que el usuario pueda conservar o compartir.
+7. Presentar el informe en pantalla para que el usuario pueda consultarlo durante la sesión. La descarga o el envío del informe quedan fuera del MVP.
 
 ---
 
@@ -105,7 +105,7 @@ El Producto Mínimo Viable (MVP) debe demostrar el flujo completo de extremo a e
 > Como usuario, quiero que el sistema me proponga el tipo de contrato identificado y pueda confirmar o corregir esa clasificación antes de que se apliquen los criterios de revisión.
 
 **Criterios de aceptación:**
-- El sistema muestra la clasificación propuesta con una justificación breve.
+- El sistema muestra la clasificación propuesta con una justificación breve basada en el texto del documento.
 - El usuario puede aceptar la clasificación con un clic.
 - El usuario puede seleccionar un tipo diferente de una lista predefinida.
 - El análisis no inicia hasta que el usuario confirme o corrija la clasificación.
@@ -135,14 +135,15 @@ El Producto Mínimo Viable (MVP) debe demostrar el flujo completo de extremo a e
 
 ---
 
-### HU-05 — Manejar un documento con extracción incompleta
+### HU-05 — Manejar un documento con extracción fallida o incompleta
 
-> Como usuario, quiero que el sistema me informe si no pudo extraer el texto completo del documento, para saber que el análisis puede ser parcial.
+> Como usuario, quiero que el sistema me informe si no pudo extraer el texto del documento y detenga el proceso, para no recibir un análisis basado en información incompleta o inexistente.
 
 **Criterios de aceptación:**
-- Si la extracción de texto es incompleta o falla, el sistema muestra un mensaje de advertencia.
-- El sistema no silencia los errores de extracción.
-- El usuario puede decidir continuar con el análisis parcial o cancelar.
+- Si la extracción de texto falla o resulta incompleta, el sistema muestra un mensaje de advertencia claro.
+- El sistema detiene el análisis; no genera ni presenta hallazgos a partir de un texto que no pudo extraerse correctamente.
+- El sistema no ofrece continuar con una revisión parcial ni presenta resultados como si hubiera analizado el documento completo.
+- El mensaje indica al usuario que puede intentar con un archivo diferente o verificar que el PDF tenga texto seleccionable.
 
 ---
 
@@ -172,7 +173,7 @@ El Producto Mínimo Viable (MVP) debe demostrar el flujo completo de extremo a e
 - [ ] Validar la API de IA: privacidad, costo por token, política de retención de datos, disponibilidad.
 - [ ] Confirmar si se requiere autenticación de usuarios en el MVP.
 - [ ] Definir política de almacenamiento de documentos cargados.
-- [ ] Validar y completar la lista de criterios de revisión específicos para cada tipo de contrato acordado (prestación de servicios y proveedores).
+- [ ] Validar con el tutor o con una persona con experiencia jurídica la lista de criterios de revisión base y condicional propuesta para cada tipo de contrato (prestación de servicios y proveedores).
 - [ ] Confirmar si el informe debe ser exportable (PDF, DOCX) en el MVP.
 - [ ] Definir tamaños máximos de archivo aceptados.
 

@@ -26,8 +26,8 @@
 |---|---|---|
 | RF-02.1 | El sistema debe extraer el texto completo de un PDF con texto seleccionable. | Alta |
 | RF-02.2 | El sistema debe extraer el texto completo de un archivo DOCX. | Alta |
-| RF-02.3 | Si la extracción es incompleta, el sistema debe notificar al usuario y permitirle decidir si continúa. | Alta |
-| RF-02.4 | El sistema no debe intentar analizar documentos de los que no pudo extraer texto utilizable. | Alta |
+| RF-02.3 | Si la extracción falla o resulta incompleta, el sistema debe notificar al usuario con un mensaje claro y detener el análisis. | Alta |
+| RF-02.4 | El sistema no debe generar ni presentar hallazgos a partir de un texto que no pudo extraerse correctamente. No debe ofrecer continuar con una revisión parcial ni presentar resultados como si hubiera analizado el documento completo. | Alta |
 
 ---
 
@@ -36,7 +36,7 @@
 | ID | Descripción | Prioridad |
 |---|---|---|
 | RF-03.1 | El sistema debe proponer automáticamente el tipo de contrato identificado. | Alta |
-| RF-03.2 | La propuesta de clasificación debe incluir una justificación breve basada en el texto del documento. | Media |
+| RF-03.2 | La propuesta de clasificación debe incluir una justificación breve basada en el texto del documento. | Alta |
 | RF-03.3 | El usuario debe poder confirmar la clasificación propuesta antes de iniciar el análisis. | Alta |
 | RF-03.4 | El usuario debe poder corregir la clasificación seleccionando un tipo diferente de una lista predefinida. | Alta |
 | RF-03.5 | El análisis no debe iniciarse sin confirmación del usuario. | Alta |
@@ -47,8 +47,8 @@
 
 | ID | Descripción | Prioridad |
 |---|---|---|
-| RF-04.1 | El sistema debe aplicar una lista de verificación base según el tipo de contrato confirmado. | Alta |
-| RF-04.2 | El sistema debe aplicar criterios condicionales adicionales según el tipo de contrato. | Alta |
+| RF-04.1 | El sistema debe aplicar una lista de verificación base según el tipo de contrato confirmado. Existe una propuesta inicial de criterios base y condicionales que requiere validación con el tutor o con una persona con experiencia jurídica antes de considerarse definitiva. | Alta |
+| RF-04.2 | El sistema debe aplicar criterios condicionales adicionales según el tipo de contrato. Estos criterios forman parte de la misma propuesta indicada en RF-04.1 y están sujetos a la misma validación. | Alta |
 | RF-04.3 | El sistema debe identificar posibles ambigüedades en las cláusulas del contrato. | Alta |
 | RF-04.4 | El sistema debe identificar posibles omisiones de elementos típicos en ese tipo de contrato. | Alta |
 | RF-04.5 | El sistema debe identificar posibles contradicciones aparentes entre cláusulas. | Alta |
@@ -63,7 +63,7 @@
 | RF-05.1 | Cada hallazgo debe incluir: descripción, cita textual, explicación, posible consecuencia, recomendación y limitaciones. | Alta |
 | RF-05.2 | Las citas textuales deben corresponder exactamente a fragmentos del documento analizado. | Alta |
 | RF-05.3 | El sistema no debe generar citas que no existan en el documento. | Alta (restricción de integridad) |
-| RF-05.4 | Los hallazgos deben estar organizados por categoría. | Media |
+| RF-05.4 | En el informe solo se muestran las categorías que tengan al menos un hallazgo. Si una categoría no tiene hallazgos, no se muestra; en su lugar, el informe indica que no se identificaron hallazgos con los criterios aplicados, sin garantizar que el contrato esté libre de problemas de ese tipo. | Media |
 | RF-05.5 | El informe debe incluir un aviso visible de que no constituye asesoría jurídica. | Alta |
 | RF-05.6 | El informe debe presentarse en pantalla al usuario. | Alta |
 
@@ -140,7 +140,7 @@ Estas reglas son restricciones no negociables que aplican a toda la aplicación:
 | RPJ-03 | Cada hallazgo debe incluir sus limitaciones; ningún hallazgo debe presentarse como una conclusión definitiva. |
 | RPJ-04 | El sistema no debe emitir consejos jurídicos vinculantes ni actuar como sustituto de un abogado. |
 | RPJ-05 | El informe generado debe incluir en todo momento un aviso visible de que no constituye asesoría jurídica y de que los resultados deben ser revisados por un profesional. |
-| RPJ-06 | El sistema debe informar al usuario cuando la extracción de texto es incompleta, de modo que el usuario entienda que el análisis puede ser parcial. |
+| RPJ-06 | El sistema debe informar al usuario cuando la extracción de texto falla o resulta incompleta, y detener el análisis. No debe presentar hallazgos como si hubiera revisado el documento completo. |
 
 ---
 
@@ -151,7 +151,7 @@ Estas reglas son restricciones no negociables que aplican a toda la aplicación:
 - Todos los hallazgos incluyen cita textual, explicación, consecuencia posible, recomendación y limitaciones.
 - No se genera ninguna cita que no exista en el documento analizado.
 - El informe incluye el aviso de que no constituye asesoría jurídica.
-- El sistema notifica al usuario cuando la extracción de texto es incompleta.
+- El sistema notifica al usuario cuando la extracción de texto falla o resulta incompleta, y detiene el análisis sin presentar hallazgos.
 - La interfaz y todos los mensajes están en español.
 
 ---
