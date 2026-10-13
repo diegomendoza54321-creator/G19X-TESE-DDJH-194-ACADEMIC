@@ -66,7 +66,7 @@ El MVP debe demostrar el flujo completo de extremo a extremo: desde que el usuar
   - Posible consecuencia.
   - Recomendación.
   - Limitaciones del análisis para ese hallazgo.
-- **Solo se muestran las categorías que tengan al menos un hallazgo.** Si no se identificaron hallazgos en una categoría, el informe lo indica sin garantizar que el contrato esté libre de problemas de ese tipo.
+- **Solo se muestran las categorías que tengan al menos un hallazgo. Las categorías sin hallazgos se ocultan.** Si no se identificaron hallazgos en ninguna categoría, el informe muestra un mensaje general: "No se identificaron hallazgos con los criterios aplicados", sin garantizar que el contrato esté libre de problemas.
 - El informe incluye un aviso visible y permanente de que no constituye asesoría jurídica.
 - El sistema no genera citas que no existan en el documento analizado.
 
@@ -160,7 +160,7 @@ El MVP se considera funcionando cuando cumple **todos** los criterios siguientes
 - [ ] Cada hallazgo incluye: cita textual, explicación, posible consecuencia, recomendación y limitaciones.
 - [ ] Todas las citas del informe existen literalmente en el texto del documento analizado.
 - [ ] El informe no incluye citas inventadas.
-- [ ] Solo se muestran categorías con hallazgos; las categorías sin hallazgos incluyen un mensaje que indica que no se identificaron hallazgos con los criterios aplicados, sin garantizar ausencia de problemas.
+- [ ] Solo se muestran las categorías con hallazgos; las categorías vacías se ocultan. Si no hay hallazgos en ninguna categoría, el informe muestra el mensaje: "No se identificaron hallazgos con los criterios aplicados", sin garantizar que el contrato esté libre de problemas.
 - [ ] El informe incluye un aviso visible de que no constituye asesoría jurídica.
 - [ ] El informe no afirma que el contrato "es válido", "es legal" ni "cumple con la ley".
 
@@ -176,7 +176,7 @@ El MVP se considera **terminado** cuando:
 
 1. Todos los criterios de aceptación de la sección 7 están verificados con contratos de prueba reales o sintéticos.
 2. El plan de pruebas ([`plan-de-pruebas.md`](plan-de-pruebas.md)) ha sido ejecutado y los resultados están registrados.
-3. La lista de criterios de revisión ha sido validada con el tutor o con una persona con experiencia jurídica.
+3. La lista de criterios de revisión base y condicional ha sido validada con el tutor o con una persona con experiencia jurídica. **Esta validación es un prerrequisito para implementar el módulo de análisis; debe completarse antes de ese módulo, no solo antes de declarar el MVP terminado.** Existe una propuesta inicial pendiente de esa revisión.
 4. El sistema está desplegado en un entorno al que el evaluador pueda acceder.
 5. Los entregables de acceso de prueba y evidencias (capturas o video) están disponibles.
 

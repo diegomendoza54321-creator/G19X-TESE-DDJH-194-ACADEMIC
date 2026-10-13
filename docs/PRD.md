@@ -60,6 +60,8 @@ Proporcionar un análisis estructurado de contratos de prestación de servicios 
 - Análisis de contratos en otros idiomas.
 - Contratos distintos a los tipos mencionados (arrendamiento, laboral, compraventa, etc.).
 - PDF escaneados sin capa de texto (sin OCR integrado en la primera versión).
+- Descarga o exportación del informe (PDF, DOCX u otro formato).
+- Compartir el informe por correo u otro medio.
 - Firma electrónica o gestión de contratos.
 - Comparación entre versiones de un contrato.
 - Integración con sistemas ERP, gestores documentales u otras plataformas externas.
@@ -118,7 +120,7 @@ El Producto Mínimo Viable (MVP) debe demostrar el flujo completo de extremo a e
 
 **Criterios de aceptación:**
 - Cada hallazgo incluye: descripción, cita textual del documento, explicación, posible consecuencia, recomendación y limitaciones del análisis.
-- Los hallazgos están organizados por categoría (ambigüedad, omisión, contradicción, riesgo).
+- En el informe solo se muestran las categorías que tengan al menos un hallazgo. Las categorías sin hallazgos se ocultan. Si no se identificaron hallazgos en ninguna categoría, el informe muestra un mensaje general: "No se identificaron hallazgos con los criterios aplicados", sin garantizar que el contrato esté libre de problemas.
 - El informe incluye una advertencia explícita de que no constituye asesoría jurídica.
 - El sistema no genera citas que no existan en el documento original.
 
@@ -173,7 +175,7 @@ El Producto Mínimo Viable (MVP) debe demostrar el flujo completo de extremo a e
 - [ ] Validar la API de IA: privacidad, costo por token, política de retención de datos, disponibilidad.
 - [ ] Confirmar si se requiere autenticación de usuarios en el MVP.
 - [ ] Definir política de almacenamiento de documentos cargados.
-- [ ] Validar con el tutor o con una persona con experiencia jurídica la lista de criterios de revisión base y condicional propuesta para cada tipo de contrato (prestación de servicios y proveedores).
+- [ ] Validar con el tutor o con una persona con experiencia jurídica la lista de criterios de revisión base y condicional propuesta para cada tipo de contrato (prestación de servicios y proveedores). **Esta validación debe completarse antes de implementar el módulo de análisis.**
 - [ ] Confirmar si el informe debe ser exportable (PDF, DOCX) en el MVP.
 - [ ] Definir tamaños máximos de archivo aceptados.
 

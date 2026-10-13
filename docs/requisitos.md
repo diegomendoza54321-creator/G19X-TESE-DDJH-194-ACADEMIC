@@ -63,7 +63,7 @@
 | RF-05.1 | Cada hallazgo debe incluir: descripción, cita textual, explicación, posible consecuencia, recomendación y limitaciones. | Alta |
 | RF-05.2 | Las citas textuales deben corresponder exactamente a fragmentos del documento analizado. | Alta |
 | RF-05.3 | El sistema no debe generar citas que no existan en el documento. | Alta (restricción de integridad) |
-| RF-05.4 | En el informe solo se muestran las categorías que tengan al menos un hallazgo. Si una categoría no tiene hallazgos, no se muestra; en su lugar, el informe indica que no se identificaron hallazgos con los criterios aplicados, sin garantizar que el contrato esté libre de problemas de ese tipo. | Media |
+| RF-05.4 | En el informe solo se muestran las categorías que tengan al menos un hallazgo. Las categorías sin hallazgos se ocultan. Si no se identificaron hallazgos en ninguna categoría, el informe muestra un mensaje general: "No se identificaron hallazgos con los criterios aplicados", sin garantizar que el contrato esté libre de problemas. | Media |
 | RF-05.5 | El informe debe incluir un aviso visible de que no constituye asesoría jurídica. | Alta |
 | RF-05.6 | El informe debe presentarse en pantalla al usuario. | Alta |
 
