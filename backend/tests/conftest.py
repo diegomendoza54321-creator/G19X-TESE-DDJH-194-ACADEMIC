@@ -7,6 +7,14 @@ nota de ``docs/plan-de-pruebas.md``.
 Sobre los acentos: las fuentes base de ``fpdf2`` codifican en latin-1, así
 que los textos de los PDF usan español sin tildes para mantener las
 aserciones deterministas.
+
+Advertencia de terceros
+-----------------------
+``fastapi.testclient`` emite un ``StarletteDeprecationWarning`` al
+importarse cuando solo está instalado ``httpx``. Se resolvió instalando
+``httpx2``, la dependencia recomendada, en lugar de silenciarla. No hay
+filtros de advertencias en el proyecto a propósito: si aparece una, es un
+problema real y debe verse.
 """
 
 from __future__ import annotations
