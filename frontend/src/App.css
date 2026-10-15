@@ -9,6 +9,51 @@
   font-size: 1.75rem;
 }
 
+.barra-superior {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Navegación principal (RF-07). */
+.navegacion ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.navegacion button {
+  margin-top: 0;
+  background: transparent;
+  color: var(--color-texto);
+  font-weight: 500;
+}
+
+.navegacion button[aria-current='page'] {
+  background: var(--color-texto);
+  color: var(--color-fondo);
+}
+
+.acciones-sesion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.acciones-sesion button {
+  margin-top: 0;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+}
+
 .descripcion {
   margin: 0 0 1.75rem;
   color: var(--color-texto);

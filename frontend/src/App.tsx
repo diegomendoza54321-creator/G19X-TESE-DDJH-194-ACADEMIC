@@ -1,13 +1,24 @@
 /**
- * Interfaz del MVP: inicio de sesión y extracción de texto de PDF o DOCX.
+ * Interfaz del MVP: inicio de sesión, navegación, tema y extracción.
  *
- * Cubre RF-00 (autenticación privada), RF-01 (carga), RF-02 (extracción) y
- * RF-06 (interfaz en español). No incluye IA: solo extrae el texto.
+ * Cubre RF-00 (autenticación privada), RF-01 (carga), RF-02 (extracción),
+ * RF-06 (interfaz en español) y RF-07 (navegación principal y tema claro /
+ * oscuro). No incluye IA: este bloque solo extrae el texto y lo muestra.
+ *
+ * Navegación (RF-07.1): tras iniciar sesión hay cuatro secciones, Inicio,
+ * Analizar contrato, Resultados e Historial. La carga y extracción viven en
+ * Analizar contrato. Resultados e Historial muestran estados vacíos honestos
+ * mientras esas funciones no existan: no se inventa ningún análisis.
+ *
+ * Tema (RF-07.2 a RF-07.5): control claro/oscuro en la barra superior. La
+ * preferencia se guarda en localStorage y se restaura al recargar; sin
+ * preferencia se usa el tema del sistema. Cambiarlo no cierra la sesión ni
+ * borra el trabajo: solo cambia el atributo data-tema en <html>.
  *
  * Autenticación: al abrir se consulta GET /yo; solo con sesión válida se
- * muestra la pantalla de carga. El login usa los campos del backend
- * (usuario, contrasena) y la sesión viaja en cookie HttpOnly: el navegador
- * nunca guarda contraseñas ni tokens. Sin registro público (RF-00.2).
+ * muestra la navegación. El login usa los campos del backend (usuario,
+ * contrasena) y la sesión viaja en cookie HttpOnly: el navegador nunca
+ * guarda contraseñas ni tokens. Sin registro público (RF-00.2).
  *
  * Llamadas a rutas relativas; el dev server las redirige al backend
  * (ver vite.config.ts), así que no hace falta CORS.
@@ -38,6 +49,34 @@ interface RespuestaExtraccion {
 type Sesion = 'consultando' | 'sin-sesion' | 'activa'
 type Estado = 'inicio' | 'cargando' | 'exito' | 'error'
 
+/** Secciones de la navegación principal (RF-07.1). */
+type Vista = 'inicio' | 'analizar' | 'resultados' | 'historial'
+
+const VISTAS: { id: Vista; etiqueta: string }[] = [
+  { id: 'inicio', etiqueta: 'Inicio' },
+  { id: 'analizar', etiqueta: 'Analizar contrato' },
+  { id: 'resultados', etiqueta: 'Resultados' },
+  { id: 'historial', etiqueta: 'Historial' },
+]
+
+/** Temas disponibles (RF-07.2). */
+type Tema = 'claro' | 'oscuro'
+
+/** Clave de localStorage para la preferencia de tema (RF-07.3). */
+const CLAVE_TEMA = 'mrl-tema'
+
+function leerTemaInicial(): Tema {
+  try {
+    const guardado = window.localStorage.getItem(CLAVE_TEMA)
+    if (guardado === 'claro' || guardado === 'oscuro') return guardado
+  } catch {
+    // Sin acceso al almacenamiento (modo privado): se usa el sistema.
+  }
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'oscuro'
+    : 'claro'
+}
+
 function extensionDe(nombre: string): string {
   const punto = nombre.lastIndexOf('.')
   return punto === -1 ? '' : nombre.slice(punto).toLowerCase()
@@ -56,6 +95,11 @@ export default function App() {
   const [clave, setClave] = useState('')
   const [entrando, setEntrando] = useState(false)
   const [errorLogin, setErrorLogin] = useState<string | null>(null)
+
+  // Navegación principal y tema (RF-07). Ambos viven en el estado de React:
+  // cambiar de vista o de tema no toca la sesión ni el trabajo en curso.
+  const [vista, setVista] = useState<Vista>('inicio')
+  const [tema, setTema] = useState<Tema>(leerTemaInicial)
 
   const [archivo, setArchivo] = useState<File | null>(null)
   const [avisoArchivo, setAvisoArchivo] = useState<string | null>(null)
@@ -92,6 +136,21 @@ export default function App() {
       activa = false
     }
   }, [])
+
+  // Tema (RF-07.2 a RF-07.5): se aplica al documento y se guarda. Solo toca
+  // el atributo visual y localStorage: la sesión y el trabajo siguen intactos.
+  useEffect(() => {
+    document.documentElement.setAttribute('data-tema', tema)
+    try {
+      window.localStorage.setItem(CLAVE_TEMA, tema)
+    } catch {
+      // Sin acceso al almacenamiento: el tema se aplica solo en memoria.
+    }
+  }, [tema])
+
+  function cambiarTema() {
+    setTema((anterior) => (anterior === 'claro' ? 'oscuro' : 'claro'))
+  }
 
   function volverALogin() {
     setSesion('sin-sesion')
@@ -304,22 +363,69 @@ export default function App() {
 
   return (
     <main className="contenedor">
-      <header className="cabecera">
-        <h1>MotorRevisionLegal</h1>
-        <p className="descripcion">
-          Revisión de cláusulas contractuales. Carga un contrato en PDF con
-          texto seleccionable o en DOCX para extraer su texto.
-        </p>
-        <p className="detalle-archivo">
-          Sesión iniciada como <strong>{usuario}</strong>
-          {' · '}
+      <div className="barra-superior">
+        <nav className="navegacion" aria-label="Navegación principal">
+          <ul>
+            {VISTAS.map((opcion) => (
+              <li key={opcion.id}>
+                <button
+                  type="button"
+                  onClick={() => setVista(opcion.id)}
+                  aria-current={vista === opcion.id ? 'page' : undefined}
+                >
+                  {opcion.etiqueta}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div className="acciones-sesion">
+          <span>
+            Sesión iniciada como <strong>{usuario}</strong>
+          </span>
+          <button
+            type="button"
+            onClick={cambiarTema}
+            aria-label={
+              tema === 'claro'
+                ? 'Cambiar a tema oscuro'
+                : 'Cambiar a tema claro'
+            }
+          >
+            {tema === 'claro' ? 'Tema oscuro' : 'Tema claro'}
+          </button>
           <button type="button" onClick={() => void alCerrarSesion()}>
             Cerrar sesión
           </button>
-        </p>
+        </div>
+      </div>
+
+      <header className="cabecera">
+        <h1>MotorRevisionLegal</h1>
       </header>
 
-      <section className="tarjeta">
+      {vista === 'inicio' && (
+        <section className="tarjeta" aria-live="polite">
+          <h2>Bienvenido</h2>
+          <p>
+            Revisión de cláusulas contractuales. Para empezar, abre{' '}
+            <strong>Analizar contrato</strong> y carga un contrato en PDF con
+            texto seleccionable o en DOCX para extraer su texto.
+          </p>
+          <p className="sugerencia">
+            Las secciones de Resultados e Historial estarán disponibles cuando
+            el análisis y el historial estén implementados.
+          </p>
+        </section>
+      )}
+
+      {vista === 'analizar' && (
+        <>
+          <p className="descripcion">
+            Carga un contrato en PDF con texto seleccionable o en DOCX para
+            extraer su texto.
+          </p>
+          <section className="tarjeta">
         <form onSubmit={alEnviar}>
           <label className="etiqueta" htmlFor="archivo">
             Archivo del contrato
@@ -348,13 +454,13 @@ export default function App() {
         </form>
       </section>
 
-      {estado === 'cargando' && (
+      {vista === 'analizar' && estado === 'cargando' && (
         <section className="tarjeta" aria-live="polite">
           <p>Extrayendo el texto del documento. Esto puede tardar unos segundos…</p>
         </section>
       )}
 
-      {estado === 'error' && (
+      {vista === 'analizar' && estado === 'error' && (
         <section className="tarjeta error" role="alert">
           <h2>No se pudo extraer el texto</h2>
           <p>{mensajeError}</p>
@@ -365,7 +471,7 @@ export default function App() {
         </section>
       )}
 
-      {estado === 'exito' && resultado && (
+      {vista === 'analizar' && estado === 'exito' && resultado && (
         <section className="tarjeta resultado" aria-live="polite">
           <h2>Texto extraído</h2>
           <p className="metadatos">
@@ -378,6 +484,32 @@ export default function App() {
             )}
           </p>
           <pre className="texto-extraido">{resultado.texto}</pre>
+        </section>
+      )}
+        </>
+      )}
+
+      {vista === 'resultados' && (
+        <section className="tarjeta" aria-live="polite">
+          <h2>Resultados</h2>
+          <p>
+            Todavía no hay resultados para mostrar. El análisis de contratos
+            (clasificación, hallazgos e informe) aún no está implementado.
+          </p>
+          <p className="sugerencia">
+            Mientras tanto, puedes extraer el texto de un contrato en{' '}
+            <strong>Analizar contrato</strong>.
+          </p>
+        </section>
+      )}
+
+      {vista === 'historial' && (
+        <section className="tarjeta" aria-live="polite">
+          <h2>Historial</h2>
+          <p>
+            Todavía no hay análisis registrados. El historial estará
+            disponible cuando el análisis y su registro estén implementados.
+          </p>
         </section>
       )}
 

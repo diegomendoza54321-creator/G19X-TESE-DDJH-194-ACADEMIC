@@ -1,6 +1,8 @@
-/* Estilos base. Tema claro y oscuro pendientes de implementar (RF-07). */
+/* Estilos base. Tema claro/oscuro (RF-07): el tema activo se aplica con el
+ * atributo data-tema en <html>, que React fija desde localStorage. */
 
-:root {
+:root,
+:root[data-tema='claro'] {
   --fuente: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
     sans-serif;
   --color-texto: #1a1a1a;
@@ -15,19 +17,19 @@
   --color-aviso-fondo: #fff6d6;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-texto: #ededed;
-    --color-fondo: #161616;
-    --color-borde: #3d3d3d;
-    --color-fondo-bloque: #202020;
-    --color-error: #f2b8b5;
-    --color-error-fondo: #3a1a18;
-    --color-ok: #a5d6a7;
-    --color-ok-fondo: #1b2a1c;
-    --color-aviso: #f0d089;
-    --color-aviso-fondo: #332a12;
-  }
+/* El tema oscuro se activa con data-tema="oscuro". Sin preferencia
+ * guardada, el navegador aporta el valor inicial (ver App.tsx). */
+:root[data-tema='oscuro'] {
+  --color-texto: #ededed;
+  --color-fondo: #161616;
+  --color-borde: #3d3d3d;
+  --color-fondo-bloque: #202020;
+  --color-error: #f2b8b5;
+  --color-error-fondo: #3a1a18;
+  --color-ok: #a5d6a7;
+  --color-ok-fondo: #1b2a1c;
+  --color-aviso: #f0d089;
+  --color-aviso-fondo: #332a12;
 }
 
 * {
