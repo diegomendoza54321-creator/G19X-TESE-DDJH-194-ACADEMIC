@@ -1,19 +1,29 @@
-"""API del backend — bloque de carga y extracción de texto.
+"""API del backend — autenticación privada, carga y extracción de texto.
 
 Endpoints
 ---------
-``GET  /salud``  — comprobación de que el servicio está levantado.
-``POST /extraer`` — recibe un PDF o DOCX y devuelve el texto extraído.
+``GET  /salud``   — comprobación de que el servicio está levantado (público).
+``POST /login``   — inicia sesión con usuario y contraseña (RF-00.1).
+``POST /logout``  — cierra la sesión actual (requiere sesión).
+``GET  /yo``      — devuelve el usuario de la sesión (requiere sesión).
+``POST /extraer`` — recibe un PDF o DOCX y devuelve el texto extraído
+(requiere sesión, RF-00.1).
 
 Decisiones de diseño
 --------------------
+* **Sin registro público.** No existe endpoint de alta: las cuentas se
+  crean con ``backend/crear_usuario.py`` (RF-00.2, RF-00.5).
+* **Mensaje genérico.** Ante credenciales incorrectas se responde siempre
+  ``Usuario o contraseña incorrectos``, exista o no el usuario (RF-00.3).
 * **Códigos de estado.** El cliente distingue dos clases de fallo sin
   interpretar texto: ``400`` cuando el problema es del archivo enviado
   (formato no soportado, tamaño excedido, archivo vacío) y ``422`` cuando el
   archivo se recibió pero no pudo procesarse (corrupto, sin texto o
-  extracción incompleta).
+  extracción incompleta). Sin sesión: ``401``.
 * **Nunca se devuelve texto parcial.** Ante extracción incompleta la
   respuesta trae ``texto: null`` (RF-02.4, RPJ-06).
+* **No se guardan los archivos originales.** La subida vive solo en memoria
+  durante la extracción; nunca se escribe a disco.
 * **No se registra contenido.** Los logs no incluyen el texto de los
   contratos (RNF-03.3).
 * **Sin IA y sin criterios jurídicos.** Este bloque solo extrae texto.
@@ -21,10 +31,12 @@ Decisiones de diseño
 
 from __future__ import annotations
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import Cookie, FastAPI, File, Form, Response, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+from . import auth
+from .auth import NOMBRE_COOKIE
 from .extraccion import (
     COD_ARCHIVO_NO_LEIBLE,
     COD_ARCHIVO_VACIO,
@@ -95,13 +107,117 @@ async def _leer_con_limite(archivo: UploadFile) -> bytes | None:
     return b"".join(bloques)
 
 
+class RespuestaSesion(BaseModel):
+    """Cuerpo de respuesta de ``POST /login``, ``POST /logout`` y ``GET /yo``."""
+
+    ok: bool
+    usuario: str | None = None
+    codigo: str | None = None
+    motivo: str | None = None
+
+
+def _error_no_autenticado() -> JSONResponse:
+    return JSONResponse(
+        status_code=401,
+        content=RespuestaSesion(
+            ok=False,
+            codigo=auth.COD_NO_AUTENTICADO,
+            motivo=auth.MENSAJE_NO_AUTENTICADO,
+        ).model_dump(),
+    )
+
+
+def _usuario_de_sesion(token: str | None) -> str | None:
+    return auth.obtener_usuario_por_token(token)
+
+
+def _fijar_cookie_sesion(respuesta: Response, token: str) -> None:
+    respuesta.set_cookie(
+        NOMBRE_COOKIE,
+        token,
+        httponly=True,
+        samesite="lax",
+        path="/",
+        max_age=int(auth.DURACION_SESION.total_seconds()),
+    )
+
+
+def _limpiar_cookie_sesion(respuesta: Response) -> None:
+    respuesta.delete_cookie(NOMBRE_COOKIE, path="/")
+
+
+@app.post("/login")
+def login(
+    respuesta: Response,
+    usuario: str = Form(...),
+    contrasena: str = Form(...),
+) -> JSONResponse:
+    """Inicia sesión con usuario y contraseña (RF-00.1).
+
+    Ante credenciales incorrectas el mensaje es genérico (RF-00.3).
+    """
+    usuario_id = auth.comprobar_credenciales(usuario, contrasena)
+    if usuario_id is None:
+        return JSONResponse(
+            status_code=401,
+            content=RespuestaSesion(
+                ok=False,
+                codigo=auth.COD_CREDENCIALES_INVALIDAS,
+                motivo=auth.MENSAJE_CREDENCIALES_INVALIDAS,
+            ).model_dump(),
+        )
+    nombre = (usuario or "").strip()
+    token = auth.crear_sesion(usuario_id)
+    cuerpo = JSONResponse(
+        status_code=200,
+        content=RespuestaSesion(ok=True, usuario=nombre).model_dump(),
+    )
+    _fijar_cookie_sesion(cuerpo, token)
+    return cuerpo
+
+
+@app.post("/logout")
+def logout(
+    respuesta: Response,
+    sesion_mrl: str | None = Cookie(default=None, alias=NOMBRE_COOKIE),
+) -> JSONResponse:
+    """Cierra la sesión actual e invalida su cookie."""
+    auth.cerrar_sesion(sesion_mrl)
+    cuerpo = JSONResponse(
+        status_code=200, content=RespuestaSesion(ok=True).model_dump()
+    )
+    _limpiar_cookie_sesion(cuerpo)
+    return cuerpo
+
+
+@app.get("/yo")
+def yo(
+    sesion_mrl: str | None = Cookie(default=None, alias=NOMBRE_COOKIE),
+) -> JSONResponse:
+    """Devuelve el usuario de la sesión (RF-00.1)."""
+    nombre = _usuario_de_sesion(sesion_mrl)
+    if nombre is None:
+        return _error_no_autenticado()
+    return JSONResponse(
+        status_code=200,
+        content=RespuestaSesion(ok=True, usuario=nombre).model_dump(),
+    )
+
+
 @app.post("/extraer")
-async def extraer(archivo: UploadFile = File(...)) -> JSONResponse:
+async def extraer(
+    archivo: UploadFile = File(...),
+    sesion_mrl: str | None = Cookie(default=None, alias=NOMBRE_COOKIE),
+) -> JSONResponse:
     """Extrae el texto de un PDF con texto seleccionable o de un DOCX.
 
-    Si la extracción falla o resulta incompleta, responde con error y
-    ``texto: null``: el análisis no puede continuar (RF-02.3, RF-02.4).
+    Requiere sesión (RF-00.1). Si la extracción falla o resulta incompleta,
+    responde con error y ``texto: null``: el análisis no puede continuar
+    (RF-02.3, RF-02.4).
     """
+    if _usuario_de_sesion(sesion_mrl) is None:
+        return _error_no_autenticado()
+
     contenido = await _leer_con_limite(archivo)
 
     if contenido is None:

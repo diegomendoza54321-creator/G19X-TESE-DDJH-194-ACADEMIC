@@ -2,21 +2,39 @@
 
 Verifican sobre todo que la API nunca devuelve texto parcial: es la garantía
 que el frontend necesita para detener el flujo (RF-02.4, RPJ-06).
+
+``/extraer`` requiere sesión (RF-00.1): el cliente de estas pruebas inicia
+sesión con un usuario autorizado en una base temporal. Las pruebas del
+acceso sin sesión están en ``test_auth.py``.
 """
 
 from __future__ import annotations
 
+from collections.abc import Generator
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
+from app import auth
 from app.main import app
 
 
 @pytest.fixture
-def cliente() -> TestClient:
-    return TestClient(app)
+def cliente(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> Generator[TestClient, None, None]:
+    ruta = tmp_path / "api.db"
+    monkeypatch.setenv(auth.NOMBRE_VARIABLE_BD, str(ruta))
+    auth.init_bd(ruta)
+    auth.crear_usuario("revisor", "ClaveSegura123")
+    with TestClient(app) as sesion:
+        respuesta = sesion.post(
+            "/login",
+            data={"usuario": "revisor", "contrasena": "ClaveSegura123"},
+        )
+        assert respuesta.status_code == 200
+        yield sesion
 
 
 def _subir(cliente: TestClient, ruta: Path, nombre: str | None = None):

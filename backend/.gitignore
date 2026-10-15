@@ -1,0 +1,4 @@
+# Base SQLite local con usuarios y sesiones. Nunca se versiona:
+# contiene contraseñas hasheadas y sesiones activas.
+datos.db
+datos.db-journal

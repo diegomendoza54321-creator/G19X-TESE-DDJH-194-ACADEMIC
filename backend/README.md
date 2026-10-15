@@ -1,7 +1,7 @@
 # Backend — MotorRevisionLegal
 
-API en FastAPI. **Bloque implementado: carga y extracción de texto** de
-contratos en PDF y DOCX.
+API en FastAPI. **Bloques implementados: autenticación privada (RF-00) y
+carga y extracción de texto** de contratos en PDF y DOCX.
 
 No hay IA ni criterios jurídicos en este bloque: la extracción es el paso
 previo y quedó aislada a propósito para poder verificarse sin depender de
@@ -26,6 +26,27 @@ Desde la raíz del repositorio:
 python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r backend\requirements.txt
 ```
+
+## Autenticación privada (RF-00)
+
+Toda la API salvo `GET /salud` y `POST /login` exige sesión. El login
+entrega un token opaco en cookie `HttpOnly` (`sesion_mrl`, 12 horas).
+Contraseñas con PBKDF2-SHA256 y sal única; la base SQLite vive en
+`backend/datos.db` (ignorada por git) o en `MOTORREVISIONLEGAL_DB`.
+
+**No existe registro público.** Las cuentas las crea quien opere el
+servidor en la máquina local:
+
+```powershell
+.venv\Scripts\python.exe backend\crear_usuario.py revisor
+```
+
+### `POST /login`, `POST /logout`, `GET /yo`
+
+Login con formulario (`usuario`, `contrasena`). Ante credenciales
+incorrectas el mensaje es siempre genérico: `Usuario o contraseña
+incorrectos` (RF-00.3), sin revelar qué falló. Sin sesión válida la API
+responde `401` con motivo `Se requiere iniciar sesión...`.
 
 ## Ejecutar la API
 
@@ -128,23 +149,25 @@ curl -F "archivo=@contrato.pdf" http://127.0.0.1:8000/extraer
   porque un DOCX no declara páginas sin renderizarse.
 
 **Pendientes, no resueltas aquí:** proveedor de IA, validación jurídica de
-criterios, autenticación, base de datos e historial, estrategia de
-despliegue.
+criterios, historial, estrategia de despliegue.
 
 ## Estructura
 
-```
+```text
 backend/
 ├── requirements.txt
 ├── pytest.ini
+├── crear_usuario.py  ← alta local de usuarios autorizados (RF-00.5)
 ├── app/
 │   ├── __init__.py
+│   ├── auth.py         ← sesiones SQLite, PBKDF2 (RF-00)
 │   ├── extraccion.py   ← lógica de extracción (RF-01, RF-02)
 │   └── main.py         ← endpoints de la API
 └── tests/
     ├── conftest.py         ← genera PDF/DOCX sintéticos
     ├── test_extraccion.py  ← pruebas del módulo
-    └── test_api.py         ← pruebas de los endpoints
+    ├── test_api.py         ← pruebas de /extraer (con sesión)
+    └── test_auth.py        ← pruebas de autenticación (RF-00)
 ```
 
 > La guía de instalación oficial sigue siendo
