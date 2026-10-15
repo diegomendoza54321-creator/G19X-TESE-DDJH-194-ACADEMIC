@@ -1,40 +1,61 @@
 # MotorRevisionLegal
 
-Motor de revisión inteligente de cláusulas legales — Proyecto de Residencias Profesionales.
+Herramienta web de revisión de cláusulas contractuales — Proyecto de Residencias Profesionales.
 
 ---
 
 ## Descripción
 
-MotorRevisionLegal es una herramienta en español que apoya la revisión de contratos de prestación de servicios y contratos de proveedores. Analiza el documento cargado, propone su clasificación, aplica una lista de verificación y genera hallazgos textuales que el usuario puede revisar con criterio profesional propio.
+MotorRevisionLegal apoya la revisión de contratos de prestación de servicios y de proveedores. Extrae el texto del documento, propone su tipo, permite que la persona usuaria confirme o corrija esa clasificación y genera un informe de hallazgos respaldado por fragmentos del contrato original.
 
-**La herramienta no garantiza la legalidad de un contrato ni sustituye el criterio de un profesional jurídico.**
+El acceso es privado: solo pueden entrar cuentas autorizadas. No existe registro público.
+
+**Los hallazgos son orientativos y requieren revisión humana. La herramienta no emite dictámenes jurídicos ni garantiza la validez de ningún contrato.**
 
 ---
 
-## Funciones previstas
+## Funciones
 
-- Cargar contratos en formato PDF (con texto seleccionable) y DOCX.
-- Proponer el tipo de contrato y sus características.
-- Permitir que el usuario confirme o corrija la clasificación antes de aplicar criterios.
-- Aplicar una lista de verificación base y criterios condicionales según el tipo de contrato.
-- Identificar posibles ambigüedades, omisiones, contradicciones aparentes y riesgos contractuales potenciales.
+### Incluidas en el alcance
+
+- Cargar contratos en formato **PDF con texto seleccionable** o **DOCX**.
+- Proponer el tipo de contrato (prestación de servicios o proveedor) con una justificación breve basada en el texto.
+- Permitir que la persona usuaria **confirme o corrija la clasificación** antes de iniciar el análisis.
+- Aplicar una lista de verificación base y criterios condicionales según el tipo confirmado.
+- Identificar posibles ambigüedades, omisiones, contradicciones aparentes y riesgos contractuales.
 - Generar hallazgos respaldados por citas textuales del documento original.
-- Presentar para cada hallazgo: explicación, posible consecuencia, recomendación y limitaciones del análisis.
-- Facilitar la revisión humana sin reemplazar al profesional jurídico.
+- Presentar por cada hallazgo: explicación, posible consecuencia, recomendación y limitaciones del análisis.
+- Mostrar el informe en pantalla. Las categorías sin hallazgos se ocultan; si no hay ninguno, se indica que no se identificaron hallazgos con los criterios aplicados.
+- Consultar análisis anteriores desde la sección **Historial**. Cada usuario ve únicamente los suyos.
+- Interfaz con **tema claro y oscuro**; la preferencia se recuerda en el navegador.
+- Navegación con: **Inicio**, **Analizar contrato**, **Resultados** e **Historial**. Las secciones *Cómo funciona* y *Criterios* pueden incluirse también.
 
 ### Limitaciones conocidas
 
-- No inventa citas, cláusulas, obligaciones ni datos que no estén en el documento.
+- No inventa citas, cláusulas ni obligaciones que no estén en el documento.
 - No determina la validez legal ni la ejecutabilidad de ningún contrato.
-- El alcance inicial se limita a contratos de prestación de servicios y de proveedores en español.
-- El análisis depende de la calidad del texto del documento. Esta versión requiere archivos PDF con texto seleccionable; los PDF escaneados (sin capa de texto) no están soportados y no deben procesarse como si hubieran sido leídos correctamente.
+- Requiere archivos PDF con texto seleccionable. Los PDF escaneados sin capa de texto no están soportados.
+- Si la extracción del texto falla o resulta incompleta, el análisis se detiene y no se generan hallazgos.
+- Alcance inicial: contratos de prestación de servicios y de proveedores en español. No soporta otros tipos ni idiomas.
+
+### Fuera del alcance inicial
+
+- Descarga o exportación del informe.
+- Compartir el informe por correo u otro medio.
+- Registro público de nuevos usuarios.
+- PDF escaneados (OCR).
+- Comparación entre versiones de un contrato.
+- Integración con sistemas ERP u otras plataformas externas.
+- Generación automática de contratos o cláusulas.
+- Firma electrónica.
 
 ---
 
 ## Estado del proyecto
 
-> **Fase actual:** Documentación inicial — el código de la aplicación no existe todavía.
+> **Fase actual:** Documentación en elaboración — el código de la aplicación no existe todavía.
+
+La documentación de requisitos, arquitectura y alcance del MVP está disponible en la carpeta `docs/`. La implementación no ha comenzado.
 
 ---
 
@@ -42,24 +63,30 @@ MotorRevisionLegal es una herramienta en español que apoya la revisión de cont
 
 ### Candidatas (pendientes de validar)
 
+Ninguna tecnología está instalada ni confirmada. No deben asumirse como definitivas.
+
 | Componente | Tecnología candidata | Estado |
 |---|---|---|
 | Backend | Python + FastAPI | Pendiente de confirmar |
 | Frontend | React + TypeScript | Pendiente de confirmar |
 | Estilos | Tailwind CSS | Pendiente de confirmar |
-| Base de datos | PostgreSQL | Pendiente de validar necesidad y alcance |
+| Base de datos | PostgreSQL u otro | Pendiente de definir |
 | IA / LLM | API de OpenAI u otra | Pendiente — requiere validación de privacidad, costo y políticas |
+| Autenticación | Por definir (sesiones, JWT u otro) | Pendiente |
 | Control de versiones | Git + GitHub | En uso |
 | Pruebas backend | pytest | Pendiente de confirmar |
 
-> Ninguna de estas tecnologías está instalada ni verificada todavía. No se deben asumir como definitivas.
-
 ### Decisiones pendientes
 
-- [ ] Selección y validación de la API de IA (privacidad, costo, políticas institucionales/empresariales).
-- [ ] Definir si se requiere base de datos persistente o si el procesamiento será por sesión.
-- [ ] Confirmar si el frontend será una SPA o si existirá una integración dentro de otra plataforma.
-- [ ] Establecer política de retención de documentos cargados por usuarios.
+- [ ] Proveedor de IA: privacidad, costo, políticas. El texto de los contratos no debe enviarse a servicios externos sin autorización expresa.
+- [ ] Mecanismo técnico de autenticación.
+- [ ] Creación y administración de cuentas autorizadas.
+- [ ] Motor de base de datos para historial y cuentas.
+- [ ] Campos exactos del historial y política de conservación de esos datos.
+- [ ] Manejo temporal del archivo cargado durante el procesamiento y momento de eliminación.
+- [ ] Validación jurídica de la lista de criterios de revisión (prerrequisito para implementar el módulo de análisis).
+- [ ] Tamaño máximo de archivo aceptado.
+- [ ] Estrategia de despliegue.
 
 ---
 
@@ -67,24 +94,23 @@ MotorRevisionLegal es una herramienta en español que apoya la revisión de cont
 
 > **Pendiente — no usar hasta que esté verificado.**
 >
-> Las tecnologías, dependencias y comandos reales se confirmarán durante el desarrollo. Esta sección se completará únicamente con instrucciones verificadas en un entorno limpio.
+> Las tecnologías, dependencias y comandos reales se documentarán una vez que estén confirmados y verificados en un entorno limpio. No instalar dependencias ni ejecutar comandos basándose en esta sección.
 >
-> Para el ingeniero evaluador: cuando el sistema esté listo, aquí aparecerán los requisitos mínimos (versiones de Python, Node.js, etc.) y los pasos de instalación resumidos. La guía detallada y verificada estará en [`docs/guia-instalacion.md`](docs/guia-instalacion.md).
+> Para el **ingeniero evaluador**: cuando el sistema esté listo, aquí aparecerán los requisitos mínimos (versiones exactas de Python, Node.js y demás dependencias) y los pasos resumidos de instalación y ejecución. La guía detallada y verificada estará en [`docs/guia-instalacion.md`](docs/guia-instalacion.md).
 
-*(pendiente — no instalar dependencias ni ejecutar comandos hasta contar con la guía validada)*
+*(pendiente)*
 
 ---
 
 ## Estructura del proyecto
 
-> La estructura se definirá al iniciar la fase de implementación.
-> A continuación se muestra una propuesta preliminar sujeta a cambios.
+> Propuesta preliminar sujeta a cambios al iniciar la implementación.
 
 ```
 MotorRevisionLegal/
-├── backend/          # API y lógica de análisis (Python / FastAPI)
-├── frontend/         # Interfaz de usuario (React / TypeScript)
-├── docs/             # Documentación del proyecto
+├── backend/           # API y lógica de análisis (Python / FastAPI)
+├── frontend/          # Interfaz de usuario (React / TypeScript)
+├── docs/              # Documentación del proyecto
 │   ├── MVP.md
 │   ├── PRD.md
 │   ├── requisitos.md
@@ -92,25 +118,17 @@ MotorRevisionLegal/
 │   ├── plan-de-pruebas.md
 │   ├── bitacora.md
 │   ├── entregables.md
-│   ├── guia-instalacion.md     (pendiente)
-│   ├── manual-usuario.md       (pendiente)
-│   └── manual-tecnico.md       (pendiente)
-├── tests/            # Pruebas automatizadas (pytest)
+│   ├── guia-instalacion.md    (pendiente)
+│   ├── manual-usuario.md      (pendiente)
+│   └── manual-tecnico.md      (pendiente)
+├── tests/             # Pruebas automatizadas (pytest)
 ├── .gitignore
 └── README.md
 ```
 
 ---
 
-## Instalación y ejecución
-
-> **Pendiente.** Las instrucciones de instalación y ejecución se documentarán en [`docs/guia-instalacion.md`](docs/guia-instalacion.md) únicamente cuando hayan sido verificadas durante el desarrollo.
->
-> No ejecutar comandos de instalación hasta contar con esa guía validada.
-
----
-
-## Documentación complementaria
+## Documentación
 
 | Documento | Descripción |
 |---|---|
@@ -127,10 +145,10 @@ MotorRevisionLegal/
 
 ---
 
-## Notas de residencia profesional
+## Residencias profesionales
 
-Este proyecto se desarrolla como parte de un programa de residencias profesionales. Los entregables académicos requeridos se describen en [`docs/entregables.md`](docs/entregables.md).
+Este proyecto se desarrolla como parte de un programa de residencias profesionales. Los entregables académicos requeridos y su estado actual se describen en [`docs/entregables.md`](docs/entregables.md).
 
 ---
 
-*Última actualización de este documento: fase de documentación inicial.*
+*Última actualización: alineación con PRD v0.2, requisitos v0.2, MVP v0.2 y arquitectura v0.2.*
