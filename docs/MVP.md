@@ -1,7 +1,7 @@
 # Alcance del MVP
 
 **Proyecto:** MotorRevisionLegal  
-**Versión:** 0.1 — Borrador inicial  
+**Versión:** 0.2 — Alineación con PRD v0.2 y requisitos v0.2  
 **Estado:** En elaboración  
 **Relación con otros documentos:** Este documento define el alcance de la primera versión funcional. El problema, los usuarios y los objetivos generales del producto están en [`PRD.md`](PRD.md). Los requisitos detallados están en [`requisitos.md`](requisitos.md).
 
@@ -15,20 +15,36 @@ Define qué debe hacer el MVP, qué queda fuera, cuál es el flujo principal y c
 
 ## 2. Definición del MVP
 
-El MVP debe demostrar el flujo completo de extremo a extremo: desde que el usuario carga un contrato hasta que lee el informe de hallazgos en pantalla. No es un prototipo de interfaz ni una prueba técnica aislada; es una aplicación funcionando que cubre todas las funciones esenciales acordadas.
+El MVP es la primera versión funcional de la herramienta. Cubre el flujo completo de extremo a extremo: desde que el usuario inicia sesión hasta que consulta el informe de hallazgos en pantalla y el análisis queda registrado en su historial. No se trata de una versión experimental ni de alcance reducido por razones técnicas: es el producto funcionando dentro de las capacidades descritas en este documento.
 
 ---
 
 ## 3. Funciones incluidas en el MVP
 
-### 3.1 Carga del documento
+### 3.1 Acceso privado
+
+- El sistema requiere inicio de sesión con nombre de usuario y contraseña para acceder a cualquier función.
+- Solo los usuarios con cuenta autorizada pueden entrar. No existe opción de registro público.
+- Si las credenciales son incorrectas, el sistema muestra un mensaje de error genérico sin revelar qué campo específico falló.
+- El mecanismo técnico de autenticación (sesiones, tokens u otro) está pendiente de definir. *(pendiente)*
+- La creación y administración de cuentas autorizadas está pendiente de definir. *(pendiente)*
+
+### 3.2 Interfaz: navegación y tema
+
+- La navegación principal incluye: **Inicio**, **Analizar contrato**, **Resultados** e **Historial**. Las secciones **Cómo funciona** y **Criterios** pueden incluirse también.
+- La interfaz ofrece **tema claro** y **tema oscuro**.
+- La preferencia de tema se guarda en el navegador del usuario y se aplica automáticamente en visitas posteriores.
+- El cambio de tema no interrumpe la sesión ni el flujo de trabajo en curso.
+
+### 3.3 Carga del documento
 
 - El usuario sube un archivo desde su dispositivo.
 - Formatos aceptados: **PDF con texto seleccionable** y **DOCX**.
 - El sistema confirma la carga exitosa con un mensaje visible.
 - El sistema rechaza formatos no soportados con un mensaje claro.
+- El tamaño máximo de archivo está pendiente de definir. *(pendiente)*
 
-### 3.2 Extracción de texto
+### 3.4 Extracción de texto
 
 - El sistema extrae el texto completo del archivo cargado.
 - Si la extracción **falla o resulta incompleta**, el sistema:
@@ -38,7 +54,7 @@ El MVP debe demostrar el flujo completo de extremo a extremo: desde que el usuar
   - No simula haber leído el documento completo.
   - Indica al usuario que verifique que el PDF tenga texto seleccionable o que intente con otro archivo.
 
-### 3.3 Clasificación del tipo de contrato
+### 3.5 Clasificación del tipo de contrato
 
 - La IA propone el tipo de contrato identificado: **prestación de servicios** o **proveedor**.
 - La propuesta incluye una justificación breve basada en el texto del documento.
@@ -46,7 +62,7 @@ El MVP debe demostrar el flujo completo de extremo a extremo: desde que el usuar
 - El usuario puede seleccionar el tipo correcto de una lista predefinida con los dos tipos acordados.
 - El análisis no inicia sin esa confirmación.
 
-### 3.4 Análisis del contrato
+### 3.6 Análisis del contrato
 
 - Con el tipo confirmado, el sistema aplica una **lista de verificación base** y **criterios condicionales** según el tipo.
 - El sistema identifica y reporta:
@@ -55,9 +71,9 @@ El MVP debe demostrar el flujo completo de extremo a extremo: desde que el usuar
   - Posibles contradicciones aparentes entre cláusulas.
   - Posibles riesgos contractuales.
 
-> **Nota:** Existe una propuesta inicial de criterios base y condicionales. Requiere validación con el tutor o con una persona con experiencia jurídica antes de considerarse definitiva. *(pendiente)*
+> **Nota:** Existe una propuesta inicial de criterios base y condicionales. Requiere validación con el tutor o con una persona con experiencia jurídica antes de considerarse definitiva. Esta validación debe completarse **antes de implementar el módulo de análisis**. *(pendiente)*
 
-### 3.5 Informe de hallazgos
+### 3.7 Informe de hallazgos
 
 - El informe se presenta **en pantalla**.
 - Por cada hallazgo, el informe muestra:
@@ -69,6 +85,16 @@ El MVP debe demostrar el flujo completo de extremo a extremo: desde que el usuar
 - **Solo se muestran las categorías que tengan al menos un hallazgo. Las categorías sin hallazgos se ocultan.** Si no se identificaron hallazgos en ninguna categoría, el informe muestra un mensaje general: "No se identificaron hallazgos con los criterios aplicados", sin garantizar que el contrato esté libre de problemas.
 - El informe incluye un aviso visible y permanente de que no constituye asesoría jurídica.
 - El sistema no genera citas que no existan en el documento analizado.
+- Los resultados son orientativos y requieren revisión humana; no constituyen un dictamen jurídico.
+
+### 3.8 Historial de análisis
+
+- Cada análisis completado queda registrado y asociado al usuario autenticado que lo realizó.
+- El usuario puede acceder a la sección Historial desde la navegación principal.
+- El historial muestra los análisis realizados por ese usuario.
+- El usuario puede abrir un análisis anterior y consultar su informe.
+- El historial **no muestra ni permite descargar el archivo original del contrato**. No se asume que el archivo se guarda.
+- El motor de base de datos, los campos exactos que se guardarán por cada análisis y la política de conservación de esos datos están pendientes de definir. *(pendiente)*
 
 ---
 
@@ -76,12 +102,11 @@ El MVP debe demostrar el flujo completo de extremo a extremo: desde que el usuar
 
 Las siguientes funciones están fuera de alcance para la primera versión y se registran aquí para evitar que entren por expansión del alcance durante el desarrollo:
 
-| Función excluida | Razón o condición para incluirla en versiones futuras |
+| Función excluida | Nota |
 |---|---|
-| Descarga o exportación del informe (PDF, DOCX) | Fuera del MVP; puede incluirse en la siguiente versión |
+| Registro público de nuevos usuarios | El acceso es solo para cuentas autorizadas; el registro libre está fuera por diseño |
+| Descarga o exportación del informe (PDF, DOCX u otro) | Fuera del MVP; puede incluirse en una versión posterior |
 | Compartir el informe por correo u otro medio | Fuera del MVP |
-| Autenticación y gestión de usuarios (login) | Pendiente de decidir si aplica al MVP — ver sección 6 |
-| Historial de análisis previos | Requiere persistencia; fuera del MVP |
 | Soporte para PDF escaneados (OCR) | Fuera del alcance inicial; posible versión futura |
 | Análisis de contratos en otros idiomas | Fuera del alcance inicial |
 | Tipos de contrato distintos a los dos acordados | Fuera del alcance inicial |
@@ -99,25 +124,37 @@ Este es el camino que debe funcionar de extremo a extremo para que el MVP sea v�
 ```
 1. El usuario abre la aplicación en su navegador.
         │
-2. El usuario carga un archivo PDF o DOCX.
+2. El sistema muestra la pantalla de inicio de sesión.
         │
-3. El sistema extrae el texto.
+3. El usuario introduce sus credenciales. Si son incorrectas → mensaje de error. Fin del flujo.
+        │
+4. El usuario accede a la pantalla de inicio de la herramienta.
+        │
+5. El usuario navega a "Analizar contrato" y carga un archivo PDF o DOCX.
+        │
+6. El sistema extrae el texto.
         │
         ├─ Si falla o está incompleto → aviso + detención. Fin del flujo.
         │
-4. La IA propone el tipo de contrato con justificación breve.
+7. La IA propone el tipo de contrato con justificación breve.
         │
-5. El usuario confirma o corrige la clasificación.
+8. El usuario confirma o corrige la clasificación.
         │
-6. El sistema aplica la lista de verificación al tipo confirmado.
+9. El sistema aplica la lista de verificación al tipo confirmado.
         │
-7. La IA analiza el texto y genera hallazgos estructurados.
+10. La IA analiza el texto y genera hallazgos estructurados.
         │
-8. El sistema verifica que cada cita exista en el texto original.
+11. El sistema verifica que cada cita exista en el texto original.
         │
-9. El sistema construye el informe y lo presenta en pantalla.
+12. El sistema construye el informe y lo presenta en pantalla.
         │
-10. El usuario lee el informe y aplica su propio criterio.
+13. El análisis queda registrado en el historial del usuario.
+        │       Los campos exactos y la política de conservación están pendientes de definir.
+        │       El archivo original no se asume guardado.
+        │
+14. El usuario lee el informe y aplica su propio criterio.
+        │
+15. El usuario puede consultar el análisis posterior desde la sección Historial.
 ```
 
 ---
@@ -128,17 +165,32 @@ Estas decisiones no están resueltas. No deben asumirse como tomadas ni implemen
 
 | Decisión | Impacto en el MVP |
 |---|---|
-| Selección de la API de IA (privacidad, costo, políticas) | Define la arquitectura del módulo de análisis y clasificación |
-| Validación jurídica de la lista de criterios de revisión | Define qué busca el sistema en cada tipo de contrato |
-| Autenticación de usuarios en el MVP | Si se requiere login, debe incluirse en el alcance del MVP |
-| Política de almacenamiento del documento cargado | Define si el archivo se borra al cerrar la sesión o se guarda |
+| Mecanismo técnico de autenticación (sesiones, JWT u otro) | Define cómo se implementa el inicio de sesión y la gestión de la sesión activa |
+| Creación y administración de cuentas autorizadas | Define quién crea cuentas, cómo y con qué herramienta |
+| Selección del proveedor de IA (privacidad, costo, políticas) | Define la arquitectura del módulo de análisis y clasificación; no asumir envío a servicios externos sin autorización |
+| Validación jurídica de la lista de criterios de revisión | Define qué busca el sistema en cada tipo de contrato; prerrequisito del módulo de análisis |
+| Motor de base de datos para historial y cuentas | Define la tecnología de persistencia |
+| Campos exactos que guardará el historial y política de conservación | Define qué datos se almacenan y por cuánto tiempo |
+| Política de almacenamiento y eliminación del documento cargado | Define si el archivo se descarta al finalizar el análisis o se retiene |
 | Tamaño máximo de archivo aceptado | Afecta al mensaje de rechazo y a la infraestructura |
+| Estrategia de despliegue (entorno, infraestructura, dominio) | Define dónde y cómo se ejecuta el sistema |
 
 ---
 
 ## 7. Criterios de aceptación del MVP
 
 El MVP se considera funcionando cuando cumple **todos** los criterios siguientes:
+
+### Acceso
+- [ ] La pantalla de inicio de sesión se muestra antes de acceder a cualquier función.
+- [ ] Un usuario con credenciales correctas puede iniciar sesión y acceder a la herramienta.
+- [ ] Un usuario con credenciales incorrectas recibe un mensaje de error genérico y no accede.
+- [ ] No existe opción de registro público.
+
+### Interfaz
+- [ ] La navegación incluye Inicio, Analizar contrato, Resultados e Historial.
+- [ ] El usuario puede cambiar entre tema claro y oscuro.
+- [ ] La preferencia de tema se mantiene al recargar la página o en visitas posteriores.
 
 ### Carga y extracción
 - [ ] El sistema acepta un PDF con texto seleccionable y extrae su texto sin errores.
@@ -164,9 +216,15 @@ El MVP se considera funcionando cuando cumple **todos** los criterios siguientes
 - [ ] El informe incluye un aviso visible de que no constituye asesoría jurídica.
 - [ ] El informe no afirma que el contrato "es válido", "es legal" ni "cumple con la ley".
 
+### Historial
+- [ ] Tras completar un análisis, este aparece en la sección Historial del usuario.
+- [ ] El usuario puede abrir un análisis anterior desde el Historial y consultar su informe.
+- [ ] El Historial no muestra ni permite descargar el archivo original del contrato.
+- [ ] El Historial de un usuario no muestra análisis de otros usuarios.
+
 ### General
 - [ ] La interfaz y todos los mensajes están en español.
-- [ ] El flujo completo (carga → extracción → clasificación → confirmación → análisis → informe) funciona sin errores no controlados para un contrato de prestación de servicios y para uno de proveedor.
+- [ ] El flujo completo (inicio de sesión → carga → extracción → clasificación → confirmación → análisis → informe → registro en historial) funciona sin errores no controlados para un contrato de prestación de servicios y para uno de proveedor.
 
 ---
 
@@ -177,11 +235,12 @@ El MVP se considera **terminado** cuando:
 1. Todos los criterios de aceptación de la sección 7 están verificados con contratos de prueba reales o sintéticos.
 2. El plan de pruebas ([`plan-de-pruebas.md`](plan-de-pruebas.md)) ha sido ejecutado y los resultados están registrados.
 3. La lista de criterios de revisión base y condicional ha sido validada con el tutor o con una persona con experiencia jurídica. **Esta validación es un prerrequisito para implementar el módulo de análisis; debe completarse antes de ese módulo, no solo antes de declarar el MVP terminado.** Existe una propuesta inicial pendiente de esa revisión.
-4. El sistema está desplegado en un entorno al que el evaluador pueda acceder.
-5. Los entregables de acceso de prueba y evidencias (capturas o video) están disponibles.
+4. Las decisiones de persistencia del historial (motor de base de datos, campos, política de conservación) han sido definidas e implementadas.
+5. El sistema está desplegado en un entorno al que el evaluador pueda acceder con una cuenta autorizada.
+6. Los entregables de acceso de prueba y evidencias (capturas o video) están disponibles.
 
-> Ninguna de estas condiciones está cumplida todavía. El estado actual es: documentación completa, implementación no iniciada.
+> Ninguna de estas condiciones está cumplida todavía. El estado actual es: documentación en elaboración, implementación no iniciada.
 
 ---
 
-*Este documento es un borrador inicial sujeto a revisión y validación con el tutor de residencias y la organización receptora.*
+*Este documento es un borrador sujeto a revisión y validación con el tutor de residencias y la organización receptora.*
