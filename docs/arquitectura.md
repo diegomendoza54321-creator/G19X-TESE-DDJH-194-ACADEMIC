@@ -1,47 +1,69 @@
 # Arquitectura del Sistema
 
 **Proyecto:** MotorRevisionLegal  
-**Versión:** 0.1 — Borrador inicial  
+**Versión:** 0.2 — Alineación con PRD v0.2 y requisitos v0.2  
 **Estado:** Propuesta sujeta a validación — el código no existe todavía
 
 ---
 
 ## 1. Visión general
 
-La aplicación sigue una arquitectura cliente-servidor de tres capas:
+La aplicación sigue una arquitectura cliente-servidor. El frontend web se comunica con el backend a través de una API REST. El backend coordina la extracción de texto, la clasificación, el análisis con IA y la persistencia del historial. El acceso está protegido por autenticación; solo los usuarios con cuenta autorizada pueden usar la herramienta.
 
 ```
-┌────────────────────────────────┐
-│         FRONTEND WEB           │
-│    React + TypeScript          │
-│    Tailwind CSS                │
-│                                │
-│  - Carga de archivo            │
-│  - Confirmación de tipo        │
-│  - Visualización del informe   │
-└──────────────┬─────────────────┘
-               │ HTTP / REST (HTTPS en producción)
-               ▼
-┌────────────────────────────────┐
-│         BACKEND (API)          │
-│    Python + FastAPI            │
-│                                │
-│  - Recepción del archivo       │
-│  - Extracción de texto         │
-│  - Orquestación del análisis   │
-│  - Construcción del informe    │
-└──────────┬────────────────┬────┘
-           │                │
-           ▼                ▼
-┌──────────────────┐  ┌───────────────────────┐
-│  Almacenamiento  │  │   Servicio de IA       │
-│  *(pendiente)*   │  │   (API externa)        │
-│  PostgreSQL      │  │   *(pendiente)*        │
-│  u otro          │  │   p. ej. OpenAI        │
-└──────────────────┘  └───────────────────────┘
+┌──────────────────────────────────────────────┐
+│               FRONTEND WEB                   │
+│         React + TypeScript (candidato)        │
+│         Tailwind CSS (candidato)              │
+│                                               │
+│  - Pantalla de inicio de sesión               │
+│  - Navegación: Inicio, Analizar contrato,     │
+│    Resultados, Historial                      │
+│    (+ Cómo funciona y Criterios opcionales)   │
+│  - Tema claro / oscuro (preferencia en        │
+│    localStorage del navegador)                │
+│  - Carga de archivo                           │
+│  - Confirmación / corrección del tipo         │
+│  - Visualización del informe                  │
+│  - Consulta del historial propio              │
+└───────────────────┬──────────────────────────┘
+                    │ HTTPS / REST
+                    ▼
+┌──────────────────────────────────────────────┐
+│               BACKEND (API)                  │
+│         Python + FastAPI (candidato)          │
+│                                               │
+│  - Verificación de credenciales               │
+│  - Recepción del archivo                      │
+│  - Extracción de texto                        │
+│  - Clasificación del tipo de contrato         │
+│  - Orquestación del análisis con IA           │
+│  - Validación de citas                        │
+│  - Construcción del informe                   │
+│  - Registro y consulta del historial          │
+│  - Gestión de sesión activa                   │
+└───────────┬───────────────────┬──────────────┘
+            │                   │
+            ▼                   ▼
+┌───────────────────┐  ┌─────────────────────────┐
+│   BASE DE DATOS   │  │     SERVICIO DE IA       │
+│   *(pendiente)*   │  │     *(pendiente)*        │
+│                   │  │                          │
+│  - Cuentas de     │  │  Propone clasificación   │
+│    usuario        │  │  y analiza el texto.     │
+│  - Historial de   │  │  No se envía texto a     │
+│    análisis       │  │  servicios externos sin  │
+│  - Informes       │  │  autorización expresa.   │
+│    anteriores     │  │                          │
+│                   │  │  Candidato: API de       │
+│  Candidato:       │  │  OpenAI u otra.          │
+│  PostgreSQL       │  │  Pendiente de validar:   │
+│  u otro motor     │  │  privacidad, costo,      │
+│                   │  │  políticas.              │
+└───────────────────┘  └─────────────────────────┘
 ```
 
-> **Nota:** Tanto la base de datos como la API de IA son opciones candidatas, no decisiones definitivas.
+> **Nota:** Las tecnologías mostradas son candidatas, no decisiones confirmadas. Ninguna está instalada ni verificada todavía.
 
 ---
 
@@ -54,11 +76,15 @@ La aplicación sigue una arquitectura cliente-servidor de tres capas:
 
 | Responsabilidad | Descripción |
 |---|---|
-| Carga de archivo | Proporciona una interfaz para que el usuario seleccione o arrastre un archivo PDF o DOCX. |
-| Confirmación de clasificación | Muestra la clasificación propuesta por el backend y permite al usuario confirmarla o corregirla. |
-| Visualización del informe | Renderiza los hallazgos con citas, explicaciones, consecuencias, recomendaciones y limitaciones. |
-| Avisos de uso | Muestra el aviso de que el informe no constituye asesoría jurídica. |
-| Manejo de errores | Informa al usuario en casos de archivo no soportado, extracción incompleta o error de red. |
+| Pantalla de inicio de sesión | Solicita nombre de usuario y contraseña. No ofrece registro público. Muestra error genérico ante credenciales incorrectas. |
+| Navegación principal | Expone las secciones: Inicio, Analizar contrato, Resultados e Historial. Cómo funciona y Criterios pueden incluirse. |
+| Tema claro / oscuro | Permite cambiar el tema. Guarda la preferencia en el almacenamiento local del navegador y la aplica en visitas posteriores sin interrumpir la sesión. |
+| Carga de archivo | Permite seleccionar o arrastrar un archivo PDF o DOCX. |
+| Confirmación de clasificación | Muestra la clasificación propuesta por el backend con su justificación. El usuario la confirma o selecciona el otro tipo antes de continuar. |
+| Visualización del informe | Renderiza los hallazgos con citas, explicaciones, consecuencias, recomendaciones y limitaciones. Muestra solo las categorías con hallazgos; si no hay ninguno, muestra el mensaje general acordado. |
+| Avisos de uso | Muestra el aviso visible de que el informe no constituye asesoría jurídica. |
+| Consulta del historial | Presenta la lista de análisis anteriores del usuario autenticado. Permite abrir un informe previo. No expone ni ofrece descargar el archivo original del contrato. |
+| Manejo de errores | Informa al usuario ante archivo no soportado, extracción fallida, error de red u otras condiciones de error. |
 
 ---
 
@@ -69,12 +95,16 @@ La aplicación sigue una arquitectura cliente-servidor de tres capas:
 
 | Responsabilidad | Descripción |
 |---|---|
-| Recepción del archivo | Endpoint para recibir el archivo cargado por el frontend. |
-| Extracción de texto | Procesa el archivo (PDF o DOCX) y extrae el texto. Notifica si la extracción es incompleta. |
-| Clasificación del tipo de contrato | Analiza el texto y propone el tipo de contrato. |
-| Orquestación del análisis | Selecciona la lista de verificación y los criterios según el tipo confirmado; coordina la llamada a la API de IA. |
-| Construcción del informe | Estructura los hallazgos con citas textuales verificadas, explicaciones y recomendaciones. |
-| Validación de citas | Verifica que cada cita generada exista en el texto extraído antes de incluirla en el informe. |
+| Verificación de credenciales | Valida usuario y contraseña contra las cuentas almacenadas. Rechaza el acceso si no coinciden; devuelve error genérico. |
+| Gestión de sesión activa | Mantiene y valida la sesión del usuario autenticado. El mecanismo técnico (sesiones, tokens u otro) está pendiente de definir. |
+| Recepción del archivo | Endpoint para recibir el archivo cargado desde el frontend. |
+| Extracción de texto | Procesa el archivo (PDF o DOCX) y extrae el texto. Si la extracción falla o resulta incompleta, notifica al frontend y detiene el flujo sin generar hallazgos. |
+| Clasificación del tipo de contrato | Coordina con el servicio de IA para proponer el tipo de contrato (prestación de servicios o proveedor) con justificación breve. |
+| Orquestación del análisis | Con el tipo confirmado por el usuario, selecciona la lista de verificación y criterios correspondientes, y coordina la llamada al servicio de IA. |
+| Validación de citas | Verifica que cada cita generada por la IA exista literalmente en el texto extraído antes de incluirla en el informe. |
+| Construcción del informe | Estructura los hallazgos verificados con citas, explicaciones, consecuencias, recomendaciones y limitaciones. |
+| Registro del historial | Guarda un registro del análisis completado asociado al usuario autenticado. No guarda el archivo original del contrato. Los campos exactos están pendientes de definir. |
+| Consulta del historial | Devuelve al frontend la lista de análisis del usuario autenticado y el contenido de un análisis anterior solicitado. Nunca devuelve análisis de otro usuario. |
 | Exposición de endpoints | Define las rutas de la API consumidas por el frontend. |
 
 ---
@@ -86,24 +116,25 @@ La aplicación sigue una arquitectura cliente-servidor de tres capas:
 
 | Responsabilidad | Descripción |
 |---|---|
-| Análisis semántico del texto | Identifica ambigüedades, omisiones, contradicciones y riesgos a partir del texto del contrato y la lista de verificación. |
-| Generación de hallazgos estructurados | Produce los hallazgos en el formato esperado por el backend. |
+| Propuesta de clasificación | Analiza el texto del contrato y propone el tipo (prestación de servicios o proveedor) con una justificación breve. |
+| Análisis semántico | Identifica posibles ambigüedades, omisiones, contradicciones aparentes y riesgos a partir del texto y la lista de verificación. |
+| Generación de hallazgos estructurados | Produce los hallazgos en el formato esperado por el backend para su validación y construcción del informe. |
 
-> **Consideración de privacidad:** Si se usa una API de terceros, el texto del contrato se enviará a servidores externos. Esto requiere validación con la organización receptora antes de elegir el proveedor. Se debe evaluar si existe una opción que permita procesamiento local o en una nube privada.
+> ⚠️ **Restricción de privacidad:** El texto de los contratos **no debe enviarse a servicios externos de IA** sin que la organización receptora haya autorizado expresamente ese proveedor y validado su política de privacidad. No se puede asumir que los contratos pueden transmitirse a terceros. Esta decisión debe resolverse antes de implementar el módulo de análisis.
 
 ---
 
-### 2.4 Almacenamiento
+### 2.4 Base de datos
 
-**Tecnología candidata:** PostgreSQL  
-**Estado:** Pendiente de validar — depende de si se requiere persistencia
+**Tecnología candidata:** PostgreSQL u otro motor  
+**Estado:** Pendiente de definir — motor, esquema y política de conservación
 
-| Escenario | Implicación |
+| Responsabilidad | Descripción |
 |---|---|
-| Procesamiento por sesión (sin persistencia) | No se necesita base de datos; el archivo se procesa y descarta. Más sencillo y privado. |
-| Historial de análisis | Requiere almacenamiento persistente para asociar documentos, usuarios e informes. |
+| Almacenamiento de cuentas | Guarda las credenciales y datos de los usuarios autorizados. |
+| Historial de análisis | Asocia cada análisis completado al usuario que lo realizó y almacena el informe para consulta posterior. El archivo original del contrato no se guarda. |
 
-> **Decisión pendiente:** Definir si el MVP requiere persistencia o si opera completamente por sesión.
+> **Decisiones pendientes:** motor de base de datos, campos exactos que se guardarán por análisis, política de conservación y eliminación de datos, y esquema completo. El historial está en el alcance del MVP; estos detalles deben resolverse antes de implementar ese módulo.
 
 ---
 
@@ -112,67 +143,86 @@ La aplicación sigue una arquitectura cliente-servidor de tres capas:
 ```
 Usuario
   │
-  │ 1. Carga el archivo (PDF / DOCX)
+  │ 1. Abre la aplicación en su navegador
   ▼
-Frontend
+Frontend — Pantalla de inicio de sesión
   │
-  │ 2. Envía el archivo al backend (POST /analizar)
+  │ 2. Introduce nombre de usuario y contraseña
+  │    POST /auth/login
+  ▼
+Backend — Verificación de credenciales
+  │
+  │    Si las credenciales son incorrectas → error genérico. Fin del flujo.
+  │
+  │ 3. Sesión establecida. El usuario accede a la herramienta.
+  ▼
+Frontend — Pantalla de inicio / Analizar contrato
+  │
+  │ 4. El usuario carga un archivo PDF o DOCX
+  │    POST /analizar
   ▼
 Backend — Módulo de extracción
   │
-  │ 3. Extrae el texto del documento
-  │    Si falla o es incompleto → notifica al usuario y detiene (o advierte)
+  │ 5. Extrae el texto del documento
+  │    Si falla o es incompleto → notifica al frontend y detiene el flujo.
+  │    No se generan hallazgos.
   ▼
-Backend — Módulo de clasificación
+Backend — Módulo de clasificación  ←→  Servicio de IA
   │
-  │ 4. Propone el tipo de contrato
-  │
-  │ 5. Devuelve la propuesta al frontend
+  │ 6. La IA propone el tipo de contrato con justificación breve
+  │ 7. Devuelve la propuesta al frontend
   ▼
-Frontend
+Frontend — Confirmación del tipo
   │
-  │ 6. Muestra la clasificación al usuario
-  │    El usuario confirma o corrige
-  │
-  │ 7. Envía la clasificación confirmada al backend (POST /confirmar-tipo)
+  │ 8. El usuario confirma o corrige la clasificación
+  │    POST /confirmar-tipo
   ▼
-Backend — Módulo de orquestación
+Backend — Módulo de orquestación  ←→  Servicio de IA
   │
-  │ 8. Selecciona la lista de verificación y criterios según el tipo
-  │
-  │ 9. Llama a la API de IA con el texto y los criterios
+  │ 9.  Selecciona la lista de verificación y criterios según el tipo
+  │ 10. Llama al servicio de IA con el texto y los criterios
+  │ 11. La IA devuelve hallazgos estructurados
   ▼
-Servicio de IA
+Backend — Validación y construcción del informe
   │
-  │ 10. Devuelve hallazgos en formato estructurado
+  │ 12. Verifica que cada cita exista en el texto original
+  │ 13. Construye el informe estructurado
+  │ 14. Registra el análisis en el historial del usuario (sin el archivo original)
+  │ 15. Devuelve el informe al frontend
   ▼
-Backend — Módulo de validación y construcción del informe
+Frontend — Sección Resultados
   │
-  │ 11. Verifica que las citas existan en el texto original
-  │ 12. Construye el informe estructurado
-  │ 13. Devuelve el informe al frontend
-  ▼
-Frontend
-  │
-  │ 14. Renderiza el informe al usuario
+  │ 16. Renderiza el informe al usuario
   ▼
 Usuario
-     Revisa hallazgos con criterio propio
+  │    Lee el informe y aplica su propio criterio
+  │
+  │ 17. Puede consultar el análisis posterior desde la sección Historial
+  ▼
+Frontend — Sección Historial
+  │
+  │    GET /historial  →  lista de análisis del usuario autenticado
+  │    GET /historial/{id}  →  informe de un análisis anterior
+  ▼
+Usuario
+     Consulta el informe previo
 ```
 
 ---
 
 ## 4. Tecnologías propuestas y decisiones pendientes
 
-| Componente | Tecnología candidata | Decisión |
+| Componente | Tecnología candidata | Estado |
 |---|---|---|
 | Frontend | React + TypeScript | Pendiente de confirmar |
 | Estilos | Tailwind CSS | Pendiente de confirmar |
+| Almacenamiento de preferencia de tema | localStorage del navegador | Pendiente de confirmar |
 | Backend | Python + FastAPI | Pendiente de confirmar |
 | Extracción PDF | pdfplumber, PyMuPDF u otra librería Python | Pendiente de evaluar y comparar |
 | Extracción DOCX | python-docx u otra | Pendiente de confirmar |
-| IA / LLM | API de OpenAI, API local, otra | Pendiente — requiere validación de privacidad y costos |
-| Base de datos | PostgreSQL | Pendiente — depende de si se requiere persistencia |
+| IA / LLM | API de OpenAI u otra — requiere validación de privacidad y políticas | Pendiente |
+| Mecanismo de autenticación | Sesiones, JWT u otro | Pendiente de definir |
+| Base de datos | PostgreSQL u otro motor | Pendiente de definir |
 | ORM (si aplica) | SQLAlchemy u otro | Pendiente |
 | Pruebas backend | pytest | Pendiente de confirmar |
 | Despliegue | Por definir | Pendiente |
@@ -181,29 +231,33 @@ Usuario
 
 ## 5. Consideraciones de privacidad y manejo de documentos
 
-1. **Transmisión a terceros:** Si se usa una API de IA externa (p. ej. OpenAI), el texto del contrato se envía a servidores fuera del control de la organización. Esto debe ser evaluado y autorizado antes de seleccionar el proveedor.
+1. **Transmisión a terceros:** El texto de los contratos no debe enviarse a APIs de IA externas sin autorización expresa de la organización receptora y validación de la política de privacidad del proveedor. No se puede asumir que los contratos pueden transmitirse a servicios externos.
 
-2. **Almacenamiento temporal:** Los archivos cargados deben eliminarse del servidor después del análisis, a menos que el usuario haya consentido explícitamente en su almacenamiento.
+2. **Archivo original del contrato:** El archivo subido por el usuario no se guarda en el historial ni forma parte de los datos persistentes. La forma en que se maneja temporalmente durante el procesamiento y el momento en que se elimina están pendientes de definir.
 
-3. **Retención de datos:** La política de retención de documentos analizados debe definirse junto con la organización receptora.
+3. **Historial e informes:** El historial guarda el informe de resultados asociado al usuario. Los campos exactos, la política de conservación y el motor de base de datos están pendientes de definir.
 
-4. **Logs:** El contenido de los contratos no debe registrarse en logs de texto plano para evitar exposición accidental de información sensible.
+4. **Aislamiento de datos por usuario:** El backend debe garantizar que un usuario autenticado solo pueda consultar sus propios análisis. Nunca debe devolver análisis de otro usuario.
 
-5. **Cifrado en tránsito:** La comunicación entre el cliente y el servidor debe realizarse sobre HTTPS en entornos de producción.
+5. **Logs:** El contenido de los contratos no debe registrarse en logs de texto plano para evitar exposición accidental de información sensible.
 
-6. **Confidencialidad de las partes:** Los contratos pueden contener datos personales o información confidencial. El diseño del sistema debe tomar esto en cuenta desde el inicio.
+6. **Cifrado en tránsito:** La comunicación entre el cliente y el servidor debe realizarse sobre HTTPS en el entorno de producción.
+
+7. **Confidencialidad de las partes:** Los contratos pueden contener datos personales o información confidencial. El diseño del sistema debe considerarlo desde el inicio.
 
 ---
 
 ## 6. Aspectos de arquitectura pendientes de definir
 
+- [ ] Selección y validación del proveedor de IA: privacidad, costo, políticas institucionales. **Prerrequisito para implementar el módulo de análisis.**
+- [ ] Mecanismo técnico de autenticación (sesiones, JWT u otro).
+- [ ] Creación y administración de cuentas autorizadas: quién las crea, cómo y con qué herramienta.
+- [ ] Motor de base de datos para historial y cuentas de usuario.
+- [ ] Campos exactos que se guardarán por cada análisis en el historial y política de conservación.
+- [ ] Política de almacenamiento y eliminación del documento cargado tras la extracción.
 - [ ] Estrategia de despliegue (nube, servidor local, contenedores).
-- [ ] Mecanismo de autenticación de usuarios (si aplica en el MVP).
-- [ ] Decisión sobre persistencia y base de datos.
-- [ ] Selección y validación del proveedor de IA.
-- [ ] Definición de la política de almacenamiento y eliminación de documentos.
-- [ ] Estrategia de manejo de errores y reintentos con la API de IA.
-- [ ] Límites de tamaño de archivo y de texto procesado.
+- [ ] Estrategia de manejo de errores y reintentos ante fallos del servicio de IA.
+- [ ] Tamaño máximo de archivo aceptado y su validación en frontend y backend.
 
 ---
 
