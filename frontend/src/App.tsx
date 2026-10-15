@@ -1,20 +1,30 @@
 /**
- * Pantalla inicial del MVP: carga de un contrato en PDF o DOCX y extracción
- * de su texto.
+ * Interfaz del MVP: inicio de sesión y extracción de texto de PDF o DOCX.
  *
- * Cubre temporalmente RF-01 (carga), RF-02 (extracción) y RF-06 (interfaz en
- * español) hasta que exista la navegación completa (RF-07). No incluye IA:
- * este bloque solo extrae el texto y lo muestra.
+ * Cubre RF-00 (autenticación privada), RF-01 (carga), RF-02 (extracción) y
+ * RF-06 (interfaz en español). No incluye IA: solo extrae el texto.
  *
- * La llamada se hace a rutas relativas; el dev server de Vite las redirige al
- * backend FastAPI (ver vite.config.ts), así que no hace falta configurar CORS.
+ * Autenticación: al abrir se consulta GET /yo; solo con sesión válida se
+ * muestra la pantalla de carga. El login usa los campos del backend
+ * (usuario, contrasena) y la sesión viaja en cookie HttpOnly: el navegador
+ * nunca guarda contraseñas ni tokens. Sin registro público (RF-00.2).
+ *
+ * Llamadas a rutas relativas; el dev server las redirige al backend
+ * (ver vite.config.ts), así que no hace falta CORS.
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 /** Formatos aceptados por el backend, según RF-01.1 y RF-01.2. */
 const EXTENSIONES_ACEPTADAS = ['.pdf', '.docx']
+
+interface RespuestaSesion {
+  ok: boolean
+  usuario: string | null
+  codigo: string | null
+  motivo: string | null
+}
 
 interface RespuestaExtraccion {
   ok: boolean
@@ -25,6 +35,7 @@ interface RespuestaExtraccion {
   motivo: string | null
 }
 
+type Sesion = 'consultando' | 'sin-sesion' | 'activa'
 type Estado = 'inicio' | 'cargando' | 'exito' | 'error'
 
 function extensionDe(nombre: string): string {
@@ -39,11 +50,105 @@ function tamanoLegible(bytes: number): string {
 }
 
 export default function App() {
+  const [sesion, setSesion] = useState<Sesion>('consultando')
+  const [usuario, setUsuario] = useState<string | null>(null)
+  const [nombre, setNombre] = useState('')
+  const [clave, setClave] = useState('')
+  const [entrando, setEntrando] = useState(false)
+  const [errorLogin, setErrorLogin] = useState<string | null>(null)
+
   const [archivo, setArchivo] = useState<File | null>(null)
   const [avisoArchivo, setAvisoArchivo] = useState<string | null>(null)
   const [estado, setEstado] = useState<Estado>('inicio')
   const [resultado, setResultado] = useState<RespuestaExtraccion | null>(null)
   const [mensajeError, setMensajeError] = useState<string | null>(null)
+
+  // Al abrir, la sesión vive en la cookie HttpOnly: se consulta al backend.
+  useEffect(() => {
+    let activa = true
+    async function consultarSesion() {
+      try {
+        const respuesta = await fetch('/yo')
+        let cuerpo: RespuestaSesion | null = null
+        try {
+          cuerpo = (await respuesta.json()) as RespuestaSesion
+        } catch {
+          cuerpo = null
+        }
+        if (!activa) return
+        if (respuesta.ok && cuerpo?.ok && cuerpo.usuario) {
+          setUsuario(cuerpo.usuario)
+          setSesion('activa')
+        } else {
+          setSesion('sin-sesion')
+        }
+      } catch {
+        if (!activa) return
+        setSesion('sin-sesion')
+      }
+    }
+    void consultarSesion()
+    return () => {
+      activa = false
+    }
+  }, [])
+
+  function volverALogin() {
+    setSesion('sin-sesion')
+    setUsuario(null)
+    setClave('')
+  }
+
+  async function alIniciarSesion(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (entrando) return
+    setEntrando(true)
+    setErrorLogin(null)
+
+    const datos = new FormData()
+    datos.append('usuario', nombre.trim())
+    datos.append('contrasena', clave)
+
+    try {
+      const respuesta = await fetch('/login', { method: 'POST', body: datos })
+      let cuerpo: RespuestaSesion | null = null
+      try {
+        cuerpo = (await respuesta.json()) as RespuestaSesion
+      } catch {
+        cuerpo = null
+      }
+      if (respuesta.ok && cuerpo?.ok && cuerpo.usuario) {
+        setUsuario(cuerpo.usuario)
+        setClave('')
+        setSesion('activa')
+        return
+      }
+      // Ante 401 el backend responde siempre el mensaje genérico (RF-00.3):
+      // se muestra tal cual, sin revelar qué campo falló.
+      setErrorLogin(cuerpo?.motivo ?? 'Usuario o contraseña incorrectos.')
+    } catch {
+      setErrorLogin(
+        'No se pudo conectar con el servidor. Verifica que el backend esté ' +
+          'en ejecución y vuelve a intentarlo.',
+      )
+    } finally {
+      setEntrando(false)
+    }
+  }
+
+  async function alCerrarSesion() {
+    try {
+      await fetch('/logout', { method: 'POST' })
+    } finally {
+      setArchivo(null)
+      setResultado(null)
+      setMensajeError(null)
+      setAvisoArchivo(null)
+      setEstado('inicio')
+      setNombre('')
+      volverALogin()
+    }
+  }
 
   function alElegirArchivo(event: React.ChangeEvent<HTMLInputElement>) {
     const elegido = event.target.files?.[0] ?? null
@@ -84,6 +189,11 @@ export default function App() {
 
     try {
       const respuesta = await fetch('/extraer', { method: 'POST', body: datos })
+      if (respuesta.status === 401) {
+        // La sesión caducó o se invalidó: se vuelve al login.
+        volverALogin()
+        return
+      }
       let cuerpo: RespuestaExtraccion | null = null
       try {
         cuerpo = (await respuesta.json()) as RespuestaExtraccion
@@ -119,6 +229,79 @@ export default function App() {
     }
   }
 
+  if (sesion === 'consultando') {
+    return (
+      <main className="contenedor">
+        <section className="tarjeta" aria-live="polite">
+          <p>Comprobando la sesión…</p>
+        </section>
+      </main>
+    )
+  }
+
+  if (sesion === 'sin-sesion') {
+    return (
+      <main className="contenedor">
+        <header className="cabecera">
+          <h1>MotorRevisionLegal</h1>
+          <p className="descripcion">
+            Revisión de cláusulas contractuales. Inicia sesión con tu cuenta
+            autorizada para continuar.
+          </p>
+        </header>
+
+        <section className="tarjeta">
+          <form onSubmit={alIniciarSesion}>
+            <label className="etiqueta" htmlFor="usuario">
+              Usuario
+            </label>
+            <input
+              id="usuario"
+              name="usuario"
+              type="text"
+              autoComplete="username"
+              value={nombre}
+              onChange={(event) => setNombre(event.target.value)}
+              disabled={entrando}
+              required
+            />
+
+            <label className="etiqueta" htmlFor="contrasena">
+              Contraseña
+            </label>
+            <input
+              id="contrasena"
+              name="contrasena"
+              type="password"
+              autoComplete="current-password"
+              value={clave}
+              onChange={(event) => setClave(event.target.value)}
+              disabled={entrando}
+              required
+            />
+
+            <button type="submit" disabled={entrando}>
+              {entrando ? 'Iniciando sesión…' : 'Iniciar sesión'}
+            </button>
+          </form>
+
+          {errorLogin && (
+            <p className="aviso" role="alert">
+              {errorLogin}
+            </p>
+          )}
+        </section>
+
+        <footer className="pie">
+          <p>
+            Acceso privado: solo cuentas autorizadas. Si necesitas acceso,
+            contacta con quien administre el sistema.
+          </p>
+        </footer>
+      </main>
+    )
+  }
+
   return (
     <main className="contenedor">
       <header className="cabecera">
@@ -126,6 +309,13 @@ export default function App() {
         <p className="descripcion">
           Revisión de cláusulas contractuales. Carga un contrato en PDF con
           texto seleccionable o en DOCX para extraer su texto.
+        </p>
+        <p className="detalle-archivo">
+          Sesión iniciada como <strong>{usuario}</strong>
+          {' · '}
+          <button type="button" onClick={() => void alCerrarSesion()}>
+            Cerrar sesión
+          </button>
         </p>
       </header>
 

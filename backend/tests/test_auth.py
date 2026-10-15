@@ -194,3 +194,52 @@ def test_contrasena_no_se_guarda_en_claro(bd: Path) -> None:
         auth.crear_usuario(USUARIO, "OtraClave123")
     with pytest.raises(ValueError):
         auth.crear_usuario("nuevo", "corta")
+
+
+# --------------------------------------------------------------------------
+# Restablecimiento local de contraseña (sin ruta HTTP)
+# --------------------------------------------------------------------------
+NUEVA_CLAVE = "NuevaClave456"
+
+
+def test_reestablecer_contrasena_cambia_la_clave(
+    cliente: TestClient, bd: Path  # noqa: ARG001
+) -> None:
+    auth.crear_usuario(USUARIO, CLAVE)
+
+    auth.reestablecer_contrasena(USUARIO, NUEVA_CLAVE)
+
+    assert auth.comprobar_credenciales(USUARIO, CLAVE) is None
+    assert auth.comprobar_credenciales(USUARIO, NUEVA_CLAVE) is not None
+
+    respuesta = cliente.post(
+        "/login", data={"usuario": USUARIO, "contrasena": NUEVA_CLAVE}
+    )
+    assert respuesta.status_code == 200
+
+
+def test_reestablecer_contrasena_revoca_sesiones_activas(bd: Path) -> None:
+    auth.crear_usuario(USUARIO, CLAVE)
+    usuario_id = auth.comprobar_credenciales(USUARIO, CLAVE)
+    assert usuario_id is not None
+    token = auth.crear_sesion(usuario_id)
+    assert auth.obtener_usuario_por_token(token) == USUARIO
+
+    auth.reestablecer_contrasena(USUARIO, NUEVA_CLAVE)
+
+    assert auth.obtener_usuario_por_token(token) is None
+
+
+def test_reestablecer_contrasena_exige_usuario_existente(bd: Path) -> None:  # noqa: ARG001
+    with pytest.raises(ValueError, match="no existe"):
+        auth.reestablecer_contrasena("nadie", NUEVA_CLAVE)
+
+
+def test_reestablecer_contrasena_rechaza_clave_corta(bd: Path) -> None:
+    auth.crear_usuario(USUARIO, CLAVE)
+
+    with pytest.raises(ValueError, match="al menos"):
+        auth.reestablecer_contrasena(USUARIO, "corta")
+
+    # La clave original sigue vigente.
+    assert auth.comprobar_credenciales(USUARIO, CLAVE) is not None

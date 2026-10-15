@@ -117,6 +117,47 @@ def crear_usuario(
     finally:
         conexion.close()
 
+def reestablecer_contrasena(
+    nombre: str, contrasena_nueva: str, ruta: str | Path | None = None
+) -> None:
+    """Cambia la contraseña de un usuario existente y revoca sus sesiones.
+
+    Reutiliza el mismo hash PBKDF2 que el alta. Lanza ``ValueError`` si el
+    usuario no existe o la contraseña nueva es demasiado corta. Al cambiar
+    la clave se invalidan todas las sesiones activas del usuario, para que
+    quien tuviera una sesión abierta deba volver a iniciar sesión.
+    """
+    limpio = (nombre or "").strip()
+    if not limpio:
+        raise ValueError("El nombre de usuario no puede estar vacío.")
+    if len(contrasena_nueva or "") < LONGITUD_MINIMA_CONTRASENA:
+        raise ValueError(
+            f"La contraseña debe tener al menos {LONGITUD_MINIMA_CONTRASENA} "
+            "caracteres."
+        )
+    destino = init_bd(ruta)
+    sal = secrets.token_bytes(16)
+    resumen = _resumir(contrasena_nueva, sal)
+    conexion = _conectar(destino)
+    try:
+        fila = conexion.execute(
+            "SELECT id FROM usuarios WHERE nombre = ?", (limpio,)
+        ).fetchone()
+        if fila is None:
+            raise ValueError(f'El usuario "{limpio}" no existe.')
+        conexion.execute(
+            "UPDATE usuarios SET hash_contrasena = ?, sal = ? "
+            "WHERE id = ?",
+            (resumen, sal.hex(), int(fila["id"])),
+        )
+        conexion.execute(
+            "DELETE FROM sesiones WHERE usuario_id = ?", (int(fila["id"]),)
+        )
+        conexion.commit()
+    finally:
+        conexion.close()
+
+
 def comprobar_credenciales(
     nombre: str, contrasena: str, ruta: str | Path | None = None
 ) -> int | None:
