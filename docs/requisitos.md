@@ -1,12 +1,24 @@
 # Requisitos del Sistema
 
 **Proyecto:** MotorRevisionLegal  
-**Versión:** 0.1 — Borrador inicial  
+**Versión:** 0.2 — Alineación con PRD v0.2  
 **Estado:** En elaboración
 
 ---
 
 ## 1. Requisitos funcionales
+
+### RF-00 — Autenticación y acceso
+
+| ID | Descripción | Prioridad |
+|---|---|---|
+| RF-00.1 | El sistema debe requerir inicio de sesión con nombre de usuario y contraseña para acceder a cualquier función. | Alta |
+| RF-00.2 | Solo los usuarios con cuenta autorizada pueden acceder. No debe existir opción de registro público. | Alta |
+| RF-00.3 | Si las credenciales son incorrectas, el sistema debe mostrar un mensaje de error genérico sin revelar qué campo específico falló. | Alta |
+| RF-00.4 | El mecanismo técnico de autenticación (sesiones, tokens u otro) está pendiente de definir. *(pendiente)* | Alta |
+| RF-00.5 | La creación y administración de cuentas autorizadas está pendiente de definir: quién las crea, cómo y con qué herramienta. *(pendiente)* | Alta |
+
+---
 
 ### RF-01 — Carga de documentos
 
@@ -79,6 +91,30 @@
 
 ---
 
+### RF-07 — Interfaz: tema y navegación
+
+| ID | Descripción | Prioridad |
+|---|---|---|
+| RF-07.1 | La interfaz debe ofrecer tema claro y tema oscuro. | Alta |
+| RF-07.2 | La preferencia de tema del usuario debe guardarse en el navegador y aplicarse automáticamente en visitas posteriores. | Alta |
+| RF-07.3 | El cambio de tema no debe interrumpir la sesión ni el flujo de trabajo en curso. | Alta |
+| RF-07.4 | La navegación principal debe incluir las secciones: Inicio, Analizar contrato, Resultados e Historial. Las secciones Cómo funciona y Criterios pueden incluirse también. | Alta |
+
+---
+
+### RF-08 — Historial de análisis
+
+| ID | Descripción | Prioridad |
+|---|---|---|
+| RF-08.1 | El sistema debe registrar cada análisis completado y asociarlo al usuario autenticado que lo realizó. | Alta |
+| RF-08.2 | El usuario debe poder acceder a la sección Historial desde la navegación principal. | Alta |
+| RF-08.3 | El historial debe mostrar los análisis realizados por el usuario autenticado. | Alta |
+| RF-08.4 | El usuario debe poder abrir un análisis anterior y consultar su informe. | Alta |
+| RF-08.5 | El historial no debe mostrar ni permitir descargar el archivo original del contrato. No se asume que el archivo se guarda. | Alta |
+| RF-08.6 | El motor de base de datos, los campos exactos que se guardarán por cada análisis y la política de conservación de esos datos están pendientes de definir. *(pendiente)* | Alta |
+
+---
+
 ## 2. Requisitos no funcionales
 
 ### RNF-01 — Usabilidad
@@ -106,7 +142,7 @@
 | RNF-03.1 | Los documentos cargados no deben ser almacenados de forma persistente sin consentimiento explícito del usuario. *(política pendiente de definir)* |
 | RNF-03.2 | La comunicación entre el cliente y el servidor debe realizarse mediante HTTPS en el entorno de producción. |
 | RNF-03.3 | El sistema no debe registrar el contenido de los contratos en logs de texto plano. |
-| RNF-03.4 | El uso de APIs de IA de terceros debe ajustarse a las políticas de privacidad de la organización receptora. *(pendiente de validar)* |
+| RNF-03.4 | El texto de los contratos no debe enviarse a APIs de IA de terceros sin que la organización receptora haya autorizado expresamente ese proveedor y validado su política de privacidad. No se debe asumir que los contratos pueden transmitirse a servicios externos. *(pendiente de validar)* |
 
 ---
 
@@ -162,11 +198,12 @@ Estas reglas son restricciones no negociables que aplican a toda la aplicación:
 - Tipos de contrato distintos a prestación de servicios y proveedores.
 - PDF escaneados sin capa de texto (OCR).
 - Exportación del informe a PDF o DOCX.
-- Autenticación y gestión de usuarios.
-- Historial de análisis previos.
+- Compartir el informe por correo u otro medio.
+- Registro público de nuevos usuarios.
 - Integración con sistemas externos (ERP, gestores documentales).
 - Generación automática de contratos o cláusulas.
 - Firma electrónica.
+- Comparación entre versiones de un contrato.
 
 ---
 
