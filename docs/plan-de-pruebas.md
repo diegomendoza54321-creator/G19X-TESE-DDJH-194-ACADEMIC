@@ -1,18 +1,21 @@
 # Plan de Pruebas
 
 **Proyecto:** MotorRevisionLegal  
-**Versión:** 0.1 — Borrador inicial  
+**Versión:** 0.2 — Alineación con PRD v0.2, requisitos v0.2 y MVP v0.2  
 **Estado:** En elaboración — los casos se completarán durante el desarrollo
 
 ---
 
 ## 1. Objetivos del plan de pruebas
 
+- Verificar que el acceso está protegido y solo entran cuentas autorizadas.
 - Verificar que el sistema procesa correctamente los formatos PDF y DOCX soportados.
 - Validar que la clasificación del tipo de contrato es razonable y corregible.
 - Confirmar que los hallazgos están respaldados por citas reales del documento.
-- Detectar comportamientos incorrectos ante documentos problemáticos (ilegibles, incompletos, mal formateados).
+- Verificar que el Historial registra correctamente los análisis y los aísla por usuario.
+- Detectar comportamientos incorrectos ante documentos problemáticos.
 - Verificar que el sistema aplica correctamente las reglas de prudencia jurídica.
+- Verificar el comportamiento del tema claro/oscuro y la navegación principal.
 
 ---
 
@@ -20,9 +23,9 @@
 
 | Tipo | Descripción |
 |---|---|
-| Pruebas unitarias | Funciones individuales del backend (extracción, validación de citas, construcción del informe). |
-| Pruebas de integración | Flujo completo desde la carga hasta la generación del informe. |
-| Pruebas de casos límite | Documentos problemáticos, clasificaciones incorrectas, extracciones fallidas. |
+| Pruebas unitarias | Funciones individuales del backend (extracción, validación de citas, construcción del informe, registro del historial). |
+| Pruebas de integración | Flujo completo desde el inicio de sesión hasta la generación del informe y su registro en el historial. |
+| Pruebas de casos límite | Documentos problemáticos, clasificaciones incorrectas, extracciones fallidas, credenciales incorrectas. |
 | Pruebas de validación de salida | Verificar que las citas existen en el texto y que el informe cumple con las reglas de prudencia jurídica. |
 | Pruebas manuales / exploratorias | Revisión cualitativa de la calidad de los hallazgos con contratos reales o sintéticos. |
 
@@ -31,6 +34,57 @@
 ## 3. Casos de prueba
 
 > **Nota:** Los contratos usados en las pruebas deben ser documentos sintéticos o de dominio público. No usar contratos reales de la organización salvo autorización expresa.
+
+---
+
+### Grupo I — Autenticación y acceso
+
+#### CI-01 — Inicio de sesión con credenciales correctas
+
+**Descripción:** Un usuario con cuenta autorizada introduce sus credenciales correctas.  
+**Resultado esperado:**
+- El sistema permite el acceso.
+- El usuario llega a la pantalla de inicio de la herramienta.
+- No se expone información interna ni de otros usuarios.
+
+**Resultado real:** *(registrar durante las pruebas)*  
+**Estado:** Pendiente
+
+---
+
+#### CI-02 — Inicio de sesión con credenciales incorrectas
+
+**Descripción:** Se introducen credenciales incorrectas (usuario inexistente, contraseña errónea o ambos).  
+**Resultado esperado:**
+- El sistema muestra un mensaje de error genérico que no indica qué campo específico falló.
+- El acceso es denegado.
+- El sistema no expone información sobre cuentas existentes.
+
+**Resultado real:** *(registrar durante las pruebas)*  
+**Estado:** Pendiente
+
+---
+
+#### CI-03 — Ausencia de registro público
+
+**Descripción:** Se verifica que no existe ninguna opción de crear una cuenta desde la interfaz pública.  
+**Resultado esperado:**
+- No hay enlace, botón ni formulario de registro accesible sin sesión iniciada.
+
+**Resultado real:** *(registrar durante las pruebas)*  
+**Estado:** Pendiente
+
+---
+
+#### CI-04 — Acceso a función privada sin sesión iniciada
+
+**Descripción:** Se intenta acceder directamente a una ruta protegida (p. ej. Analizar contrato o Historial) sin haber iniciado sesión.  
+**Resultado esperado:**
+- El sistema redirige al usuario a la pantalla de inicio de sesión o muestra un error de acceso no autorizado.
+- No se muestra contenido privado.
+
+**Resultado real:** *(registrar durante las pruebas)*  
+**Estado:** Pendiente
 
 ---
 
@@ -222,6 +276,7 @@
 - El sistema detecta que no puede extraer texto.
 - Se notifica al usuario con un mensaje claro.
 - El sistema no procede al análisis sin texto extraído.
+- No se generan ni muestran hallazgos.
 
 **Resultado real:** *(registrar durante las pruebas)*  
 **Estado:** Pendiente
@@ -230,11 +285,13 @@
 
 #### CG-02 — PDF con extracción parcial
 
-**Descripción:** PDF con texto seleccionable en algunas páginas pero no en todas.  
+**Descripción:** PDF con texto seleccionable en algunas páginas pero no en todas, de modo que la extracción resulta incompleta.  
 **Resultado esperado:**
-- El sistema informa que la extracción fue parcial.
-- El usuario decide si continúa con el texto disponible.
-- El informe indica que el análisis es parcial.
+- El sistema detecta que la extracción es incompleta.
+- Muestra un mensaje de advertencia claro al usuario.
+- **Detiene el análisis.** No genera ni presenta hallazgos.
+- No ofrece continuar con una revisión parcial ni simula haber leído el documento completo.
+- Indica al usuario que verifique el archivo o intente con otro.
 
 **Resultado real:** *(registrar durante las pruebas)*  
 **Estado:** Pendiente
@@ -247,7 +304,7 @@
 **Resultado esperado:**
 - El sistema detecta el error.
 - Se notifica al usuario con un mensaje de error claro.
-- El sistema no genera un informe vacío ni con errores internos expuestos.
+- El sistema no genera un informe vacío ni expone errores internos.
 
 **Resultado real:** *(registrar durante las pruebas)*  
 **Estado:** Pendiente
@@ -283,13 +340,79 @@
 
 ---
 
+### Grupo J — Historial de análisis
+
+#### CJ-01 — Un análisis completado aparece en el Historial
+
+**Descripción:** Tras completar un análisis exitosamente, el usuario navega a la sección Historial.  
+**Resultado esperado:**
+- El análisis recién completado aparece en la lista del historial del usuario.
+- La entrada incluye información identificable del análisis (p. ej. fecha, tipo de contrato). Los campos exactos están pendientes de definir.
+
+**Resultado real:** *(registrar durante las pruebas)*  
+**Estado:** Pendiente
+
+---
+
+#### CJ-02 — El usuario puede abrir un análisis anterior desde el Historial
+
+**Descripción:** El usuario selecciona una entrada del Historial para consultar su informe.  
+**Resultado esperado:**
+- El informe del análisis anterior se muestra correctamente.
+- No se ofrece ni aparece el archivo original del contrato.
+
+**Resultado real:** *(registrar durante las pruebas)*  
+**Estado:** Pendiente
+
+---
+
+#### CJ-03 — El Historial de un usuario no muestra análisis de otro usuario
+
+**Descripción:** Dos usuarios distintos con cuentas autorizadas realizan análisis. Cada uno consulta su Historial.  
+**Resultado esperado:**
+- El usuario A solo ve sus propios análisis.
+- El usuario B solo ve los suyos.
+- Ninguno puede acceder a los análisis del otro.
+
+**Resultado real:** *(registrar durante las pruebas)*  
+**Estado:** Pendiente
+
+---
+
+### Grupo K — Interfaz: tema y navegación
+
+#### CK-01 — Cambio de tema claro a oscuro y persistencia
+
+**Descripción:** El usuario cambia el tema de claro a oscuro, luego recarga la página o abre la herramienta en una nueva visita.  
+**Resultado esperado:**
+- El tema oscuro se aplica visualmente tras el cambio.
+- Al recargar o volver a abrir, la herramienta aplica automáticamente el tema oscuro sin que el usuario lo ajuste de nuevo.
+- El cambio no interrumpe la sesión ni el flujo de trabajo en curso.
+
+**Resultado real:** *(registrar durante las pruebas)*  
+**Estado:** Pendiente
+
+---
+
+#### CK-02 — Navegación principal completa y accesible
+
+**Descripción:** El usuario con sesión iniciada verifica la navegación principal.  
+**Resultado esperado:**
+- Las secciones Inicio, Analizar contrato, Resultados e Historial están disponibles en la navegación.
+- Cada sección es accesible desde la navegación sin errores.
+
+**Resultado real:** *(registrar durante las pruebas)*  
+**Estado:** Pendiente
+
+---
+
 ## 4. Registro de resultados
 
 Para cada caso ejecutado, registrar:
 
 | Campo | Descripción |
 |---|---|
-| ID del caso | Identificador del caso de prueba (p. ej. CA-01) |
+| ID del caso | Identificador del caso de prueba (p. ej. CI-01) |
 | Fecha de ejecución | Fecha en que se ejecutó la prueba |
 | Versión del sistema | Commit o versión del sistema bajo prueba |
 | Resultado real | Lo que el sistema produjo realmente |
@@ -299,4 +422,4 @@ Para cada caso ejecutado, registrar:
 
 ---
 
-*Este documento es un borrador inicial. Los contratos de prueba y los resultados reales se completarán durante el desarrollo.*
+*Este documento es un borrador. Los contratos de prueba y los resultados reales se completarán durante el desarrollo.*
