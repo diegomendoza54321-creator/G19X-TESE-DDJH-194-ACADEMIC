@@ -109,7 +109,7 @@ Este entregable tiene dos componentes con estados distintos:
 | **Propósito** | Definir qué incluye y excluye la primera versión funcional, el flujo principal, los criterios de aceptación y las condiciones de término. |
 | **Contenido esperado** | Funciones incluidas, funciones excluidas, flujo principal, decisiones pendientes, criterios de aceptación verificables y condiciones de término. |
 | **Estado** | 🔶 Borrador inicial disponible — requiere validación con el tutor y la organización receptora. Ver [`docs/MVP.md`](MVP.md). |
-| **Qué falta** | Validar con el tutor de residencias; resolver decisiones pendientes (IA, autenticación, almacenamiento, tamaño de archivo, criterios jurídicos). |
+| **Qué falta** | Validar con el tutor de residencias; resolver decisiones pendientes (IA, almacenamiento, tamaño de archivo, criterios jurídicos). El acceso privado ya está decidido; lo pendiente es el mecanismo técnico de autenticación y la creación y administración de cuentas. |
 
 ### 9b. MVP funcionando (producto de software)
 

@@ -36,6 +36,8 @@ La aplicación sigue una arquitectura cliente-servidor. El frontend web se comun
 │  - Verificación de credenciales               │
 │  - Recepción del archivo                      │
 │  - Extracción de texto                        │
+│    (fallo o incompleto → detención,           │
+│     sin hallazgos parciales)                  │
 │  - Clasificación del tipo de contrato         │
 │  - Orquestación del análisis con IA           │
 │  - Validación de citas                        │
