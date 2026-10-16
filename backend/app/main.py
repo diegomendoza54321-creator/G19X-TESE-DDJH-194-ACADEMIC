@@ -2,12 +2,14 @@
 
 Endpoints
 ---------
-``GET  /salud``   — comprobación de que el servicio está levantado (público).
-``POST /login``   — inicia sesión con usuario y contraseña (RF-00.1).
-``POST /logout``  — cierra la sesión actual (requiere sesión).
-``GET  /yo``      — devuelve el usuario de la sesión (requiere sesión).
-``POST /extraer`` — recibe un PDF o DOCX y devuelve el texto extraído
+``GET  /salud``         — comprobación de que el servicio está levantado (público).
+``POST /login``         — inicia sesión con usuario y contraseña (RF-00.1).
+``POST /logout``        — cierra la sesión actual (requiere sesión).
+``GET  /yo``            — devuelve el usuario de la sesión (requiere sesión).
+``POST /extraer``       — recibe un PDF o DOCX y devuelve el texto extraído
 (requiere sesión, RF-00.1).
+``POST /clasificar``    — propone el tipo de contrato del texto extraído de
+forma local y determinista (requiere sesión, RF-03).
 
 Decisiones de diseño
 --------------------
@@ -27,6 +29,10 @@ Decisiones de diseño
 * **No se registra contenido.** Los logs no incluyen el texto de los
   contratos (RNF-03.3).
 * **Sin IA y sin criterios jurídicos.** Este bloque solo extrae texto.
+* **Clasificación local (RF-03).** ``POST /clasificar`` usa el módulo
+  ``app.clasificacion``: señales textuales del propio documento, sin IA,
+  sin envío a terceros y sin guardar el contrato. La confianza baja se
+  comunica sin fingir certeza.
 """
 
 from __future__ import annotations
@@ -37,6 +43,7 @@ from pydantic import BaseModel
 
 from . import auth
 from .auth import NOMBRE_COOKIE
+from .clasificacion import ETIQUETAS, clasificar_tipo_contrato
 from .extraccion import (
     COD_ARCHIVO_NO_LEIBLE,
     COD_ARCHIVO_VACIO,
@@ -79,6 +86,23 @@ class RespuestaExtraccion(BaseModel):
     formato: Formato | None = None
     num_paginas: int | None = None
     codigo: str | None = None
+    motivo: str | None = None
+
+
+class SolicitudClasificacion(BaseModel):
+    """Cuerpo de la solicitud de ``POST /clasificar``."""
+
+    texto: str
+
+
+class RespuestaClasificacion(BaseModel):
+    """Cuerpo de la respuesta de ``POST /clasificar`` (RF-03)."""
+
+    ok: bool
+    tipo: str | None = None
+    etiqueta: str | None = None
+    confianza: str | None = None
+    evidencias: list[str] | None = None
     motivo: str | None = None
 
 
@@ -254,6 +278,38 @@ async def extraer(
             ok=False,
             texto=None,
             codigo=resultado.codigo,
+            motivo=resultado.motivo,
+        ).model_dump(),
+    )
+
+
+@app.post("/clasificar")
+def clasificar(
+    solicitud: SolicitudClasificacion,
+    sesion_mrl: str | None = Cookie(default=None, alias=NOMBRE_COOKIE),
+) -> JSONResponse:
+    """Propone el tipo de contrato del texto extraído (RF-03).
+
+    Requiere sesión (RF-00.1). Clasifica entre "prestación de servicios" y
+    "contrato de proveedor" con señales textuales del propio documento:
+    sin IA, sin enviar texto a terceros y sin guardar el contrato. Cuando
+    las señales son débiles o ambiguas la confianza es baja y se pide
+    revisión manual, sin fingir certeza.
+    """
+    if _usuario_de_sesion(sesion_mrl) is None:
+        return _error_no_autenticado()
+
+    texto = solicitud.texto or ""
+    resultado = clasificar_tipo_contrato(texto)
+
+    return JSONResponse(
+        status_code=200,
+        content=RespuestaClasificacion(
+            ok=True,
+            tipo=resultado.tipo,
+            etiqueta=ETIQUETAS[resultado.tipo] if resultado.tipo else None,
+            confianza=resultado.confianza,
+            evidencias=resultado.evidencias or None,
             motivo=resultado.motivo,
         ).model_dump(),
     )
