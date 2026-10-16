@@ -97,12 +97,24 @@ def _fragmento_literal(texto: str, senal: str, ventana: int = 70) -> str:
 
     La búsqueda no distingue mayúsculas, pero el fragmento devuelto conserva
     el texto original del documento, así que existe literalmente en él.
+    Los bordes se ajustan a límites de palabra para no cortar palabras
+    a la mitad; el resultado sigue siendo una subcadena literal.
     """
     indice = texto.lower().find(senal.lower())
     if indice == -1:
         return ""
+    fin_senal = indice + len(senal)
     inicio = max(0, indice - ventana // 2)
-    fin = min(len(texto), indice + len(senal) + ventana // 2)
+    fin = min(len(texto), fin_senal + ventana // 2)
+    # Ajuste a límites de palabra: nunca cortar una palabra a la mitad.
+    # ``inicio > 0`` se comprueba primero para no evaluar ``texto[-1]``
+    # (indexación negativa) cuando el fragmento ya empieza en el texto.
+    while inicio > 0 and inicio < indice and not texto[inicio - 1].isspace():
+        inicio += 1
+    # ``fin > fin_senal`` conserva siempre la señal completa; ``fin < len``
+    # evita indexar más allá del final del texto.
+    while fin > fin_senal and fin < len(texto) and not texto[fin].isspace():
+        fin += 1
     return texto[inicio:fin].strip()
 
 

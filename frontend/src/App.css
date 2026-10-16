@@ -195,3 +195,31 @@ button:disabled {
 .clasificacion input[type='radio'] {
   margin-right: 0.5rem;
 }
+
+/* Confianza explícita de la propuesta (RF-03.2). */
+.clasificacion .confianza {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.375rem;
+  font-weight: 700;
+}
+
+.clasificacion .confianza-alta {
+  color: var(--color-ok);
+  background: var(--color-ok-fondo);
+}
+
+.clasificacion .confianza-baja {
+  color: var(--color-aviso);
+  background: var(--color-aviso-fondo);
+}
+
+/* Aviso informativo de RF-04 pendiente (no es un error). */
+.clasificacion .nota-rf04 {
+  margin: 0.75rem 0 0;
+  padding: 0.6rem 0.75rem;
+  border: 1px dashed var(--color-borde);
+  border-radius: 0.375rem;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}

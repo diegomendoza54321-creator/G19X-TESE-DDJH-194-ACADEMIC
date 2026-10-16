@@ -68,6 +68,57 @@ function etiquetaDe(tipo: TipoOpcion | null): string {
   return opcion ? opcion.etiqueta : ''
 }
 
+/**
+ * Deduplica las evidencias de la propuesta (RF-03.2).
+ *
+ * Cada evidencia es un fragmento literal del texto extraído, así que basta
+ * con buscarla con indexOf para conocer su posición exacta. Se descartan los
+ * duplicados y los fragmentos cuyo intervalo se solape con otro más largo
+ * (la señal queda cubierta por la ventana mayor, que aporta más contexto).
+ * El resultado sigue siendo literal y ya no contiene solapes.
+ */
+function deduplicarEvidencias(
+  texto: string | null,
+  evidencias: string[],
+): string[] {
+  const unicas = evidencias.filter((e, i, arr) => arr.indexOf(e) === i)
+  if (!texto) return unicas
+
+  const localizadas = unicas.map((fragmento) => {
+    const inicio = texto.indexOf(fragmento)
+    return {
+      fragmento,
+      inicio,
+      fin: inicio === -1 ? -1 : inicio + fragmento.length,
+    }
+  })
+
+  // De mayor a menor: la ventana más larga tiene prioridad.
+  const ordenadas = [...localizadas].sort(
+    (a, b) => b.fragmento.length - a.fragmento.length,
+  )
+  const mantenidas: typeof ordenadas = []
+  for (const candidata of ordenadas) {
+    if (candidata.inicio === -1) {
+      // No aparece en el texto (no debería pasar): se conserva tal cual.
+      mantenidas.push(candidata)
+      continue
+    }
+    const solapa = mantenidas.some(
+      (m) =>
+        m.inicio !== -1 &&
+        candidata.inicio < m.fin &&
+        m.inicio < candidata.fin,
+    )
+    if (!solapa) mantenidas.push(candidata)
+  }
+
+  // Se devuelven en el orden en que aparecen en el documento.
+  return mantenidas
+    .sort((a, b) => a.inicio - b.inicio)
+    .map((m) => m.fragmento)
+}
+
 type Sesion = 'consultando' | 'sin-sesion' | 'activa'
 type Estado = 'inicio' | 'cargando' | 'exito' | 'error'
 
@@ -374,7 +425,8 @@ export default function App() {
     } finally {
       setClasificando(false)
     }
-}
+  }
+
   if (sesion === 'consultando') {
     return (
       <main className="contenedor">
@@ -578,44 +630,79 @@ export default function App() {
           {!confirmado && (
             <section className="tarjeta clasificacion" aria-live="polite">
               <h2>Tipo de contrato (propuesta)</h2>
-                Evidencias: eliminar duplicados exactos y fragmentos que estén
-              <p><strong>Confianza:</strong> {clasificacion?.confianza === 'alta' ? 'alta' : 'baja'}</p>
-              {clasificacion?.confianza === 'alta' ? (
-                <p>
-                  Clasificación local y determinista, sin IA ni envío de texto
-                  a terceros.
-                </p>
-              ) : (
+
+              {clasificando && !clasificacion && (
+                <p>Clasificando el tipo de contrato…</p>
+              )}
+
+              {!clasificando && !clasificacion && (
                 <p className="aviso">
-                  Atención: las señales textuales son débiles o ambiguas.
-                  Revise y confirme el tipo manualmente.
+                  {mensajeError ??
+                    'No se pudo obtener la propuesta de clasificación. ' +
+                      'Seleccione el tipo de contrato manualmente para continuar.'}
                 </p>
               )}
-              {clasificacion?.etiqueta ? (
-                <p>
-                  <strong>Propuesta:</strong> {clasificacion.etiqueta}
-                </p>
-              ) : (
-                <p>
-                  <strong>Propuesta:</strong> no se pudo determinar
-                  automáticamente.
-                </p>
-              )}
-              {clasificacion?.evidencias && clasificacion.evidencias.length > 0 && (
+
+              {clasificacion && (
                 <>
-                  <p><strong>Evidencias en el texto:</strong></p>
-                  <ul>
-                    {clasificacion.evidencias
-                      .filter((e, i, arr) => arr.indexOf(e) === i)
-                      .filter((e, i, arr) => !arr.some((o, j) => j !== i && o !== e && o.includes(e)))
-                      .map((evidencia, i) => (
-                        <li key={i}>{evidencia}</li>
-                      ))}
-                  </ul>
+                  <p>
+                    <strong>Confianza:</strong>{' '}
+                    <span
+                      className={
+                        clasificacion.confianza === 'alta'
+                          ? 'confianza confianza-alta'
+                          : 'confianza confianza-baja'
+                      }
+                    >
+                      {clasificacion.confianza === 'alta' ? 'Alta' : 'Baja'}
+                    </span>
+                  </p>
+                  {clasificacion.confianza === 'alta' ? (
+                    <>
+                      <p>
+                        Clasificación local y determinista, sin IA ni envío de
+                        texto a terceros.
+                      </p>
+                      <p className="nota-rf04">
+                        RF-04: análisis de cláusulas pendiente. Los hallazgos y
+                        el informe de cláusulas se generarán en una fase
+                        posterior.
+                      </p>
+                    </>
+                  ) : (
+                    <p className="aviso">
+                      Atención: las señales textuales son débiles o ambiguas.
+                      Revise y confirme el tipo manualmente.
+                    </p>
+                  )}
+                  {clasificacion.etiqueta ? (
+                    <p>
+                      <strong>Propuesta:</strong> {clasificacion.etiqueta}
+                    </p>
+                  ) : (
+                    <p>
+                      <strong>Propuesta:</strong> no se pudo determinar
+                      automáticamente.
+                    </p>
+                  )}
+                  {clasificacion.evidencias &&
+                    clasificacion.evidencias.length > 0 && (
+                      <>
+                        <p><strong>Evidencias en el texto:</strong></p>
+                        <ul>
+                          {deduplicarEvidencias(
+                            resultado.texto,
+                            clasificacion.evidencias,
+                          ).map((evidencia, i) => (
+                            <li key={i}>{evidencia}</li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                  {clasificacion.motivo && (
+                    <p className="aviso">{clasificacion.motivo}</p>
+                  )}
                 </>
-              )}
-              {clasificacion?.motivo && (
-                <p className="aviso">{clasificacion.motivo}</p>
               )}
               <fieldset>
                 <legend>Seleccionar tipo de contrato</legend>
