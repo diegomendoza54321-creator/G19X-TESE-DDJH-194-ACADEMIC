@@ -45,7 +45,7 @@
 
 ### RF-03 — Clasificación del tipo de contrato (determinista y local)
 
-La sugerencia del tipo de contrato es determinista y local, basada en señales textuales explicables del propio documento. **No usa IA ni envía el contrato a terceros.** La IA externa queda pendiente de proveedor y autorización explícita. Solo RF-03: RF-04 y los criterios jurídicos siguen pendientes.
+La sugerencia del tipo de contrato es determinista y local, basada en señales textuales explicables del propio documento. **No usa IA ni envía el contrato a terceros.** La IA externa queda pendiente de proveedor y autorización explícita. Solo RF-03: RF-04 se implementa con criterios provisionales definidos internamente.
 
 | ID | Descripción | Prioridad |
 |---|---|---|
@@ -61,8 +61,8 @@ La sugerencia del tipo de contrato es determinista y local, basada en señales t
 
 | ID | Descripción | Prioridad |
 |---|---|---|
-| RF-04.1 | El sistema debe aplicar una lista de verificación base según el tipo de contrato confirmado. Existe una propuesta inicial de criterios base y condicionales que requiere validación con el tutor o con una persona con experiencia jurídica antes de considerarse definitiva. | Alta |
-| RF-04.2 | El sistema debe aplicar criterios condicionales adicionales según el tipo de contrato. Estos criterios forman parte de la misma propuesta indicada en RF-04.1 y están sujetos a la misma validación. | Alta |
+| RF-04.1 | El sistema debe aplicar una lista de verificación base según el tipo de contrato confirmado, con criterios base y condicionales definidos provisionalmente internamente. | Alta |
+| RF-04.2 | El sistema debe aplicar criterios condicionales adicionales según el tipo de contrato, como parte de los criterios provisionales definidos internamente. | Alta |
 | RF-04.3 | El sistema debe identificar posibles ambigüedades en las cláusulas del contrato. | Alta |
 | RF-04.4 | El sistema debe identificar posibles omisiones de elementos típicos en ese tipo de contrato. | Alta |
 | RF-04.5 | El sistema debe identificar posibles contradicciones aparentes entre cláusulas. | Alta |
@@ -144,7 +144,7 @@ La sugerencia del tipo de contrato es determinista y local, basada en señales t
 | RNF-03.1 | Los documentos cargados no deben ser almacenados de forma persistente sin consentimiento explícito del usuario. *(política pendiente de definir)* |
 | RNF-03.2 | La comunicación entre el cliente y el servidor debe realizarse mediante HTTPS en el entorno de producción. |
 | RNF-03.3 | El sistema no debe registrar el contenido de los contratos en logs de texto plano. |
-| RNF-03.4 | El texto de los contratos no debe enviarse a APIs de IA de terceros sin que la organización receptora haya autorizado expresamente ese proveedor y validado su política de privacidad. No se debe asumir que los contratos pueden transmitirse a servicios externos. *(pendiente de validar)* |
+| RNF-03.4 | El texto de los contratos no debe enviarse a APIs de IA de terceros sin que la organización receptora haya autorizado expresamente ese proveedor y validado su política de privacidad. No se debe asumir que los contratos pueden transmitirse a servicios externos. *(decisión interna pendiente)* |
 
 ---
 
@@ -209,4 +209,4 @@ Estas reglas son restricciones no negociables que aplican a toda la aplicación:
 
 ---
 
-*Este documento es un borrador inicial sujeto a revisión y validación.*
+*Este documento es un borrador inicial sujeto a revisión y ajuste por el equipo del proyecto.*

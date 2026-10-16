@@ -1,33 +1,33 @@
-/**
- * Interfaz del MVP: inicio de sesiÃƒÂ³n, navegaciÃƒÂ³n, tema y extracciÃƒÂ³n.
+﻿/**
+ * Interfaz del MVP: inicio de sesión, navegación, tema y extracción.
  *
- * Cubre RF-00 (autenticaciÃƒÂ³n privada), RF-01 (carga), RF-02 (extracciÃƒÂ³n),
- * RF-06 (interfaz en espaÃƒÂ±ol) y RF-07 (navegaciÃƒÂ³n principal y tema claro /
+ * Cubre RF-00 (autenticación privada), RF-01 (carga), RF-02 (extracción),
+ * RF-06 (interfaz en español) y RF-07 (navegación principal y tema claro /
  * oscuro). No incluye IA: este bloque solo extrae el texto y lo muestra.
  *
- * NavegaciÃƒÂ³n (RF-07.1): tras iniciar sesiÃƒÂ³n hay cuatro secciones, Inicio,
- * Analizar contrato, Resultados e Historial. La carga y extracciÃƒÂ³n viven en
- * Analizar contrato. Resultados e Historial muestran estados vacÃƒÂ­os honestos
- * mientras esas funciones no existan: no se inventa ningÃƒÂºn anÃƒÂ¡lisis.
+ * Navegación (RF-07.1): tras iniciar sesión hay cuatro secciones, Inicio,
+ * Analizar contrato, Resultados e Historial. La carga y extracción viven en
+ * Analizar contrato. Resultados e Historial muestran estados vacíos honestos
+ * mientras esas funciones no existan: no se inventa ningún análisis.
  *
  * Tema (RF-07.2 a RF-07.5): control claro/oscuro en la barra superior. La
  * preferencia se guarda en localStorage y se restaura al recargar; sin
- * preferencia se usa el tema del sistema. Cambiarlo no cierra la sesiÃƒÂ³n ni
+ * preferencia se usa el tema del sistema. Cambiarlo no cierra la sesión ni
  * borra el trabajo: solo cambia el atributo data-tema en <html>.
  *
- * AutenticaciÃƒÂ³n: al abrir se consulta GET /yo; solo con sesiÃƒÂ³n vÃƒÂ¡lida se
- * muestra la navegaciÃƒÂ³n. El login usa los campos del backend (usuario,
- * contrasena) y la sesiÃƒÂ³n viaja en cookie HttpOnly: el navegador nunca
- * guarda contraseÃƒÂ±as ni tokens. Sin registro pÃƒÂºblico (RF-00.2).
+ * Autenticación: al abrir se consulta GET /yo; solo con sesión válida se
+ * muestra la navegación. El login usa los campos del backend (usuario,
+ * contrasena) y la sesión viaja en cookie HttpOnly: el navegador nunca
+ * guarda contraseñas ni tokens. Sin registro público (RF-00.2).
  *
  * Llamadas a rutas relativas; el dev server las redirige al backend
- * (ver vite.config.ts), asÃƒÂ­ que no hace falta CORS.
+ * (ver vite.config.ts), así que no hace falta CORS.
  */
 
 import { useEffect, useState } from 'react'
 import './App.css'
 
-/** Formatos aceptados por el backend, segÃƒÂºn RF-01.1 y RF-01.2. */
+/** Formatos aceptados por el backend, según RF-01.1 y RF-01.2. */
 const EXTENSIONES_ACEPTADAS = ['.pdf', '.docx']
 
 interface RespuestaSesion {
@@ -58,7 +58,7 @@ interface RespuestaClasificacion {
 type TipoOpcion = 'prestacion_de_servicios' | 'proveedor'
 
 const OPCIONES_TIPO: { id: TipoOpcion; etiqueta: string }[] = [
-  { id: 'prestacion_de_servicios', etiqueta: 'PrestaciÃƒÂ³n de servicios' },
+  { id: 'prestacion_de_servicios', etiqueta: 'Prestación de servicios' },
   { id: 'proveedor', etiqueta: 'Contrato de proveedor' },
 ]
 
@@ -71,7 +71,7 @@ function etiquetaDe(tipo: TipoOpcion | null): string {
 type Sesion = 'consultando' | 'sin-sesion' | 'activa'
 type Estado = 'inicio' | 'cargando' | 'exito' | 'error'
 
-/** Secciones de la navegaciÃƒÂ³n principal (RF-07.1). */
+/** Secciones de la navegación principal (RF-07.1). */
 type Vista = 'inicio' | 'analizar' | 'resultados' | 'historial'
 
 const VISTAS: { id: Vista; etiqueta: string }[] = [
@@ -118,8 +118,8 @@ export default function App() {
   const [entrando, setEntrando] = useState(false)
   const [errorLogin, setErrorLogin] = useState<string | null>(null)
 
-  // NavegaciÃƒÂ³n principal y tema (RF-07). Ambos viven en el estado de React:
-  // cambiar de vista o de tema no toca la sesiÃƒÂ³n ni el trabajo en curso.
+  // Navegación principal y tema (RF-07). Ambos viven en el estado de React:
+  // cambiar de vista o de tema no toca la sesión ni el trabajo en curso.
   const [vista, setVista] = useState<Vista>('inicio')
   const [tema, setTema] = useState<Tema>(leerTemaInicial)
 
@@ -129,14 +129,14 @@ export default function App() {
   const [resultado, setResultado] = useState<RespuestaExtraccion | null>(null)
   const [mensajeError, setMensajeError] = useState<string | null>(null)
 
-  // ClasificaciÃƒÂ³n del tipo de contrato (RF-03): propuesta del backend local,
-  // selecciÃƒÂ³n corregible por el usuario y confirmaciÃƒÂ³n explÃƒÂ­cita.
+  // Clasificación del tipo de contrato (RF-03): propuesta del backend local,
+  // selección corregible por el usuario y confirmación explícita.
   const [clasificacion, setClasificacion] = useState<RespuestaClasificacion | null>(null)
   const [tipoSeleccionado, setTipoSeleccionado] = useState<TipoOpcion | null>(null)
   const [confirmado, setConfirmado] = useState(false)
   const [clasificando, setClasificando] = useState(false)
 
-  // Al abrir, la sesiÃƒÂ³n vive en la cookie HttpOnly: se consulta al backend.
+  // Al abrir, la sesión vive en la cookie HttpOnly: se consulta al backend.
   useEffect(() => {
     let activa = true
     async function consultarSesion() {
@@ -167,7 +167,7 @@ export default function App() {
   }, [])
 
   // Tema (RF-07.2 a RF-07.5): se aplica al documento y se guarda. Solo toca
-  // el atributo visual y localStorage: la sesiÃƒÂ³n y el trabajo siguen intactos.
+  // el atributo visual y localStorage: la sesión y el trabajo siguen intactos.
   useEffect(() => {
     document.documentElement.setAttribute('data-tema', tema)
     try {
@@ -211,13 +211,13 @@ export default function App() {
         setSesion('activa')
         return
       }
-      // Ante 401 el backend responde siempre el mensaje genÃƒÂ©rico (RF-00.3):
-      // se muestra tal cual, sin revelar quÃƒÂ© campo fallÃƒÂ³.
-      setErrorLogin(cuerpo?.motivo ?? 'Usuario o contraseÃƒÂ±a incorrectos.')
+      // Ante 401 el backend responde siempre el mensaje genérico (RF-00.3):
+      // se muestra tal cual, sin revelar qué campo falló.
+      setErrorLogin(cuerpo?.motivo ?? 'Usuario o contraseña incorrectos.')
     } catch {
       setErrorLogin(
-        'No se pudo conectar con el servidor. Verifica que el backend estÃƒÂ© ' +
-          'en ejecuciÃƒÂ³n y vuelve a intentarlo.',
+        'No se pudo conectar con el servidor. Verifica que el backend esté ' +
+          'en ejecución y vuelve a intentarlo.',
       )
     } finally {
       setEntrando(false)
@@ -260,7 +260,7 @@ export default function App() {
       setArchivo(null)
       event.target.value = ''
       setAvisoArchivo(
-        `El formato "${extension || 'sin extensiÃƒÂ³n'}" no estÃƒÂ¡ soportado. ` +
+        `El formato "${extension || 'sin extensión'}" no está soportado. ` +
           'Formatos aceptados: PDF y DOCX.',
       )
       return
@@ -287,7 +287,7 @@ export default function App() {
     try {
       const respuesta = await fetch('/extraer', { method: 'POST', body: datos })
       if (respuesta.status === 401) {
-        // La sesiÃƒÂ³n caducÃƒÂ³ o se invalidÃƒÂ³: se vuelve al login.
+        // La sesión caducó o se invalidó: se vuelve al login.
         volverALogin()
         return
       }
@@ -301,7 +301,7 @@ export default function App() {
       if (!cuerpo) {
         setEstado('error')
         setMensajeError(
-          'El servidor no devolviÃƒÂ³ una respuesta vÃƒÂ¡lida. IntÃƒÂ©ntalo de nuevo.',
+          'El servidor no devolvió una respuesta válida. Inténtalo de nuevo.',
         )
         return
       }
@@ -316,13 +316,13 @@ export default function App() {
       setEstado('error')
       setMensajeError(
         cuerpo.motivo ??
-          'No se pudo extraer el texto del documento. IntÃƒÂ©ntalo con otro archivo.',
+          'No se pudo extraer el texto del documento. Inténtalo con otro archivo.',
       )
     } catch {
       setEstado('error')
       setMensajeError(
-        'No se pudo conectar con el servidor. Verifica que el backend estÃƒÂ© ' +
-          'en ejecuciÃƒÂ³n y vuelve a intentarlo.',
+        'No se pudo conectar con el servidor. Verifica que el backend esté ' +
+          'en ejecución y vuelve a intentarlo.',
       )
     }
   }
@@ -380,7 +380,7 @@ export default function App() {
       <main className="contenedor">
         <section className="tarjeta" aria-live="polite">
 
-          <p>Comprobando la sesiÃƒÂ³nÃ¢â‚¬Â¦</p>
+          <p>Comprobando la sesión…</p>
         </section>
       </main>
     )
@@ -392,7 +392,7 @@ export default function App() {
         <header className="cabecera">
           <h1>MotorRevisionLegal</h1>
           <p className="descripcion">
-            RevisiÃƒÂ³n de clÃƒÂ¡usulas contractuales. Inicia sesiÃƒÂ³n con tu cuenta
+            Revisión de cláusulas contractuales. Inicia sesión con tu cuenta
             autorizada para continuar.
           </p>
         </header>
@@ -414,7 +414,7 @@ export default function App() {
             />
 
             <label className="etiqueta" htmlFor="contrasena">
-              ContraseÃƒÂ±a
+              Contraseña
             </label>
             <input
               id="contrasena"
@@ -428,7 +428,7 @@ export default function App() {
             />
 
             <button type="submit" disabled={entrando}>
-              {entrando ? 'Iniciando sesiÃƒÂ³nÃ¢â‚¬Â¦' : 'Iniciar sesiÃƒÂ³n'}
+              {entrando ? 'Iniciando sesión…' : 'Iniciar sesión'}
             </button>
           </form>
 
@@ -452,7 +452,7 @@ export default function App() {
   return (
     <main className="contenedor">
       <div className="barra-superior">
-        <nav className="navegacion" aria-label="NavegaciÃƒÂ³n principal">
+        <nav className="navegacion" aria-label="Navegación principal">
           <ul>
             {VISTAS.map((opcion) => (
               <li key={opcion.id}>
@@ -469,7 +469,7 @@ export default function App() {
         </nav>
         <div className="acciones-sesion">
           <span>
-            SesiÃƒÂ³n iniciada como <strong>{usuario}</strong>
+            Sesión iniciada como <strong>{usuario}</strong>
           </span>
           <button
             type="button"
@@ -483,7 +483,7 @@ export default function App() {
             {tema === 'claro' ? 'Tema oscuro' : 'Tema claro'}
           </button>
           <button type="button" onClick={() => void alCerrarSesion()}>
-            Cerrar sesiÃƒÂ³n
+            Cerrar sesión
           </button>
         </div>
       </div>
@@ -496,13 +496,13 @@ export default function App() {
         <section className="tarjeta" aria-live="polite">
           <h2>Bienvenido</h2>
           <p>
-            RevisiÃƒÂ³n de clÃƒÂ¡usulas contractuales. Para empezar, abre{' '}
+            Revisión de cláusulas contractuales. Para empezar, abre{' '}
             <strong>Analizar contrato</strong> y carga un contrato en PDF con
             texto seleccionable o en DOCX para extraer su texto.
           </p>
           <p className="sugerencia">
-            Las secciones de Resultados e Historial estarÃƒÂ¡n disponibles cuando
-            el anÃƒÂ¡lisis y el historial estÃƒÂ©n implementados.
+            Las secciones de Resultados e Historial estarán disponibles cuando
+            el análisis y el historial estén implementados.
           </p>
         </section>
       )}
@@ -531,20 +531,20 @@ export default function App() {
 
           {archivo && (
             <p className="detalle-archivo">
-              <strong>Archivo seleccionado:</strong> {archivo.name} Ã‚Â·{' '}
+              <strong>Archivo seleccionado:</strong> {archivo.name} ·{' '}
               {tamanoLegible(archivo.size)}
             </p>
           )}
 
           <button type="submit" disabled={!archivo || estado === 'cargando'}>
-            {estado === 'cargando' ? 'Extrayendo textoÃ¢â‚¬Â¦' : 'Extraer texto'}
+            {estado === 'cargando' ? 'Extrayendo texto…' : 'Extraer texto'}
           </button>
         </form>
       </section>
 
       {vista === 'analizar' && estado === 'cargando' && (
         <section className="tarjeta" aria-live="polite">
-          <p>Extrayendo el texto del documento. Esto puede tardar unos segundosÃ¢â‚¬Â¦</p>
+          <p>Extrayendo el texto del documento. Esto puede tardar unos segundos…</p>
         </section>
       )}
 
@@ -562,13 +562,13 @@ export default function App() {
       {vista === 'analizar' && estado === 'exito' && resultado && (
         <>
           <section className="tarjeta resultado" aria-live="polite">
-            <h2>Texto extraÃƒÂ­do</h2>
+            <h2>Texto extraído</h2>
             <p className="metadatos">
               Formato: <strong>{resultado.formato?.toUpperCase()}</strong>
               {typeof resultado.num_paginas === 'number' && (
                 <>
-                  {' Ã‚Â· '}
-                  PÃƒÂ¡ginas: <strong>{resultado.num_paginas}</strong>
+                  {' · '}
+                  Páginas: <strong>{resultado.num_paginas}</strong>
                 </>
               )}
             </p>
@@ -578,14 +578,16 @@ export default function App() {
           {!confirmado && (
             <section className="tarjeta clasificacion" aria-live="polite">
               <h2>Tipo de contrato (propuesta)</h2>
+                Evidencias: eliminar duplicados exactos y fragmentos que estén
+              <p><strong>Confianza:</strong> {clasificacion?.confianza === 'alta' ? 'alta' : 'baja'}</p>
               {clasificacion?.confianza === 'alta' ? (
                 <p>
-                  ClasificaciÃƒÂ³n local y determinista, sin IA ni envÃƒÂ­o de texto
+                  Clasificación local y determinista, sin IA ni envío de texto
                   a terceros.
                 </p>
               ) : (
                 <p className="aviso">
-                  AtenciÃƒÂ³n: las seÃƒÂ±ales textuales son dÃƒÂ©biles o ambiguas.
+                  Atención: las señales textuales son débiles o ambiguas.
                   Revise y confirme el tipo manualmente.
                 </p>
               )}
@@ -596,16 +598,19 @@ export default function App() {
               ) : (
                 <p>
                   <strong>Propuesta:</strong> no se pudo determinar
-                  automÃƒÂ¡ticamente.
+                  automáticamente.
                 </p>
               )}
               {clasificacion?.evidencias && clasificacion.evidencias.length > 0 && (
                 <>
                   <p><strong>Evidencias en el texto:</strong></p>
                   <ul>
-                    {clasificacion.evidencias.map((evidencia, i) => (
-                      <li key={i}>{evidencia}</li>
-                    ))}
+                    {clasificacion.evidencias
+                      .filter((e, i, arr) => arr.indexOf(e) === i)
+                      .filter((e, i, arr) => !arr.some((o, j) => j !== i && o !== e && o.includes(e)))
+                      .map((evidencia, i) => (
+                        <li key={i}>{evidencia}</li>
+                      ))}
                   </ul>
                 </>
               )}
@@ -633,7 +638,7 @@ export default function App() {
                 disabled={!tipoSeleccionado || clasificando}
                 onClick={alConfirmarTipo}
               >
-                {clasificando ? 'ConfirmandoÃ¢â‚¬Â¦' : 'Confirmar tipo de contrato'}
+                {clasificando ? 'Confirmando…' : 'Confirmar tipo de contrato'}
               </button>
               <p className="sugerencia">
                 Puede corregir la propuesta eligiendo el otro tipo antes de
@@ -650,10 +655,10 @@ export default function App() {
                 <strong>{etiquetaDe(tipoSeleccionado)}</strong>.
               </p>
               <p className="aviso">
-                El anÃƒÂ¡lisis de clÃƒÂ¡usulas (hallazgos e informe) todavÃƒÂ­a no estÃƒÂ¡
-                implementado: estÃƒÂ¡ pendiente de la selecciÃƒÂ³n del proveedor de
+                El análisis de cláusulas (hallazgos e informe) todavía no está
+                implementado: está pendiente de la selección del proveedor de
                 IA para RF-04. No se generan hallazgos ni citas hasta que ese
-                mÃƒÂ³dulo exista.
+                módulo exista.
               </p>
             </section>
           )}
@@ -666,8 +671,8 @@ export default function App() {
         <section className="tarjeta" aria-live="polite">
           <h2>Resultados</h2>
           <p>
-            TodavÃƒÂ­a no hay resultados para mostrar. El anÃƒÂ¡lisis de contratos
-            (clasificaciÃƒÂ³n, hallazgos e informe) aÃƒÂºn no estÃƒÂ¡ implementado.
+            Todavía no hay resultados para mostrar. El análisis de contratos
+            (clasificación, hallazgos e informe) aún no está implementado.
           </p>
           <p className="sugerencia">
             Mientras tanto, puedes extraer el texto de un contrato en{' '}
@@ -680,16 +685,16 @@ export default function App() {
         <section className="tarjeta" aria-live="polite">
           <h2>Historial</h2>
           <p>
-            TodavÃƒÂ­a no hay anÃƒÂ¡lisis registrados. El historial estarÃƒÂ¡
-            disponible cuando el anÃƒÂ¡lisis y su registro estÃƒÂ©n implementados.
+            Todavía no hay análisis registrados. El historial estará
+            disponible cuando el análisis y su registro estén implementados.
           </p>
         </section>
       )}
 
       <footer className="pie">
         <p>
-          Esta herramienta apoya la revisiÃƒÂ³n contractual. Los resultados deben
-          ser revisados por una persona con formaciÃƒÂ³n jurÃƒÂ­dica.
+          Esta herramienta apoya la revisión contractual. Los resultados deben
+          ser revisados por una persona con formación jurídica.
         </p>
       </footer>
     </main>

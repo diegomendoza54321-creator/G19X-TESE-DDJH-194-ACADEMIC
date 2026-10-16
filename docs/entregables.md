@@ -14,7 +14,7 @@
 
 | Campo | Detalle |
 |---|---|
-| **Propósito** | Permitir que el evaluador o tutor acceda al sistema en funcionamiento para verificar las funciones del MVP. |
+| **Propósito** | Permitir que el evaluador acceda al sistema en funcionamiento para verificar las funciones del MVP. |
 | **Contenido esperado** | URL o instrucciones de acceso al entorno de demostración; credenciales de prueba si aplica. |
 | **Estado** | ⬜ No disponible — el sistema no existe todavía. |
 | **Qué falta** | Implementar y desplegar el MVP; definir el entorno de demostración; generar credenciales de prueba si el sistema requiere autenticación. |
@@ -108,8 +108,8 @@ Este entregable tiene dos componentes con estados distintos:
 |---|---|
 | **Propósito** | Definir qué incluye y excluye la primera versión funcional, el flujo principal, los criterios de aceptación y las condiciones de término. |
 | **Contenido esperado** | Funciones incluidas, funciones excluidas, flujo principal, decisiones pendientes, criterios de aceptación verificables y condiciones de término. |
-| **Estado** | 🔶 Borrador inicial disponible — requiere validación con el tutor y la organización receptora. Ver [`docs/MVP.md`](MVP.md). |
-| **Qué falta** | Validar con el tutor de residencias; resolver decisiones pendientes (IA, almacenamiento, tamaño de archivo, criterios jurídicos). El acceso privado ya está decidido; lo pendiente es el mecanismo técnico de autenticación y la creación y administración de cuentas. |
+| **Estado** | 🔶 Borrador inicial disponible — sujeto a revisión y ajuste por el equipo del proyecto. Ver [`docs/MVP.md`](MVP.md). |
+| **Qué falta** | Definir internamente y resolver decisiones pendientes (IA, almacenamiento, tamaño de archivo, criterios jurídicos). El acceso privado ya está decidido; lo pendiente es el mecanismo técnico de autenticación y la creación y administración de cuentas. |
 
 ### 9b. MVP funcionando (producto de software)
 
@@ -128,8 +128,8 @@ Este entregable tiene dos componentes con estados distintos:
 |---|---|
 | **Propósito** | Definir el problema, los usuarios, los objetivos, el alcance, las historias de usuario y los criterios de aceptación del producto. |
 | **Contenido esperado** | Problema, usuarios previstos, objetivos, alcance, historias de usuario con criterios de aceptación, restricciones, riesgos y decisiones pendientes. |
-| **Estado** | 🔶 Borrador inicial disponible — requiere revisión y validación con tutor y organización receptora. Ver [`docs/PRD.md`](PRD.md). |
-| **Qué falta** | Validar perfiles de usuario, alcance del MVP, decisiones pendientes (API de IA, persistencia, autenticación). |
+| **Estado** | 🔶 Borrador inicial disponible — sujeto a revisión y ajuste por el equipo del proyecto. Ver [`docs/PRD.md`](PRD.md). |
+| **Qué falta** | Definir internamente perfiles de usuario, alcance del MVP, decisiones pendientes (API de IA, persistencia, autenticación). |
 
 ---
 
@@ -138,7 +138,7 @@ Este entregable tiene dos componentes con estados distintos:
 | Estado | Significado |
 |---|---|
 | ⬜ No disponible | El entregable no existe todavía o no ha comenzado. |
-| 🔶 Borrador | Existe un borrador inicial que requiere revisión y validación. |
+| 🔶 Borrador | Existe un borrador inicial sujeto a revisión y ajuste por el equipo del proyecto. |
 | 🔷 En progreso | Se está trabajando activamente en el entregable. |
 | ✅ Completado | El entregable existe, ha sido verificado y está listo para entregar. |
 

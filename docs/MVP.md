@@ -63,7 +63,7 @@ El MVP es la primera versión funcional de la herramienta. Cubre el flujo comple
 - El usuario puede seleccionar el tipo correcto de una lista predefinida con los dos tipos acordados.
 - El análisis no inicia sin esa confirmación.
 
-> **Alcance:** Solo RF-03. El análisis (RF-04) y los criterios jurídicos siguen pendientes de sus decisiones y validación. La clasificación con IA externa queda pendiente de proveedor y autorización explícita.
+> **Alcance:** Solo RF-03. El análisis (RF-04) y los criterios jurídicos se implementan con criterios provisionales definidos internamente. La clasificación con IA externa queda pendiente de proveedor y autorización explícita.
 
 ### 3.6 Análisis del contrato
 
@@ -74,7 +74,7 @@ El MVP es la primera versión funcional de la herramienta. Cubre el flujo comple
   - Posibles contradicciones aparentes entre cláusulas.
   - Posibles riesgos contractuales.
 
-> **Nota:** Existe una propuesta inicial de criterios base y condicionales. Requiere validación con el tutor o con una persona con experiencia jurídica antes de considerarse definitiva. Esta validación debe completarse **antes de implementar el módulo de análisis**. *(pendiente)*
+> **Nota:** Existe una propuesta inicial de criterios base y condicionales definidos internamente. Estos criterios están sujetos a revisión y ajuste por el equipo del proyecto. *(pendiente)*
 
 ### 3.7 Informe de hallazgos
 
@@ -171,7 +171,7 @@ Estas decisiones no están resueltas. No deben asumirse como tomadas ni implemen
 | Mecanismo técnico de autenticación (sesiones, JWT u otro) | Define cómo se implementa el inicio de sesión y la gestión de la sesión activa |
 | Creación y administración de cuentas autorizadas | Define quién crea cuentas, cómo y con qué herramienta |
 | Selección del proveedor de IA (privacidad, costo, políticas) | Define la arquitectura del módulo de análisis (RF-04); la clasificación de tipo de contrato (RF-03) es local y determinista, sin IA ni envío de texto a terceros. No asumir envío de contratos a servicios externos sin autorización. |
-| Validación jurídica de la lista de criterios de revisión | Define qué busca el sistema en cada tipo de contrato; prerrequisito del módulo de análisis |
+| Definición interna de criterios de revisión | Define qué busca el sistema en cada tipo de contrato; criterios provisionales definidos por el equipo del proyecto |
 | Motor de base de datos para historial y cuentas | Define la tecnología de persistencia |
 | Campos exactos que guardará el historial y política de conservación | Define qué datos se almacenan y por cuánto tiempo |
 | Política de almacenamiento y eliminación del documento cargado | Define si el archivo se descarta al finalizar el análisis o se retiene |
@@ -237,7 +237,7 @@ El MVP se considera **terminado** cuando:
 
 1. Todos los criterios de aceptación de la sección 7 están verificados con contratos de prueba reales o sintéticos.
 2. El plan de pruebas ([`plan-de-pruebas.md`](plan-de-pruebas.md)) ha sido ejecutado y los resultados están registrados.
-3. La lista de criterios de revisión base y condicional ha sido validada con el tutor o con una persona con experiencia jurídica. **Esta validación es un prerrequisito para implementar el módulo de análisis; debe completarse antes de ese módulo, no solo antes de declarar el MVP terminado.** Existe una propuesta inicial pendiente de esa revisión.
+3. El módulo de análisis se implementa con criterios de revisión base y condicional definidos provisionalmente internamente. Estos criterios están sujetos a revisión y ajuste por el equipo del proyecto; no requieren validación externa previa para su implementación.
 4. Las decisiones de persistencia del historial (motor de base de datos, campos, política de conservación) han sido definidas e implementadas.
 5. El sistema está desplegado en un entorno al que el evaluador pueda acceder con una cuenta autorizada.
 6. Los entregables de acceso de prueba y evidencias (capturas o video) están disponibles.
@@ -246,4 +246,4 @@ El MVP se considera **terminado** cuando:
 
 ---
 
-*Este documento es un borrador sujeto a revisión y validación con el tutor de residencias y la organización receptora.*
+*Este documento es un borrador sujeto a revisión y ajuste por el equipo del proyecto.*

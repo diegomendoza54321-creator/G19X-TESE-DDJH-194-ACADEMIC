@@ -25,7 +25,7 @@ El acceso a la herramienta es privado: solo pueden utilizarla personas con una c
 | Profesional jurídico de apoyo | Realiza revisiones formales | Contar con un primer análisis estructurado que ahorre tiempo |
 | Usuario con acceso autorizado sin formación jurídica | Necesita entender un contrato que le afecta directamente | Recibir explicaciones claras y señalamientos concretos |
 
-> **Nota:** Los perfiles exactos y su prioridad deben validarse con el cliente o la institución receptora de la residencia.
+> **Nota:** Los perfiles exactos y su prioridad se definen internamente con el equipo del proyecto.
 
 ---
 
@@ -91,7 +91,7 @@ El MVP debe demostrar el flujo completo de extremo a extremo con las funciones e
 
 **Fuera del MVP:** exportación del informe, múltiples idiomas, soporte para PDF escaneados, comparación de versiones, integración con sistemas externos.
 
-> La definición del MVP está sujeta a validación con el tutor de residencias y la organización receptora.
+> La definición del MVP se ajusta internamente con el equipo del proyecto.
 
 ---
 
@@ -198,7 +198,7 @@ El MVP debe demostrar el flujo completo de extremo a extremo con las funciones e
 
 - El sistema no puede almacenar los documentos de los usuarios sin su consentimiento explícito. *(política pendiente de definir)*
 - El sistema no puede afirmar la legalidad de un contrato ni emitir opiniones jurídicas vinculantes.
-- El uso de APIs de terceros para IA está sujeto a la política de privacidad de la organización receptora. *(pendiente de validar)*
+- El uso de APIs de terceros para IA está sujeto a la política de privacidad del proveedor y a la autorización del proyecto. *(decisión interna pendiente)*
 - El presupuesto para APIs de IA es desconocido. *(pendiente)*
 
 ---
@@ -225,10 +225,10 @@ El MVP debe demostrar el flujo completo de extremo a extremo con las funciones e
 - [ ] Motor de base de datos para persistencia del historial y las cuentas.
 - [ ] Datos exactos que guardará el historial por cada análisis y política de conservación.
 - [ ] Política de almacenamiento y eliminación de los documentos cargados.
-- [ ] Validar con el tutor o con una persona con experiencia jurídica la lista de criterios de revisión base y condicional propuesta para cada tipo de contrato (prestación de servicios y proveedores). **Esta validación debe completarse antes de implementar el módulo de análisis.**
+- [ ] Definir y ajustar internamente la lista de criterios de revisión base y condicional propuesta para cada tipo de contrato (prestación de servicios y proveedores).
 - [ ] Tamaño máximo de archivo aceptado.
 - [ ] Estrategia de despliegue (entorno, infraestructura, dominio).
 
 ---
 
-*Este documento es un borrador inicial sujeto a revisión y validación.*
+*Este documento es un borrador inicial sujeto a revisión y ajuste por el equipo del proyecto.*

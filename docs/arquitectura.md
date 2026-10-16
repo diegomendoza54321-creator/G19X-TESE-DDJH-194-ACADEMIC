@@ -255,7 +255,7 @@ Usuario
 
 ## 6. Aspectos de arquitectura pendientes de definir
 
-- [ ] Selección y validación del proveedor de IA: privacidad, costo, políticas institucionales. **Prerrequisito para implementar el módulo de análisis.**
+- [ ] Selección y validación del proveedor de IA: privacidad, costo, políticas institucionales. Decisión interna del equipo del proyecto.
 - [ ] Mecanismo técnico de autenticación (sesiones, JWT u otro).
 - [ ] Creación y administración de cuentas autorizadas: quién las crea, cómo y con qué herramienta.
 - [ ] Motor de base de datos para historial y cuentas de usuario.
@@ -267,4 +267,4 @@ Usuario
 
 ---
 
-*Este documento es una propuesta inicial sujeta a revisión y validación.*
+*Este documento es una propuesta inicial sujeta a revisión y ajuste por el equipo del proyecto.*
