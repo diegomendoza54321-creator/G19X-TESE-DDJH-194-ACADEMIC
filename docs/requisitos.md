@@ -43,12 +43,14 @@
 
 ---
 
-### RF-03 — Clasificación del tipo de contrato
+### RF-03 — Clasificación del tipo de contrato (determinista y local)
+
+La sugerencia del tipo de contrato es determinista y local, basada en señales textuales explicables del propio documento. **No usa IA ni envía el contrato a terceros.** La IA externa queda pendiente de proveedor y autorización explícita. Solo RF-03: RF-04 y los criterios jurídicos siguen pendientes.
 
 | ID | Descripción | Prioridad |
 |---|---|---|
-| RF-03.1 | El sistema debe proponer automáticamente el tipo de contrato identificado. | Alta |
-| RF-03.2 | La propuesta de clasificación debe incluir una justificación breve basada en el texto del documento. | Alta |
+| RF-03.1 | El sistema debe proponer automáticamente el tipo de contrato identificado (prestación de servicios o proveedor). | Alta |
+| RF-03.2 | La propuesta de clasificación debe incluir una justificación breve basada en el texto del documento; cada evidencia debe ser un fragmento literal verificado contra el texto extraído. Ante señales débiles o ambiguas (baja confianza), el sistema debe indicarlo y pedir revisión manual. | Alta |
 | RF-03.3 | El usuario debe poder confirmar la clasificación propuesta antes de iniciar el análisis. | Alta |
 | RF-03.4 | El usuario debe poder corregir la clasificación seleccionando un tipo diferente de una lista predefinida. | Alta |
 | RF-03.5 | El análisis no debe iniciarse sin confirmación del usuario. | Alta |

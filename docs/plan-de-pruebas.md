@@ -235,7 +235,7 @@
 #### CF-01 — Clasificación correcta (prestación de servicios)
 
 **Descripción:** El contrato es claramente de prestación de servicios y el sistema lo clasifica correctamente.  
-**Resultado esperado:** Clasificación correcta en la primera propuesta.  
+**Resultado esperado:** El sistema clasifica localmente y de forma determinista el contrato como "Prestación de servicios", sin usar IA ni enviar texto a terceros.  
 **Resultado real:** *(registrar durante las pruebas)*  
 **Estado:** Pendiente
 

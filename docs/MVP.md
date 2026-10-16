@@ -54,13 +54,16 @@ El MVP es la primera versión funcional de la herramienta. Cubre el flujo comple
   - No simula haber leído el documento completo.
   - Indica al usuario que verifique que el PDF tenga texto seleccionable o que intente con otro archivo.
 
-### 3.5 Clasificación del tipo de contrato
+### 3.5 Clasificación del tipo de contrato (determinista y local)
 
-- La IA propone el tipo de contrato identificado: **prestación de servicios** o **proveedor**.
-- La propuesta incluye una justificación breve basada en el texto del documento.
+- El sistema sugiere el tipo de contrato identificado: **prestación de servicios** o **proveedor**, mediante una clasificación local y determinista basada en señales textuales explicables del propio documento. **No usa IA ni envía el contrato a terceros.**
+- La propuesta incluye una justificación breve basada en el texto del documento: cada evidencia es un fragmento literal verificado contra el texto extraído.
+- Ante señales débiles o ambiguas (baja confianza), el sistema lo indica y pide revisión manual.
 - El usuario revisa la propuesta y debe **confirmarla o corregirla** antes de que inicie el análisis.
 - El usuario puede seleccionar el tipo correcto de una lista predefinida con los dos tipos acordados.
 - El análisis no inicia sin esa confirmación.
+
+> **Alcance:** Solo RF-03. El análisis (RF-04) y los criterios jurídicos siguen pendientes de sus decisiones y validación. La clasificación con IA externa queda pendiente de proveedor y autorización explícita.
 
 ### 3.6 Análisis del contrato
 
@@ -167,7 +170,7 @@ Estas decisiones no están resueltas. No deben asumirse como tomadas ni implemen
 |---|---|
 | Mecanismo técnico de autenticación (sesiones, JWT u otro) | Define cómo se implementa el inicio de sesión y la gestión de la sesión activa |
 | Creación y administración de cuentas autorizadas | Define quién crea cuentas, cómo y con qué herramienta |
-| Selección del proveedor de IA (privacidad, costo, políticas) | Define la arquitectura del módulo de análisis y clasificación; no asumir envío a servicios externos sin autorización |
+| Selección del proveedor de IA (privacidad, costo, políticas) | Define la arquitectura del módulo de análisis (RF-04); la clasificación de tipo de contrato (RF-03) es local y determinista, sin IA ni envío de texto a terceros. No asumir envío de contratos a servicios externos sin autorización. |
 | Validación jurídica de la lista de criterios de revisión | Define qué busca el sistema en cada tipo de contrato; prerrequisito del módulo de análisis |
 | Motor de base de datos para historial y cuentas | Define la tecnología de persistencia |
 | Campos exactos que guardará el historial y política de conservación | Define qué datos se almacenan y por cuánto tiempo |

@@ -38,7 +38,8 @@ La aplicación sigue una arquitectura cliente-servidor. El frontend web se comun
 │  - Extracción de texto                        │
 │    (fallo o incompleto → detención,           │
 │     sin hallazgos parciales)                  │
-│  - Clasificación del tipo de contrato         │
+│  - Clasificación del tipo de contrato          │
+│    (determinista y local, sin IA)             │
 │  - Orquestación del análisis con IA           │
 │  - Validación de citas                        │
 │  - Construcción del informe                   │
@@ -52,6 +53,7 @@ La aplicación sigue una arquitectura cliente-servidor. El frontend web se comun
 │   *(pendiente)*   │  │     *(pendiente)*        │
 │                   │  │                          │
 │  - Cuentas de     │  │  Propone clasificación   │
+│  │    análisis       │  │                          │
 │    usuario        │  │  y analiza el texto.     │
 │  - Historial de   │  │  No se envía texto a     │
 │    análisis       │  │  servicios externos sin  │
@@ -66,6 +68,8 @@ La aplicación sigue una arquitectura cliente-servidor. El frontend web se comun
 ```
 
 > **Nota:** Las tecnologías mostradas son candidatas, no decisiones confirmadas. Ninguna está instalada ni verificada todavía.
+>
+> **Decisión de alcance (RF-03):** la clasificación del tipo de contrato es determinista y local, basada en señales textuales explicables del propio documento. No usa IA ni envía el contrato a terceros. La IA externa queda pendiente de proveedor y autorización explícita; su bloque en el diagrama cubre solo el análisis (RF-04).
 
 ---
 
@@ -101,7 +105,7 @@ La aplicación sigue una arquitectura cliente-servidor. El frontend web se comun
 | Gestión de sesión activa | Mantiene y valida la sesión del usuario autenticado. El mecanismo técnico (sesiones, tokens u otro) está pendiente de definir. |
 | Recepción del archivo | Endpoint para recibir el archivo cargado desde el frontend. |
 | Extracción de texto | Procesa el archivo (PDF o DOCX) y extrae el texto. Si la extracción falla o resulta incompleta, notifica al frontend y detiene el flujo sin generar hallazgos. |
-| Clasificación del tipo de contrato | Coordina con el servicio de IA para proponer el tipo de contrato (prestación de servicios o proveedor) con justificación breve. |
+| Clasificación del tipo de contrato | Determina localmente y de forma determinista el tipo de contrato (prestación de servicios o proveedor) con una justificación breve basada en reglas del texto, sin usar IA ni enviar texto a terceros. |
 | Orquestación del análisis | Con el tipo confirmado por el usuario, selecciona la lista de verificación y criterios correspondientes, y coordina la llamada al servicio de IA. |
 | Validación de citas | Verifica que cada cita generada por la IA exista literalmente en el texto extraído antes de incluirla en el informe. |
 | Construcción del informe | Estructura los hallazgos verificados con citas, explicaciones, consecuencias, recomendaciones y limitaciones. |
@@ -118,7 +122,7 @@ La aplicación sigue una arquitectura cliente-servidor. El frontend web se comun
 
 | Responsabilidad | Descripción |
 |---|---|
-| Propuesta de clasificación | Analiza el texto del contrato y propone el tipo (prestación de servicios o proveedor) con una justificación breve. |
+| Propuesta de clasificación | (No aplicable en RF-03) La clasificación del tipo de contrato se realiza localmente y de forma determinista en el backend, sin usar el servicio de IA. |
 | Análisis semántico | Identifica posibles ambigüedades, omisiones, contradicciones aparentes y riesgos a partir del texto y la lista de verificación. |
 | Generación de hallazgos estructurados | Produce los hallazgos en el formato esperado por el backend para su validación y construcción del informe. |
 
@@ -169,9 +173,9 @@ Backend — Módulo de extracción
   │    Si falla o es incompleto → notifica al frontend y detiene el flujo.
   │    No se generan hallazgos.
   ▼
-Backend — Módulo de clasificación  ←→  Servicio de IA
+Backend — Módulo de clasificación local
   │
-  │ 6. La IA propone el tipo de contrato con justificación breve
+  │ 6. El módulo propone el tipo de contrato con justificación breve basada en reglas locales
   │ 7. Devuelve la propuesta al frontend
   ▼
 Frontend — Confirmación del tipo

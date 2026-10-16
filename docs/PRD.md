@@ -38,7 +38,7 @@ Proporcionar un análisis estructurado de contratos de prestación de servicios 
 ### Objetivos específicos
 
 1. Extraer el texto del contrato desde formatos PDF (texto seleccionable) y DOCX.
-2. Clasificar el tipo de contrato y presentar esa clasificación al usuario para confirmación o corrección.
+2. Clasificar el tipo de contrato (sugerencia determinista y local, basada en señales textuales explicables; sin IA) y presentar esa clasificación al usuario para confirmación o corrección.
 3. Aplicar una lista de verificación adaptada al tipo de contrato clasificado.
 4. Identificar y reportar posibles ambigüedades, omisiones, contradicciones aparentes y riesgos.
 5. Respaldar cada hallazgo con una cita textual del documento original.
