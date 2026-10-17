@@ -223,3 +223,28 @@ button:disabled {
   font-size: 0.9rem;
   opacity: 0.9;
 }
+
+/* Informe de análisis con IA local (RF-04, prototipo). */
+.analisis h2 {
+  margin-top: 0;
+}
+
+.analisis .lista-hallazgos {
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.analisis .lista-hallazgos > li {
+  border: 1px solid var(--color-borde);
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.analisis blockquote {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid var(--color-borde);
+  font-style: italic;
+}

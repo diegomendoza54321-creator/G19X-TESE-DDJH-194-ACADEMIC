@@ -10,6 +10,10 @@ Endpoints
 (requiere sesión, RF-00.1).
 ``POST /clasificar``    — propone el tipo de contrato del texto extraído de
 forma local y determinista (requiere sesión, RF-03).
+``POST /analizar-con-ia`` — analiza las cláusulas con IA local
+(requiere sesión, RF-04, prototipo).
+``GET  /analizar-con-ia/estado`` — ocupación del análisis local
+(requiere sesión).
 
 Decisiones de diseño
 --------------------
@@ -28,7 +32,10 @@ Decisiones de diseño
   durante la extracción; nunca se escribe a disco.
 * **No se registra contenido.** Los logs no incluyen el texto de los
   contratos (RNF-03.3).
-* **Sin IA y sin criterios jurídicos.** Este bloque solo extrae texto.
+* **Análisis local con IA (RF-04, prototipo).** ``POST /analizar-con-ia``
+  llama solo al servidor local en 127.0.0.1:9931, nunca a servicios
+  externos. Toda cita se valida literalmente con ``app.citas``: lo que
+  no existe en el texto se descarta y no llega al informe (RPJ-02).
 * **Clasificación local (RF-03).** ``POST /clasificar`` usa el módulo
   ``app.clasificacion``: señales textuales del propio documento, sin IA,
   sin envío a terceros y sin guardar el contrato. La confianza baja se
@@ -42,6 +49,11 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from . import auth
+from .analisis_ia import (
+    ErrorAnalisis,
+    analizar_con_ia,
+    consultar_ocupacion,
+)
 from .auth import NOMBRE_COOKIE
 from .clasificacion import ETIQUETAS, clasificar_tipo_contrato
 from .extraccion import (
@@ -87,6 +99,30 @@ class RespuestaExtraccion(BaseModel):
     num_paginas: int | None = None
     codigo: str | None = None
     motivo: str | None = None
+
+
+class RespuestaAnalisis(BaseModel):
+    """Cuerpo de respuesta de ``POST /analizar-con-ia``."""
+
+    ok: bool
+    hallazgos: list[dict] | None = None
+    num_descartados: int = 0
+    codigo: str | None = None
+    motivo: str | None = None
+
+
+class SolicitudAnalisis(BaseModel):
+    """Cuerpo de la solicitud de ``POST /analizar-con-ia``."""
+
+    texto: str
+    tipo_confirmado: str
+
+
+class RespuestaEstadoAnalisis(BaseModel):
+    """Cuerpo de respuesta de ``GET /analizar-con-ia/estado``."""
+
+    ocupado: bool
+    fuente: str
 
 
 class SolicitudClasificacion(BaseModel):
@@ -311,5 +347,98 @@ def clasificar(
             confianza=resultado.confianza,
             evidencias=resultado.evidencias or None,
             motivo=resultado.motivo,
+        ).model_dump(),
+    )
+
+
+@app.get("/analizar-con-ia/estado")
+async def estado_analisis(
+    sesion_mrl: str | None = Cookie(default=None, alias=NOMBRE_COOKIE),
+) -> JSONResponse:
+    """Devuelve si el análisis local está ocupado (requiere sesión).
+
+    ``ocupado`` es ``True`` si el lock global del backend está tomado o
+    si algún slot del servidor local tiene ``is_processing=true``. Si
+    ``/slots`` no puede consultarse ni validarse estrictamente, se
+    responde ocupado con ``fuente="desconocida"`` (fail-safe).
+    """
+    if _usuario_de_sesion(sesion_mrl) is None:
+        return _error_no_autenticado()
+    ocupado, fuente = await consultar_ocupacion()
+    return JSONResponse(
+        status_code=200,
+        content=RespuestaEstadoAnalisis(
+            ocupado=ocupado, fuente=fuente
+        ).model_dump(),
+    )
+
+
+def _hallazgo_a_dict(hallazgo) -> dict:
+    return {
+        "tipo": hallazgo.tipo,
+        "categoria": hallazgo.categoria,
+        "descripcion": hallazgo.descripcion,
+        "cita": hallazgo.cita,
+        "explicacion": hallazgo.explicacion,
+        "consecuencia": hallazgo.consecuencia,
+        "recomendacion": hallazgo.recomendacion,
+        "limitaciones": hallazgo.limitaciones,
+    }
+
+
+@app.post("/analizar-con-ia")
+async def analizar_ia(
+    solicitud: SolicitudAnalisis,
+    sesion_mrl: str | None = Cookie(default=None, alias=NOMBRE_COOKIE),
+) -> JSONResponse:
+    """Analiza las cláusulas con IA local (RF-04, prototipo).
+
+    Requiere sesión (RF-00.1) y tipo confirmado (RF-03.5 exigible en
+    backend: sin tipo válido no hay análisis). El texto va solo al
+    servidor local en 127.0.0.1:9931, nunca a servicios externos.
+    Toda cita se valida literalmente con ``app.citas``: lo descartado
+    no llega al informe (RPJ-02).
+    """
+    if _usuario_de_sesion(sesion_mrl) is None:
+        return _error_no_autenticado()
+
+    texto = solicitud.texto or ""
+    if not texto.strip():
+        return JSONResponse(
+            status_code=422,
+            content=RespuestaAnalisis(
+                ok=False,
+                codigo="texto_vacio",
+                motivo="No hay texto para analizar. Extraiga primero el "
+                "texto del contrato.",
+            ).model_dump(),
+        )
+    if solicitud.tipo_confirmado not in ETIQUETAS:
+        return JSONResponse(
+            status_code=422,
+            content=RespuestaAnalisis(
+                ok=False,
+                codigo="tipo_no_confirmado",
+                motivo="Confirme el tipo de contrato antes de analizar.",
+            ).model_dump(),
+        )
+
+    try:
+        resultado = await analizar_con_ia(texto, solicitud.tipo_confirmado)
+    except ErrorAnalisis as error:
+        return JSONResponse(
+            status_code=error.estado_http,
+            content=RespuestaAnalisis(
+                ok=False,
+                codigo=error.codigo,
+                motivo=error.motivo,
+            ).model_dump(),
+        )
+    return JSONResponse(
+        status_code=200,
+        content=RespuestaAnalisis(
+            ok=True,
+            hallazgos=[_hallazgo_a_dict(h) for h in resultado.hallazgos],
+            num_descartados=resultado.num_descartados,
         ).model_dump(),
     )

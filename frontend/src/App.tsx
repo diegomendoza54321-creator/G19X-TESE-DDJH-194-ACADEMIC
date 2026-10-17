@@ -2,8 +2,10 @@
  * Interfaz del MVP: inicio de sesión, navegación, tema y extracción.
  *
  * Cubre RF-00 (autenticación privada), RF-01 (carga), RF-02 (extracción),
- * RF-06 (interfaz en español) y RF-07 (navegación principal y tema claro /
- * oscuro). No incluye IA: este bloque solo extrae el texto y lo muestra.
+ * RF-03 (clasificación local y determinista), RF-04 (análisis de cláusulas
+ * con IA local, prototipo), RF-06 (interfaz en español) y RF-07
+ * (navegación principal y tema claro / oscuro). No envía contratos a
+ * servicios externos: el análisis usa solo el servidor local en loopback.
  *
  * Navegación (RF-07.1): tras iniciar sesión hay cuatro secciones, Inicio,
  * Analizar contrato, Resultados e Historial. La carga y extracción viven en
@@ -24,7 +26,7 @@
  * (ver vite.config.ts), así que no hace falta CORS.
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 
 /** Formatos aceptados por el backend, según RF-01.1 y RF-01.2. */
@@ -53,6 +55,41 @@ interface RespuestaClasificacion {
   confianza: string | null
   evidencias: string[] | null
   motivo: string | null
+}
+
+interface HallazgoAnalisis {
+  tipo: string
+  categoria: string
+  descripcion: string
+  cita: string
+  explicacion: string
+  consecuencia: string
+  recomendacion: string
+  limitaciones: string
+}
+
+interface RespuestaAnalisis {
+  ok: boolean
+  hallazgos: HallazgoAnalisis[] | null
+  num_descartados: number
+  codigo: string | null
+  motivo: string | null
+}
+
+interface RespuestaEstadoAnalisis {
+  ocupado: boolean
+  fuente: string
+}
+
+const ETIQUETAS_HALLAZGO: Record<string, string> = {
+  ambiguedad: 'Posible ambigüedad',
+  omision: 'Posible omisión',
+  contradiccion: 'Posible contradicción',
+  riesgo: 'Posible riesgo',
+}
+
+function etiquetaHallazgo(tipo: string): string {
+  return ETIQUETAS_HALLAZGO[tipo] ?? tipo
 }
 
 type TipoOpcion = 'prestacion_de_servicios' | 'proveedor'
@@ -185,6 +222,110 @@ export default function App() {
   const [clasificacion, setClasificacion] = useState<RespuestaClasificacion | null>(null)
   const [tipoSeleccionado, setTipoSeleccionado] = useState<TipoOpcion | null>(null)
   const [confirmado, setConfirmado] = useState(false)
+  const [analizando, setAnalizando] = useState(false)
+  /** Limpia el estado del análisis RF-04 (respuestas tardías incluidas). */
+  function reiniciarAnalisis() {
+    idAnalisisRef.current += 1
+    controladorAnalisisRef.current?.abort()
+    controladorAnalisisRef.current = null
+    setAnalizando(false)
+    setHallazgos(null)
+    setNumDescartados(0)
+    setErrorAnalisis(null)
+    setServidorOcupado(false)
+  }
+
+  /** Consulta si el servidor local sigue ocupado (sin prometer plazos). */
+  async function consultarEstadoAnalisis(): Promise<void> {
+    try {
+      const respuesta = await fetch('/analizar-con-ia/estado')
+      if (respuesta.status === 401) {
+        volverALogin()
+        return
+      }
+      const datos = (await respuesta.json()) as RespuestaEstadoAnalisis
+      setServidorOcupado(datos.ocupado === true)
+    } catch {
+      setServidorOcupado(true)
+    }
+  }
+
+  /**
+   * Analiza las cláusulas con IA local (RF-04, prototipo).
+   *
+   * Solo tras confirmar el tipo. La espera es cancelable con "Dejar de
+   * esperar", que cierra la espera del cliente sin prometer que el
+   * servidor detenga su generación: la respuesta tardía se descarta por
+   * id de análisis y nunca se muestra para otro documento.
+   */
+  async function alAnalizarClausulas() {
+    if (!resultado?.texto || !tipoSeleccionado || analizando) return
+    const idAnalisis = idAnalisisRef.current + 1
+    idAnalisisRef.current = idAnalisis
+    const controlador = new AbortController()
+    controladorAnalisisRef.current = controlador
+    setAnalizando(true)
+    setHallazgos(null)
+    setNumDescartados(0)
+    setErrorAnalisis(null)
+    setServidorOcupado(false)
+    try {
+      const respuesta = await fetch('/analizar-con-ia', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          texto: resultado.texto,
+          tipo_confirmado: tipoSeleccionado,
+        }),
+        signal: controlador.signal,
+      })
+      if (respuesta.status === 401) {
+        volverALogin()
+        return
+      }
+      const datos = (await respuesta.json()) as RespuestaAnalisis
+      if (idAnalisis !== idAnalisisRef.current) return
+      if (!datos.ok) {
+        setErrorAnalisis(datos.motivo ?? 'No se pudo completar el análisis.')
+        await consultarEstadoAnalisis()
+        return
+      }
+      setHallazgos(datos.hallazgos ?? [])
+      setNumDescartados(datos.num_descartados ?? 0)
+    } catch (error) {
+      if (idAnalisis !== idAnalisisRef.current) return
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        setErrorAnalisis(
+          'Dejaste de esperar. El servidor local puede seguir procesando '
+            + 'unos minutos; el resultado se descartará y no se mostrará.',
+        )
+        await consultarEstadoAnalisis()
+        return
+      }
+      setErrorAnalisis(
+        'No se pudo conectar con el servidor de análisis. '
+          + 'Comprueba que el backend esté en marcha e inténtalo de nuevo.',
+      )
+      await consultarEstadoAnalisis()
+    } finally {
+      if (idAnalisis === idAnalisisRef.current) {
+        controladorAnalisisRef.current = null
+        setAnalizando(false)
+      }
+    }
+  }
+
+  /** Deja de esperar el análisis sin prometer que el servidor se detenga. */
+  function alDejarDeEsperar() {
+    controladorAnalisisRef.current?.abort()
+  }
+
+  const [hallazgos, setHallazgos] = useState<HallazgoAnalisis[] | null>(null)
+  const [numDescartados, setNumDescartados] = useState(0)
+  const [errorAnalisis, setErrorAnalisis] = useState<string | null>(null)
+  const [servidorOcupado, setServidorOcupado] = useState(false)
+  const idAnalisisRef = useRef(0)
+  const controladorAnalisisRef = useRef<AbortController | null>(null)
   const [clasificando, setClasificando] = useState(false)
 
   // Al abrir, la sesión vive en la cookie HttpOnly: se consulta al backend.
@@ -194,6 +335,8 @@ export default function App() {
       try {
         const respuesta = await fetch('/yo')
         let cuerpo: RespuestaSesion | null = null
+    reiniciarAnalisis()
+
         try {
           cuerpo = (await respuesta.json()) as RespuestaSesion
         } catch {
@@ -242,6 +385,8 @@ export default function App() {
     event.preventDefault()
     if (entrando) return
     setEntrando(true)
+    reiniciarAnalisis()
+
     setErrorLogin(null)
 
     const datos = new FormData()
@@ -255,6 +400,8 @@ export default function App() {
         cuerpo = (await respuesta.json()) as RespuestaSesion
       } catch {
         cuerpo = null
+    reiniciarAnalisis()
+
       }
       if (respuesta.ok && cuerpo?.ok && cuerpo.usuario) {
         setUsuario(cuerpo.usuario)
@@ -725,6 +872,111 @@ export default function App() {
                 disabled={!tipoSeleccionado || clasificando}
                 onClick={alConfirmarTipo}
               >
+
+          {confirmado && tipoSeleccionado && (
+            <section className="tarjeta analisis" aria-live="polite">
+              <h2>Análisis de cláusulas (prototipo local)</h2>
+              <p className="sugerencia">
+                El análisis usa IA local en este equipo. Puede tardar varios
+                minutos. No cierre esta vista mientras se procesa.
+              </p>
+              <button
+                type="button"
+                disabled={
+                  analizando || servidorOcupado || !resultado?.texto
+                }
+                onClick={alAnalizarClausulas}
+              >
+                {analizando
+                  ? 'Analizando…'
+                  : 'Analizar cláusulas con IA local'}
+              </button>
+              {analizando && (
+                <>
+                  <p aria-live="polite">
+                    Analizando localmente, puede tardar varios minutos. No
+                    cierre esta vista.
+                  </p>
+                  <button type="button" onClick={alDejarDeEsperar}>
+                    Dejar de esperar
+                  </button>
+                </>
+              )}
+              {servidorOcupado && !analizando && (
+                <p className="aviso">
+                  El servidor local está ocupado o su estado no pudo
+                  verificarse. Reintente solo cuando esté libre.
+                </p>
+              )}
+              {errorAnalisis && (
+                <p className="aviso" role="alert">
+                  {errorAnalisis}
+                </p>
+              )}
+              {hallazgos && (
+                <>
+                  {hallazgos.length === 0 ? (
+                    <p>
+                      No se identificaron hallazgos con los criterios
+                      aplicados. Esto no garantiza que el contrato esté libre
+                      de problemas.
+                    </p>
+                  ) : (
+                    <ol className="lista-hallazgos">
+                      {hallazgos.map((hallazgo, i) => (
+                        <li key={i}>
+                          <p>
+                            <strong>
+                              {etiquetaHallazgo(hallazgo.tipo)}
+                            </strong>
+                            {' — '}
+                            {hallazgo.categoria}
+                          </p>
+                          <p>{hallazgo.descripcion}</p>
+                          {hallazgo.cita && (
+                            <blockquote>“{hallazgo.cita}”</blockquote>
+                          )}
+                          <p>
+                            <strong>Explicación:</strong>{' '}
+                            {hallazgo.explicacion}
+                          </p>
+                          <p>
+                            <strong>Posible consecuencia:</strong>{' '}
+                            {hallazgo.consecuencia}
+                          </p>
+                          <p>
+                            <strong>Recomendación:</strong>{' '}
+                            {hallazgo.recomendacion}
+                          </p>
+                          <p className="sugerencia">
+                            <strong>Limitaciones:</strong>{' '}
+                            {hallazgo.limitaciones}
+                          </p>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                  {numDescartados > 0 && (
+                    <p className="sugerencia">
+                      {numDescartados === 1
+                        ? 'Se descartó 1 cita que no existía literalmente en '
+                          + 'el texto.'
+                        : `Se descartaron ${numDescartados} citas que no `
+                          + 'existían literalmente en el texto.'}
+                    </p>
+                  )}
+                  <p className="aviso">
+                    Este informe es generado automáticamente y no constituye
+                    asesoría jurídica. Los resultados deben ser revisados por
+                    una persona con formación jurídica antes de tomar
+                    decisiones. El sistema no afirma que un contrato sea
+                    válido, legal ni que cumpla con la ley.
+                  </p>
+                </>
+              )}
+            </section>
+          )}
+
                 {clasificando ? 'Confirmando…' : 'Confirmar tipo de contrato'}
               </button>
               <p className="sugerencia">
@@ -740,12 +992,6 @@ export default function App() {
               <p>
                 El tipo seleccionado es{' '}
                 <strong>{etiquetaDe(tipoSeleccionado)}</strong>.
-              </p>
-              <p className="aviso">
-                El análisis de cláusulas (hallazgos e informe) todavía no está
-                implementado: está pendiente de la selección del proveedor de
-                IA para RF-04. No se generan hallazgos ni citas hasta que ese
-                módulo exista.
               </p>
             </section>
           )}
