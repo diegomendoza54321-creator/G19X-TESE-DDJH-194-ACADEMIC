@@ -873,6 +873,15 @@ export default function App() {
                 onClick={alConfirmarTipo}
               >
 
+
+                {clasificando ? 'Confirmando…' : 'Confirmar tipo de contrato'}
+              </button>
+              <p className="sugerencia">
+                Puede corregir la propuesta eligiendo el otro tipo antes de
+                confirmar.
+              </p>
+            </section>
+          )}
           {confirmado && tipoSeleccionado && (
             <section className="tarjeta analisis" aria-live="polite">
               <h2>Análisis de cláusulas (prototipo local)</h2>
@@ -974,15 +983,6 @@ export default function App() {
                   </p>
                 </>
               )}
-            </section>
-          )}
-
-                {clasificando ? 'Confirmando…' : 'Confirmar tipo de contrato'}
-              </button>
-              <p className="sugerencia">
-                Puede corregir la propuesta eligiendo el otro tipo antes de
-                confirmar.
-              </p>
             </section>
           )}
 
