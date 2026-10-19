@@ -47,8 +47,8 @@
 - El usuario llega a la pantalla de inicio de la herramienta.
 - No se expone información interna ni de otros usuarios.
 
-**Resultado real:** *(registrar durante las pruebas)*  
-**Estado:** Pendiente
+**Resultado real:** 85 pruebas de backend pasaron (incluye `test_auth.py`: login correcto).  
+**Estado:** Aprobado
 
 ---
 
@@ -60,8 +60,8 @@
 - El acceso es denegado.
 - El sistema no expone información sobre cuentas existentes.
 
-**Resultado real:** *(registrar durante las pruebas)*  
-**Estado:** Pendiente
+**Resultado real:** 85 pruebas de backend pasaron (incluye `test_auth.py`: credenciales incorrectas → acceso denegado).  
+**Estado:** Aprobado
 
 ---
 
@@ -71,8 +71,8 @@
 **Resultado esperado:**
 - No hay enlace, botón ni formulario de registro accesible sin sesión iniciada.
 
-**Resultado real:** *(registrar durante las pruebas)*  
-**Estado:** Pendiente
+**Resultado real:** 85 pruebas de backend pasaron (incluye `test_auth.py`: sin registro público → 404).  
+**Estado:** Aprobado
 
 ---
 
@@ -83,8 +83,8 @@
 - El sistema redirige al usuario a la pantalla de inicio de sesión o muestra un error de acceso no autorizado.
 - No se muestra contenido privado.
 
-**Resultado real:** *(registrar durante las pruebas)*  
-**Estado:** Pendiente
+**Resultado real:** 85 pruebas de backend pasaron (incluye `test_auth.py` y `test_analisis_ia.py`: acceso sin sesión → 401).  
+**Estado:** Aprobado
 
 ---
 
@@ -101,8 +101,8 @@
 - Los hallazgos, si los hay, incluyen citas reales, explicación, consecuencia, recomendación y limitaciones.
 - No se generan hallazgos sin fundamento en el texto.
 
-**Resultado real:** *(registrar durante las pruebas)*  
-**Estado:** Pendiente
+**Resultado real:** 85 pruebas de backend pasaron (incluye `test_api.py`: extracción exitosa de PDF y DOCX válidos).  
+**Estado:** Aprobado
 
 ---
 
@@ -116,8 +116,8 @@
 - Se aplican los criterios condicionales correspondientes.
 - Los hallazgos incluyen citas reales.
 
-**Resultado real:** *(registrar durante las pruebas)*  
-**Estado:** Pendiente
+**Resultado real:** 85 pruebas de backend pasaron (`test_api.py`: extracción de DOCX) y prueba manual con Contrato-sintetico.docx confirmó clasificación como "Contrato de proveedor".  
+**Estado:** Aprobado
 
 ---
 
@@ -236,8 +236,8 @@
 
 **Descripción:** El contrato es claramente de prestación de servicios y el sistema lo clasifica correctamente.  
 **Resultado esperado:** El sistema clasifica localmente y de forma determinista el contrato como "Prestación de servicios", sin usar IA ni enviar texto a terceros.  
-**Resultado real:** *(registrar durante las pruebas)*  
-**Estado:** Pendiente
+**Resultado real:** 85 pruebas de backend pasaron (incluye `test_clasificacion.py`: clasificación de prestación de servicios).  
+**Estado:** Aprobado
 
 ---
 
@@ -278,8 +278,8 @@
 - El sistema no procede al análisis sin texto extraído.
 - No se generan ni muestran hallazgos.
 
-**Resultado real:** *(registrar durante las pruebas)*  
-**Estado:** Pendiente
+**Resultado real:** 85 pruebas de backend pasaron (incluye `test_api.py`: PDF escaneado → 422 sin texto).  
+**Estado:** Aprobado
 
 ---
 
@@ -293,8 +293,8 @@
 - No ofrece continuar con una revisión parcial ni simula haber leído el documento completo.
 - Indica al usuario que verifique el archivo o intente con otro.
 
-**Resultado real:** *(registrar durante las pruebas)*  
-**Estado:** Pendiente
+**Resultado real:** 85 pruebas de backend pasaron (incluye `test_api.py`: extracción parcial → 422, texto nulo).  
+**Estado:** Aprobado
 
 ---
 
@@ -306,8 +306,8 @@
 - Se notifica al usuario con un mensaje de error claro.
 - El sistema no genera un informe vacío ni expone errores internos.
 
-**Resultado real:** *(registrar durante las pruebas)*  
-**Estado:** Pendiente
+**Resultado real:** 85 pruebas de backend pasaron (incluye `test_api.py`: archivo corrupto → 422).  
+**Estado:** Aprobado
 
 ---
 
@@ -326,8 +326,8 @@
 
 **Descripción:** Verificar manualmente que cada cita textual en el informe aparece literalmente en el documento cargado.  
 **Resultado esperado:** Todas las citas son verificables en el documento original.  
-**Resultado real:** *(registrar durante las pruebas)*  
-**Estado:** Pendiente
+**Resultado real:** Prueba manual con Contrato-sintetico.docx generó un hallazgo con cita literal; 85 pruebas de backend pasaron (`test_citas.py`: verificación de citas textuales).  
+**Estado:** Aprobado
 
 ---
 
@@ -335,8 +335,8 @@
 
 **Descripción:** Verificar que el informe generado incluye el aviso de que no constituye asesoría jurídica.  
 **Resultado esperado:** El aviso es visible y está redactado de forma clara.  
-**Resultado real:** *(registrar durante las pruebas)*  
-**Estado:** Pendiente
+**Resultado real:** Prueba manual con Contrato-sintetico.docx mostró el aviso de no asesoría jurídica en el informe.  
+**Estado:** Aprobado
 
 ---
 
@@ -423,3 +423,21 @@ Para cada caso ejecutado, registrar:
 ---
 
 *Este documento es un borrador. Los contratos de prueba y los resultados reales se completarán durante el desarrollo.*
+
+---
+
+### Nota sobre casos pendientes
+
+Los siguientes casos no cuentan con evidencia suficiente para aprobarse en esta entrega y se mantienen como **Pendiente**:
+
+- **CB-01, CB-02** (contratos con ambigüedades): no hay pruebas de detección de ambigüedades en el flujo completo.
+- **CC-01, CC-02** (contratos con omisiones): no hay pruebas de detección de omisiones en el flujo completo.
+- **CD-01, CD-02** (contratos con contradicciones aparentes): no hay pruebas de detección de contradicciones en el flujo completo.
+- **CE-01, CE-02** (contratos con riesgos contractuales): no hay pruebas de detección de riesgos en el flujo completo.
+- **CF-02** (clasificación incorrecta corregida por el usuario): no se probó en flujo manual.
+- **CF-03** (documento que no es un contrato): no se probó específicamente.
+- **CH-01** (informe no afirma que el contrato es válido o ilegal): no hay prueba directa de esta restricción.
+- **CJ-01, CJ-02, CJ-03** (Historial de análisis): no hay pruebas de la funcionalidad de Historial.
+- **CK-01, CK-02** (tema y navegación): no se probaron específicamente tema claro/oscuro ni navegación principal.
+
+Los casos pendientes requieren pruebas manuales o de integración que aún no se han ejecutado.
