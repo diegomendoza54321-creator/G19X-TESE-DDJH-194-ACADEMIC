@@ -140,23 +140,40 @@ El anÃ¡lisis de clÃ¡usulas depende de **llama-server** (de llama.cpp) ejecut
 ### Archivos necesarios
 
 - Ejecutable `llama-server` de llama.cpp.
-- Modelo GGUF. El proyecto recomienda **Phi-3 mini 4K instruct, cuantificado q4_0** (por ejemplo: `model\Phi-3-mini-4k-instruct-q4_0.gguf`). El backend no descarga ni incluye este modelo; debe obtenerse y colocarse en la ruta que se indique al arrancar `llama-server`.
+- **Dato del entorno comprobado (no es requisito general):** en la máquina de desarrollo se verificó la presencia de `D:\llama.cpp\llama-server.exe` con la versión `0.7.0-dev (build 11683, commit a8d9a7e1e)`, compilado con Clang 20.1.8 para Windows x86_64. El proyecto no exige esta versión ni build concretos; cualquier binario compatible de llama.cpp que responda en `127.0.0.1:9931` es válido.
+- Modelo GGUF. El proyecto recomienda **Phi-3 mini 4K instruct, cuantificado q4_0** (por ejemplo: `model\Phi-3-mini-4k-instruct-q4_0.gguf`) como referencia. El repositorio **no incluye** ni especifica una URL de descarga ni una versión concreta de llama.cpp ni del modelo; el usuario debe proporcionar ambos archivos y ajustar la ruta `-m` al modelo que tenga disponible.
 
 ### Arrancar llama-server
 
 Desde la carpeta que contenga `llama-server.exe` y el modelo:
 
 ```powershell
-.\llama-server.exe -m model\Phi-3-mini-4k-instruct-q4_0.gguf --host 127.0.0.1 --port 9931 -c 2048
+.\llama-server.exe -m 'C:\Modelos\modelo.gguf' --host 127.0.0.1 --port 9931 -c 2048
 ```
 
 ParÃ¡metros clave:
 
-- `-m`: ruta al archivo `.gguf` del modelo.
+- `-m`: ruta al archivo `.gguf` del modelo (requerido, sin valor predeterminado en el repositorio). Sustituya `'C:\Modelos\modelo.gguf'` por la ruta real de su archivo GGUF.
 - `--host 127.0.0.1`: escucha solo en loopback (sin red externa).
 - `--port 9931`: puerto que el backend espera por defecto.
 - `-c 2048`: contexto de 2048 tokens.
 
+
+### Comprobar que llama-server responde
+
+Una vez arrancado, en otra terminal de PowerShell:
+
+```powershell
+curl.exe -sS http://127.0.0.1:9931/v1/models | Select-Object -First 1
+```
+
+o, alternativamente:
+
+```powershell
+Invoke-RestMethod -Uri http://127.0.0.1:9931/v1/models
+```
+
+Debe devolver una lista de modelos cargados por el servidor. Si no responde, el backend no puede conectar y el endpoint de análisis devolverá `modelo_no_disponible` (HTTP 503).
 Si no se dispone de `llama-server`, el backend arranca igualmente, pero el endpoint de anÃ¡lisis responderÃ¡ con error de conexiÃ³n (`modelo_no_disponible`, HTTP 503) hasta que `llama-server` estÃ© en marcha.
 
 ---
