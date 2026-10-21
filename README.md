@@ -1,16 +1,16 @@
 ﻿# MotorRevisionLegal
 
-Herramienta web de revisiÃ³n de clÃ¡usulas contractuales â€” Proyecto de Residencias Profesionales.
+Herramienta web de revisión de cláusulas contractuales — Proyecto de Residencias Profesionales.
 
 ---
 
-## DescripciÃ³n
+## Descripción
 
-MotorRevisionLegal apoya la revisiÃ³n de contratos de prestaciÃ³n de servicios y de proveedores. Extrae el texto del documento, propone su tipo, permite que la persona usuaria confirme o corrija esa clasificaciÃ³n y genera un informe de hallazgos respaldado por fragmentos del contrato original.
+MotorRevisionLegal apoya la revisión de contratos de prestación de servicios y de proveedores. Extrae el texto del documento, propone su tipo, permite que la persona usuaria confirme o corrija esa clasificación y genera un informe de hallazgos respaldado por fragmentos del contrato original.
 
-El acceso es privado: solo pueden entrar cuentas autorizadas. No existe registro pÃºblico.
+El acceso es privado: solo pueden entrar cuentas autorizadas. No existe registro público.
 
-**Los hallazgos son orientativos y requieren revisiÃ³n humana. La herramienta no emite dictÃ¡menes jurÃ­dicos ni garantiza la validez de ningÃºn contrato.**
+**Los hallazgos son orientativos y requieren revisión humana. La herramienta no emite dictámenes jurídicos ni garantiza la validez de ningún contrato.**
 
 ---
 
@@ -19,67 +19,67 @@ El acceso es privado: solo pueden entrar cuentas autorizadas. No existe registro
 ### Incluidas en el alcance
 
 - Cargar contratos en formato **PDF con texto seleccionable** o **DOCX**.
-- Proponer el tipo de contrato (prestaciÃ³n de servicios o proveedor) con una justificaciÃ³n breve basada en el texto.
-- Permitir que la persona usuaria **confirme o corrija la clasificaciÃ³n** antes de iniciar el anÃ¡lisis.
-- Aplicar una lista de verificaciÃ³n base y criterios condicionales segÃºn el tipo confirmado (pendiente: criterios condicionales por tipo no implementados en este prototipo).
-- Identificar posibles ambigÃ¼edades, omisiones, contradicciones aparentes y riesgos contractuales.
+- Proponer el tipo de contrato (prestación de servicios o proveedor) con una justificación breve basada en el texto.
+- Permitir que la persona usuaria **confirme o corrija la clasificación** antes de iniciar el análisis.
+- Aplicar una lista de verificación base y criterios condicionales según el tipo confirmado (la lista base está implementada y se integra al prompt).
+- Identificar posibles ambigüedades, omisiones, contradicciones aparentes y riesgos contractuales.
 - Generar hallazgos respaldados por citas textuales del documento original.
-- Presentar por cada hallazgo: explicaciÃ³n, posible consecuencia, recomendaciÃ³n y limitaciones del anÃ¡lisis.
-- Mostrar el informe en pantalla. Las categorÃ­as sin hallazgos se ocultan; si no hay ninguno, se indica que no se identificaron hallazgos con los criterios aplicados.
-- Consultar anÃ¡lisis anteriores desde la secciÃ³n **Historial** (pendiente: no implementado en este prototipo).
+- Presentar por cada hallazgo: explicación, posible consecuencia, recomendación y limitaciones del análisis.
+- Mostrar el informe en pantalla. Las categorías sin hallazgos se ocultan; si no hay ninguno, se indica que no se identificaron hallazgos con los criterios aplicados.
+- Consultar análisis anteriores desde la sección **Historial** (pendiente: no implementado en este prototipo).
 - Interfaz con **tema claro y oscuro**; la preferencia se recuerda en el navegador.
-- NavegaciÃ³n con: **Inicio**, **Analizar contrato**, **Resultados** e **Historial**. Las secciones *CÃ³mo funciona* y *Criterios* pueden incluirse tambiÃ©n.
+- Navegación con: **Inicio**, **Analizar contrato**, **Resultados** e **Historial**. Las secciones *Cómo funciona* y *Criterios* pueden incluirse también.
 
 ### Limitaciones conocidas
 
-- No inventa citas, clÃ¡usulas ni obligaciones que no estÃ©n en el documento.
-- No determina la validez legal ni la ejecutabilidad de ningÃºn contrato.
-- Requiere archivos PDF con texto seleccionable. Los PDF escaneados sin capa de texto no estÃ¡n soportados.
-- Si la extracciÃ³n del texto falla o resulta incompleta, el anÃ¡lisis se detiene y no se generan hallazgos.
-- Alcance inicial: contratos de prestaciÃ³n de servicios y de proveedores en espaÃ±ol. No soporta otros tipos ni idiomas.
+- No inventa citas, cláusulas ni obligaciones que no estén en el documento.
+- No determina la validez legal ni la ejecutabilidad de ningún contrato.
+- Requiere archivos PDF con texto seleccionable. Los PDF escaneados sin capa de texto no están soportados.
+- Si la extracción del texto falla o resulta incompleta, el análisis se detiene y no se generan hallazgos.
+- Alcance inicial: contratos de prestación de servicios y de proveedores en español. No soporta otros tipos ni idiomas.
 
 ### Fuera del alcance inicial
 
-- Descarga o exportaciÃ³n del informe.
+- Descarga o exportación del informe.
 - Compartir el informe por correo u otro medio.
-- Registro pÃºblico de nuevos usuarios.
+- Registro público de nuevos usuarios.
 - PDF escaneados (OCR).
-- ComparaciÃ³n entre versiones de un contrato.
-- IntegraciÃ³n con sistemas ERP u otras plataformas externas.
-- GeneraciÃ³n automÃ¡tica de contratos o clÃ¡usulas.
-- Firma electrÃ³nica.
+- Comparación entre versiones de un contrato.
+- Integración con sistemas ERP u otras plataformas externas.
+- Generación automática de contratos o cláusulas.
+- Firma electrónica.
 
 ---
 
 ## Estado del proyecto
 
-> **Fase actual:** Prototipo funcional (backend, frontend, anÃ¡lisis local de IA y pruebas automatizadas).
+> **Fase actual:** Prototipo funcional (backend, frontend, análisis local de IA y pruebas automatizadas).
 
-El prototipo incluye backend (FastAPI), frontend (React/Vite), clasificaciÃ³n local de tipo de contrato, extracciÃ³n de texto de PDF/DOCX y anÃ¡lisis de clÃ¡usulas contra un servidor local `llama-server` (llama.cpp) con modelo Phi-3 GGUF en `127.0.0.1:9931`. Las pruebas backend pasan con `pytest`.
+El prototipo incluye backend (FastAPI), frontend (React/Vite), clasificación local de tipo de contrato, extracción de texto de PDF/DOCX y análisis de cláusulas contra un servidor local `llama-server` (llama.cpp) con modelo Phi-3 GGUF en `127.0.0.1:9931`. Las pruebas backend pasan con `pytest`.
 
-Algunos elementos del alcance inicial siguen pendientes: **historial de anÃ¡lisis** y **criterios de verificaciÃ³n condicionales por tipo de contrato**. No se prometen como terminados.
+Algunos elementos del alcance inicial siguen pendientes: **historial de análisis**. No se prometen como terminados.
 
 ---
 
-## TecnologÃ­as
+## Tecnologías
 
-| Componente | TecnologÃ­a | Estado |
+| Componente | Tecnología | Estado |
 |---|---|---|
 | Backend | Python 3.14 + FastAPI | Implementado |
 | Frontend | React 19 + TypeScript + Vite | Implementado |
 | Estilos | CSS (tema claro/oscuro) | Implementado |
 | Base de datos | SQLite | Implementado |
-| ExtracciÃ³n de texto | pypdf, python-docx | Implementado |
+| Extracción de texto | pypdf, python-docx | Implementado |
 | IA / LLM | llama-server (llama.cpp) con Phi-3 GGUF local | Implementado (loopback) |
-| AutenticaciÃ³n | Sesiones SQLite, PBKDF2-SHA256 | Implementado |
+| Autenticación | Sesiones SQLite, PBKDF2-SHA256 | Implementado |
 | Pruebas backend | pytest, httpx, httpx2, fpdf2 | Implementado |
 | Control de versiones | Git + GitHub | En uso |
 
 ### Decisiones de arquitectura
 
-- El servidor de IA corre localmente en `127.0.0.1:9931` (loopback, sin red externa). Nunca se envÃ­a texto de contratos a servicios de terceros.
-- La URL del servidor y el lÃ­mite de contexto se leen de variables de entorno (`URL_SERVIDOR_IA`, `LIMITE_CONTEXTO_IA`) con valores predeterminados `http://127.0.0.1:9931` y `2048`.
-- El archivo `backend/.env.example` es una plantilla; `.env` **no se carga automÃ¡ticamente**. Las variables deben establecerse en el entorno antes de iniciar el backend.
+- El servidor de IA corre localmente en `127.0.0.1:9931` (loopback, sin red externa). Nunca se envía texto de contratos a servicios de terceros.
+- La URL del servidor y el límite de contexto se leen de variables de entorno (`URL_SERVIDOR_IA`, `LIMITE_CONTEXTO_IA`) con valores predeterminados `http://127.0.0.1:9931` y `2048`.
+- El archivo `backend/.env.example` es una plantilla; `.env` **no se carga automáticamente**. Las variables deben establecerse en el entorno antes de iniciar el backend.
 
 ---
 
@@ -87,41 +87,41 @@ Algunos elementos del alcance inicial siguen pendientes: **historial de anÃ¡li
 
 Se necesita Windows con:
 
-- **Python 3.14** (incluye `pip`). Durante la instalaciÃ³n, marcar "Add Python to PATH".
-- **Node.js** (solo para el frontend; versiÃ³n indicada en `frontend/package.json`).
+- **Python 3.14** (incluye `pip`). Durante la instalación, marcar "Add Python to PATH".
+- **Node.js** (solo para el frontend; versión indicada en `frontend/package.json`).
 - **llama.cpp** con el ejecutable `llama-server` y un modelo GGUF (recomendado: Phi-3 mini 4K instruct, cuantificado q4_0).
 
-Todos los comandos de este documento se ejecutan desde la **raÃ­z del repositorio** (donde estÃ¡ este `README.md`), en PowerShell, a menos que se indique lo contrario.
+Todos los comandos de este documento se ejecutan desde la **raíz del repositorio** (donde está este `README.md`), en PowerShell, a menos que se indique lo contrario.
 
 Estructura esperada:
 
 ```
 MotorRevisionLegal/
-â”œâ”€â”€ backend/
-â”‚   â”œâ”€â”€ app/
-â”‚   â”‚   â”œâ”€â”€ analisis_ia.py
-â”‚   â”‚   â”œâ”€â”€ auth.py
-â”‚   â”‚   â”œâ”€â”€ citas.py
-â”‚   â”‚   â”œâ”€â”€ clasificacion.py
-â”‚   â”‚   â”œâ”€â”€ extraccion.py
-â”‚   â”‚   â””â”€â”€ main.py
-â”‚   â”œâ”€â”€ requirements.txt
-â”‚   â”œâ”€â”€ pytest.ini
-â”‚   â”œâ”€â”€ crear_usuario.py
-â”‚   â”œâ”€â”€ .env.example
-â”‚   â””â”€â”€ tests/
-â”œâ”€â”€ frontend/
-â”‚   â””â”€â”€ package.json
-â”œâ”€â”€ docs/
-â”œâ”€â”€ .gitignore
-â””â”€â”€ README.md
+├── backend/
+│   ├── app/
+│   │   ├── analisis_ia.py
+│   │   ├── auth.py
+│   │   ├── citas.py
+│   │   ├── clasificacion.py
+│   │   ├── extraccion.py
+│   │   └── main.py
+│   ├── requirements.txt
+│   ├── pytest.ini
+│   ├── crear_usuario.py
+│   ├── .env.example
+│   └── tests/
+├── frontend/
+│   └── package.json
+├── docs/
+├── .gitignore
+└── README.md
 ```
 
 ---
 
 ## 2. Crear el entorno virtual e instalar dependencias del backend
 
-Desde la raÃ­z del repositorio:
+Desde la raíz del repositorio:
 
 ```powershell
 python -m venv .venv
@@ -130,12 +130,12 @@ python -m venv .venv
 
 Esto instala las dependencias listadas en `backend/requirements.txt`:
 - `fastapi`, `uvicorn[standard]`, `python-multipart` (API)
-- `pypdf`, `python-docx` (extracciÃ³n de texto)
+- `pypdf`, `python-docx` (extracción de texto)
 - `pytest`, `httpx`, `httpx2`, `fpdf2` (pruebas)
 
 ---## 3. Preparar llama.cpp y el modelo GGUF
 
-El anÃ¡lisis de clÃ¡usulas depende de **llama-server** (de llama.cpp) ejecutÃ¡ndose en `127.0.0.1:9931`.
+El análisis de cláusulas depende de **llama-server** (de llama.cpp) ejecutándose en `127.0.0.1:9931`.
 
 ### Archivos necesarios
 
@@ -151,7 +151,7 @@ Desde la carpeta que contenga `llama-server.exe` y el modelo:
 .\llama-server.exe -m 'C:\Modelos\modelo.gguf' --host 127.0.0.1 --port 9931 -c 2048
 ```
 
-ParÃ¡metros clave:
+Parámetros clave:
 
 - `-m`: ruta al archivo `.gguf` del modelo (requerido, sin valor predeterminado en el repositorio). Sustituya `'C:\Modelos\modelo.gguf'` por la ruta real de su archivo GGUF.
 - `--host 127.0.0.1`: escucha solo en loopback (sin red externa).
@@ -174,7 +174,7 @@ Invoke-RestMethod -Uri http://127.0.0.1:9931/v1/models
 ```
 
 Debe devolver una lista de modelos cargados por el servidor. Si no responde, el backend no puede conectar y el endpoint de análisis devolverá `modelo_no_disponible` (HTTP 503).
-Si no se dispone de `llama-server`, el backend arranca igualmente, pero el endpoint de anÃ¡lisis responderÃ¡ con error de conexiÃ³n (`modelo_no_disponible`, HTTP 503) hasta que `llama-server` estÃ© en marcha.
+Si no se dispone de `llama-server`, el backend arranca igualmente, pero el endpoint de análisis responderá con error de conexión (`modelo_no_disponible`, HTTP 503) hasta que `llama-server` esté en marcha.
 
 ---
 
@@ -187,40 +187,40 @@ URL_SERVIDOR_IA=http://127.0.0.1:9931
 LIMITE_CONTEXTO_IA=2048
 ```
 
-**`.env` no se carga automÃ¡ticamente.** El backend lee las variables directamente del entorno del sistema operativo mediante `os.environ.get`.
+**`.env` no se carga automáticamente.** El backend lee las variables directamente del entorno del sistema operativo mediante `os.environ.get`.
 
-OpciÃ³n A: crear archivo `.env`:
+Opción A: crear archivo `.env`:
 
 ```powershell
 copy backend\.env.example backend\.env
 # Editar backend\.env si es necesario
 ```
 
-OpciÃ³n B: establecer en PowerShell antes de iniciar el backend:
+Opción B: establecer en PowerShell antes de iniciar el backend:
 
 ```powershell
 $env:URL_SERVIDOR_IA="http://127.0.0.1:9931"
 $env:LIMITE_CONTEXTO_IA="2048"
 ```
 
-ValidaciÃ³n:
+Validación:
 - `URL_SERVIDOR_IA`: solo se aceptan hosts `127.0.0.1` o `localhost`. Cualquier otro host provoca error al iniciar el backend.
 - `LIMITE_CONTEXTO_IA`: debe ser un entero positivo (por defecto `2048`).
 
 ---## 5. Crear el primer usuario
 
-No existe registro pÃºblico. Las cuentas las crea quien opera el servidor en la mÃ¡quina local ejecutando `backend/crear_usuario.py`:
+No existe registro público. Las cuentas las crea quien opera el servidor en la máquina local ejecutando `backend/crear_usuario.py`:
 
 ```powershell
 .venv\Scripts\python.exe backend\crear_usuario.py revisor
 ```
 
-El script solicitarÃ¡ la contraseÃ±a sin mostrarla en pantalla.
+El script solicitará la contraseña sin mostrarla en pantalla.
 
 Argumentos reales de `crear_usuario.py`:
-- `usuario` (posicional): nombre de usuario Ãºnico.
-- `--contrasena "..."`: pasar la contraseÃ±a directamente (solo recomendado para pruebas).
-- `--reestablecer`: cambiar la contraseÃ±a de un usuario existente y revocar sus sesiones activas.
+- `usuario` (posicional): nombre de usuario único.
+- `--contrasena "..."`: pasar la contraseña directamente (solo recomendado para pruebas).
+- `--reestablecer`: cambiar la contraseña de un usuario existente y revocar sus sesiones activas.
 - `--bd <ruta>`: especificar una ruta SQLite distinta a la predeterminada.
 
 ---
@@ -229,13 +229,13 @@ Argumentos reales de `crear_usuario.py`:
 
 ### Backend
 
-Desde la raÃ­z del repositorio, con el entorno virtual activado:
+Desde la raíz del repositorio, con el entorno virtual activado:
 
 ```powershell
 .venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --reload
 ```
 
-La API queda disponible en `http://127.0.0.1:8000`. DocumentaciÃ³n interactiva en `http://127.0.0.1:8000/docs`.
+La API queda disponible en `http://127.0.0.1:8000`. Documentación interactiva en `http://127.0.0.1:8000/docs`.
 
 ### Frontend
 
@@ -249,19 +249,19 @@ npm run dev
 
 Vite queda disponible en `http://localhost:5173` (o el puerto que asigne).
 
-Compruebe que ambos servicios responden antes de usar la aplicaciÃ³n.
+Compruebe que ambos servicios responden antes de usar la aplicación.
 
 ---
 
 ## 7. Ejecutar las pruebas automatizadas
 
-Desde la raÃ­z del repositorio:
+Desde la raíz del repositorio:
 
 ```powershell
 .venv\Scripts\python.exe -m pytest backend
 ```
 
-Se ejecutan 94 pruebas cubriendo autenticaciÃ³n, extracciÃ³n, citas, anÃ¡lisis de IA y configuraciÃ³n por variables de entorno.
+Se ejecutan 94 pruebas cubriendo autenticación, extracción, citas, análisis de IA y configuración por variables de entorno.
 
 ---
 
@@ -275,80 +275,80 @@ Se ejecutan 94 pruebas cubriendo autenticaciÃ³n, extracciÃ³n, citas, anÃ¡l
 
 ### Errores comunes
 
-| Error | Causa probable | SoluciÃ³n |
+| Error | Causa probable | Solución |
 |-------|---------------|----------|
-| `modelo_no_disponible` (503) | `llama-server` no estÃ¡ en marcha en `127.0.0.1:9931` | Arrancar `llama-server` con los parÃ¡metros del paso 3. |
+| `modelo_no_disponible` (503) | `llama-server` no está en marcha en `127.0.0.1:9931` | Arrancar `llama-server` con los parámetros del paso 3. |
 | Host no permitido | `URL_SERVIDOR_IA` apunta a un host distinto de `127.0.0.1` o `localhost` | Corregir la variable de entorno a un host loopback. |
 | `LIMITE_CONTEXTO_IA` debe ser un entero positivo | Valor no entero, cero o negativo | Asignar un valor entero mayor a 0 (por defecto `2048`). |
-| Contratos extensos exceden el contexto | El documento supera los 2048 tokens | Usar un texto mÃ¡s corto; el anÃ¡lisis se detiene sin inventar hallazgos. |
+| Contratos extensos exceden el contexto | El documento supera los 2048 tokens | Usar un texto más corto; el análisis se detiene sin inventar hallazgos. |
 
 ---
 
 ## 9. Limitaciones reales
 
-- **Modelo local:** todo el anÃ¡lisis se ejecuta contra `llama-server` en `127.0.0.1:9931`; no se envÃ­a texto a servicios externos.
-- **Contexto 2048 tokens:** contratos extensos pueden excederlo; en ese caso el anÃ¡lisis se detiene y no se generan hallazgos inventados.
-- **Idioma espaÃ±ol:** el anÃ¡lisis estÃ¡ disponible solo en espaÃ±ol.
+- **Modelo local:** todo el análisis se ejecuta contra `llama-server` en `127.0.0.1:9931`; no se envía texto a servicios externos.
+- **Contexto 2048 tokens:** contratos extensos pueden excederlo; en ese caso el análisis se detiene y no se generan hallazgos inventados.
+- **Idioma español:** el análisis está disponible solo en español.
 - **Citas textuales:** se validan contra el documento original; no se aceptan citas inventadas.
-- **RevisiÃ³n jurÃ­dica humana:** los hallazgos son orientativos y requieren revisiÃ³n humana. La herramienta no emite dictÃ¡menes jurÃ­dicos ni garantiza la validez de ningÃºn contrato.
+- **Revisión jurídica humana:** los hallazgos son orientativos y requieren revisión humana. La herramienta no emite dictámenes jurídicos ni garantiza la validez de ningún contrato.
 
 ---## Estructura del proyecto
 
 ```
 MotorRevisionLegal/
-â”œâ”€â”€ backend/           # API y lÃ³gica de anÃ¡lisis (Python / FastAPI)
-â”‚   â”œâ”€â”€ app/
-â”‚   â”‚   â”œâ”€â”€ analisis_ia.py   # Cliente del servidor local de IA (llama-server)
-â”‚   â”‚   â”œâ”€â”€ auth.py          # Sesiones SQLite, PBKDF2 (RF-00)
-â”‚   â”‚   â”œâ”€â”€ citas.py         # ValidaciÃ³n de citas textuales
-â”‚   â”‚   â”œâ”€â”€ clasificacion.py # ClasificaciÃ³n local de tipo de contrato
-â”‚   â”‚   â”œâ”€â”€ extraccion.py    # ExtracciÃ³n de texto PDF/DOCX (RF-01, RF-02)
-â”‚   â”‚   â””â”€â”€ main.py          # Endpoints de la API
-â”‚   â”œâ”€â”€ requirements.txt
-â”‚   â”œâ”€â”€ pytest.ini
-â”‚   â”œâ”€â”€ crear_usuario.py     # Alta local de usuarios autorizados (RF-00.5)
-â”‚   â”œâ”€â”€ .env.example         # Plantilla de variables de entorno
-â”‚   â””â”€â”€ tests/               # Pruebas automatizadas (pytest)
-â”œâ”€â”€ frontend/          # Interfaz de usuario (React / TypeScript / Vite)
-â”œâ”€â”€ docs/              # DocumentaciÃ³n del proyecto
-â”‚   â”œâ”€â”€ MVP.md
-â”‚   â”œâ”€â”€ PRD.md
-â”‚   â”œâ”€â”€ requisitos.md
-â”‚   â”œâ”€â”€ arquitectura.md
-â”‚   â”œâ”€â”€ plan-de-pruebas.md
-â”‚   â”œâ”€â”€ bitacora.md
-â”‚   â”œâ”€â”€ entregables.md
-â”‚   â”œâ”€â”€ guia-instalacion.md
-â”‚   â”œâ”€â”€ manual-usuario.md
-â”‚   â””â”€â”€ manual-tecnico.md
-â”œâ”€â”€ .gitignore
-â””â”€â”€ README.md
+├── backend/           # API y lógica de análisis (Python / FastAPI)
+│   ├── app/
+│   │   ├── analisis_ia.py   # Cliente del servidor local de IA (llama-server)
+│   │   ├── auth.py          # Sesiones SQLite, PBKDF2 (RF-00)
+│   │   ├── citas.py         # Validación de citas textuales
+│   │   ├── clasificacion.py # Clasificación local de tipo de contrato
+│   │   ├── extraccion.py    # Extracción de texto PDF/DOCX (RF-01, RF-02)
+│   │   └── main.py          # Endpoints de la API
+│   ├── requirements.txt
+│   ├── pytest.ini
+│   ├── crear_usuario.py     # Alta local de usuarios autorizados (RF-00.5)
+│   ├── .env.example         # Plantilla de variables de entorno
+│   └── tests/               # Pruebas automatizadas (pytest)
+├── frontend/          # Interfaz de usuario (React / TypeScript / Vite)
+├── docs/              # Documentación del proyecto
+│   ├── MVP.md
+│   ├── PRD.md
+│   ├── requisitos.md
+│   ├── arquitectura.md
+│   ├── plan-de-pruebas.md
+│   ├── bitacora.md
+│   ├── entregables.md
+│   ├── guia-instalacion.md
+│   ├── manual-usuario.md
+│   └── manual-tecnico.md
+├── .gitignore
+└── README.md
 ```
 
 ---
 
-## DocumentaciÃ³n
+## Documentación
 
-| Documento | DescripciÃ³n |
+| Documento | Descripción |
 |---|---|
-| [docs/MVP.md](docs/MVP.md) | Alcance del MVP: funciones, flujo, criterios de aceptaciÃ³n y condiciones de tÃ©rmino |
+| [docs/MVP.md](docs/MVP.md) | Alcance del MVP: funciones, flujo, criterios de aceptación y condiciones de término |
 | [docs/PRD.md](docs/PRD.md) | Documento de requisitos del producto |
 | [docs/requisitos.md](docs/requisitos.md) | Requisitos funcionales y no funcionales |
 | [docs/arquitectura.md](docs/arquitectura.md) | Arquitectura propuesta del sistema |
 | [docs/plan-de-pruebas.md](docs/plan-de-pruebas.md) | Plan de pruebas y casos de prueba |
-| [docs/bitacora.md](docs/bitacora.md) | BitÃ¡cora de avance del proyecto |
+| [docs/bitacora.md](docs/bitacora.md) | Bitácora de avance del proyecto |
 | [docs/entregables.md](docs/entregables.md) | Lista de control de entregables de la residencia |
-| [docs/guia-instalacion.md](docs/guia-instalacion.md) | GuÃ­a de instalaciÃ³n y arranque |
+| [docs/guia-instalacion.md](docs/guia-instalacion.md) | Guía de instalación y arranque |
 | [docs/manual-usuario.md](docs/manual-usuario.md) | Manual de usuario |
-| [docs/manual-tecnico.md](docs/manual-tecnico.md) | Manual tÃ©cnico |
+| [docs/manual-tecnico.md](docs/manual-tecnico.md) | Manual técnico |
 
 ---
 
 ## Residencias profesionales
 
-Este proyecto se desarrolla como parte de un programa de residencias profesionales. Los entregables acadÃ©micos requeridos y su estado actual se describen en [`docs/entregables.md`](docs/entregables.md).
+Este proyecto se desarrolla como parte de un programa de residencias profesionales. Los entregables académicos requeridos y su estado actual se describen en [`docs/entregables.md`](docs/entregables.md).
 
 ---
 
-*Ãšltima actualizaciÃ³n: alineaciÃ³n con el prototipo funcional (backend, frontend, anÃ¡lisis local de IA, variables de entorno y pruebas). Pendientes: historial de anÃ¡lisis y criterios condicionales por tipo de contrato.*
+*Última actualización: alineación con el prototipo funcional (backend, frontend, análisis local de IA, variables de entorno y pruebas). Pendientes: historial de análisis.*
 
