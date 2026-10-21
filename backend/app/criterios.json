@@ -1,0 +1,26 @@
+{
+  "prestacion_de_servicios": [
+    "Objeto del contrato: descripción clara y delimitada del servicio a prestar.",
+    "Duración y vigencia: plazo inicial, condiciones de renovación y preaviso.",
+    "Contraprestación: monto, forma de pago y plazos de facturación.",
+    "Obligaciones del prestador: alcance, estándares de calidad y entregables.",
+    "Obligaciones del cliente: colaboración, entrega de información y acceso.",
+    "Confidencialidad: tratamiento de información sensible o reservada.",
+    "Propiedad intelectual: titularidad de los resultados y entregables.",
+    "Terminación: causas de resolución, preaviso y efectos de la terminación.",
+    "Responsabilidad: limitaciones, exclusiones y seguros.",
+    "Fuerza mayor: supuestos de exención y procedimiento de notificación."
+  ],
+  "proveedor": [
+    "Objeto: bienes o productos a suministrar con especificaciones técnicas.",
+    "Cantidad y calidad: volúmenes, estándares, tolerancias y certificaciones.",
+    "Precio: monto, ajustes, descuentos y forma de pago.",
+    "Plazos de entrega: fechas, condiciones de recepción y penalizaciones por retraso.",
+    "Garantías: plazo, cobertura y procedimiento de reclamación.",
+    "Responsabilidad por defectos: procedimiento de reclamación y sustitución.",
+    "Penalizaciones: por incumplimiento de plazos, calidad o cantidad.",
+    "Terminación: causas de resolución, preaviso y efectos de la terminación.",
+    "Confidencialidad: tratamiento de información comercial o técnica.",
+    "Fuerza mayor: supuestos de exención y procedimiento de notificación."
+  ]
+}

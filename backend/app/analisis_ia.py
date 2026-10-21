@@ -11,6 +11,7 @@ import asyncio
 import json
 import os
 from dataclasses import dataclass
+from pathlib import Path
 from urllib.parse import urlparse
 
 import httpx
@@ -178,6 +179,26 @@ async def consultar_ocupacion() -> tuple[bool, str]:
     ocupado = _LOCK_ANALISIS.locked() or ocupado_slots
     return ocupado, "slots"
 
+#: Ruta del archivo de criterios de revision por tipo de contrato.
+_RUTA_CRITERIOS = Path(__file__).with_name("criterios.json")
+
+
+def _cargar_criterios() -> dict[str, list[str]]:
+    """Lee los criterios de revision desde ``criterios.json``.
+
+    Si el archivo no se puede leer o no contiene un objeto JSON, la
+    excepcion se propaga (no se oculta). El llamador decide como manejar
+    la ausencia de criterios para un tipo concreto.
+    """
+    with _RUTA_CRITERIOS.open(encoding="utf-8") as archivo:
+        datos = json.load(archivo)
+    if not isinstance(datos, dict):
+        raise ValueError(
+            "criterios.json debe contener un objeto JSON con tipos de contrato."
+        )
+    return datos
+
+
 def construir_mensajes(texto: str, tipo_confirmado: str) -> list[dict]:
     """Construye ``messages[]`` con un solo mensaje de usuario.
 
@@ -185,6 +206,24 @@ def construir_mensajes(texto: str, tipo_confirmado: str) -> list[dict]:
     herramientas, así que toda la instrucción va en el mensaje ``user``.
     """
     etiqueta = ETIQUETAS[tipo_confirmado]  # type: ignore[index]
+    # Criterios de revision correspondientes al tipo confirmado. Si el
+    # tipo no tiene criterios configurados (o la lista esta vacia), no se
+    # incluyen criterios en el prompt; el analisis continua sin guia
+    # adicional. Si el archivo no se puede leer, la excepcion se propaga
+    # (no se oculta el error) y no se cambia la clasificacion.
+    criterios_datos = _cargar_criterios()
+    criterios_tipo = criterios_datos.get(tipo_confirmado)
+    if not isinstance(criterios_tipo, list):
+        criterios_tipo = []
+    criterios_texto = ""
+    if criterios_tipo:
+        criterios_texto = (
+            "CRITERIOS DE REVISION (guia no exhaustiva, no es asesoria "
+            "juridica) para el tipo confirmado: "
+            + "; ".join(str(c) for c in criterios_tipo)
+            + ". "
+        )
+
     instruccion = (
         "Analizas un contrato sintético de prueba. Tipo confirmado: "
         f"{etiqueta}. Devuelve SOLO un array JSON, sin texto adicional, "
@@ -202,6 +241,11 @@ def construir_mensajes(texto: str, tipo_confirmado: str) -> list[dict]:
         '"limitaciones": "qué no puede afirmar el sistema"}. '
         "Cada coincidencia es una señal para revisar, no una conclusión "
         "jurídica. No afirmes validez ni legalidad. "
+        + criterios_texto
+        + "Usa los criterios como guía para revisar el texto, pero no "
+        "afirmes incumplimientos ni conclusiones legales; no inventes "
+        "hechos ni citas; incluye solo citas literales presentes en el "
+        "contrato; conserva el formato de respuesta JSON indicado. "
         "TEXTO DEL CONTRATO (sintético):\n" + texto
     )
     return [{"role": "user", "content": instruccion}]
