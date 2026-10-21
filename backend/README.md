@@ -1,22 +1,10 @@
 # Backend — MotorRevisionLegal
 
-API en FastAPI. **Bloques implementados: autenticación privada (RF-00) y
-carga y extracción de texto** de contratos en PDF y DOCX.
+API en FastAPI con autenticación privada (RF-00), carga y extracción de texto de contratos en PDF y DOCX, y análisis de cláusulas mediante servidor local de IA (llama-server con Phi-3 GGUF) en loopback.
 
-No hay IA ni criterios jurídicos en este bloque: la extracción es el paso
-previo y quedó aislada a propósito para poder verificarse sin depender de
-decisiones que siguen pendientes (proveedor de IA, validación jurídica de
-criterios).
+## Entorno de desarrollo
 
-## Requisitos verificados
-
-| Herramienta | Versión comprobada |
-|---|---|
-| Python | 3.14.4 (Windows) |
-| pip | 26.0.1 |
-
-Node.js **no** está instalado en el equipo: el frontend no puede arrancar
-todavía. Eso no afecta a este bloque.
+Se probó con Python 3.14 sobre Windows. Node.js es requerido solo para el frontend (ver `frontend/package.json`).
 
 ## Instalación
 
@@ -27,12 +15,38 @@ python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r backend\requirements.txt
 ```
 
+## Variables de entorno
+
+El backend lee dos variables de entorno mediante `os.environ.get`. **No se carga `.env` automáticamente.**
+
+| Variable | Valor predeterminado | Descripción |
+|---|---|---|
+| `URL_SERVIDOR_IA` | `http://127.0.0.1:9931` | URL del servidor local de IA (llama-server). Solo se aceptan hosts `127.0.0.1` o `localhost`. |
+| `LIMITE_CONTEXTO_IA` | `2048` | Límite de contexto en tokens (debe ser entero positivo). |
+
+Plantilla en `backend/.env.example`. Ejemplo de establecimiento en PowerShell antes de iniciar el backend:
+
+```powershell
+$env:URL_SERVIDOR_IA="http://127.0.0.1:9931"
+$env:LIMITE_CONTEXTO_IA="2048"
+```
+
+## Servidor local de IA (llama-server)
+
+El análisis de cláusulas requiere `llama-server` (llama.cpp) en marcha en `127.0.0.1:9931` con un modelo GGUF (Phi-3 recomendado) y contexto 2048:
+
+```powershell
+.\llama-server.exe -m model\Phi-3-mini-4k-instruct-q4_0.gguf --host 127.0.0.1 --port 9931 -c 2048
+```
+
+El backend rechaza cualquier URL cuyo host no sea `127.0.0.1` ni `localhost` (conexión estrictamente local, sin red externa). Si `llama-server` no está disponible, el endpoint de análisis responde con error `modelo_no_disponible` (503).
+
 ## Autenticación privada (RF-00)
 
 Toda la API salvo `GET /salud` y `POST /login` exige sesión. El login
 entrega un token opaco en cookie `HttpOnly` (`sesion_mrl`, 12 horas).
-Contraseñas con PBKDF2-SHA256 y sal única; la base SQLite vive en
-`backend/datos.db` (ignorada por git) o en `MOTORREVISIONLEGAL_DB`.
+Contraseñas con PBKDF2-HMAC-SHA256 y sal única; la base SQLite vive en
+`backend/datos.db` o en la ruta indicada por `MOTORREVISIONLEGAL_DB`.
 
 **No existe registro público.** Las cuentas las crea quien opere el
 servidor en la máquina local:
@@ -47,6 +61,14 @@ Login con formulario (`usuario`, `contrasena`). Ante credenciales
 incorrectas el mensaje es siempre genérico: `Usuario o contraseña
 incorrectos` (RF-00.3), sin revelar qué falló. Sin sesión válida la API
 responde `401` con motivo `Se requiere iniciar sesión...`.
+
+### `POST /analizar-con-ia`
+
+Requiere sesión. Recibe `texto` y `tipo_confirmado`, y llama al servidor local de IA para generar hallazgos.
+
+### `GET /analizar-con-ia/estado`
+
+Requiere sesión. Devuelve si el servidor local de IA está ocupado (`/slots`).
 
 ## Ejecutar la API
 
@@ -134,6 +156,13 @@ curl -F "archivo=@contrato.pdf" http://127.0.0.1:8000/extraer
 `formato_no_soportado`, `tamano_excedido`, `archivo_vacio`,
 `archivo_no_leible`, `sin_texto`, `extraccion_incompleta`.
 
+## Limitaciones del análisis de IA
+
+- El análisis se realiza en español.
+- El contexto es de 2048 tokens; contratos extensos pueden excederlo. En ese caso el análisis se detiene y no se generan hallazgos inventados.
+- Las citas textuales se validan contra el documento original; no se aceptan citas inventadas.
+- Los hallazgos son orientativos y requieren revisión jurídica humana.
+
 ## Decisiones tomadas y pendientes
 
 **Tomadas en este bloque** (todas reversibles y documentadas en el código):
@@ -147,9 +176,9 @@ curl -F "archivo=@contrato.pdf" http://127.0.0.1:8000/extraer
   del plan de pruebas. Es una decisión de producto: conviene confirmarla.
 - En DOCX se extraen párrafos y tablas; `num_paginas` se devuelve `null`
   porque un DOCX no declara páginas sin renderizarse.
+- El servidor de IA corre localmente en `127.0.0.1:9931` (loopback). La URL y el límite de contexto se leen de variables de entorno.
 
-**Pendientes, no resueltas aquí:** proveedor de IA, validación jurídica de
-criterios, historial, estrategia de despliegue.
+**Pendientes, no resueltas aquí:** validación jurídica de criterios, historial, estrategia de despliegue.
 
 ## Estructura
 
@@ -158,19 +187,23 @@ backend/
 ├── requirements.txt
 ├── pytest.ini
 ├── crear_usuario.py  ← alta local de usuarios autorizados (RF-00.5)
+├── .env.example      ← plantilla de variables de entorno (no se carga automáticamente)
 ├── app/
 │   ├── __init__.py
-│   ├── auth.py         ← sesiones SQLite, PBKDF2 (RF-00)
-│   ├── extraccion.py   ← lógica de extracción (RF-01, RF-02)
-│   └── main.py         ← endpoints de la API
+│   ├── analisis_ia.py   # cliente del servidor local de IA (URL y contexto por env var)
+│   ├── auth.py          # sesiones SQLite, PBKDF2 (RF-00)
+│   ├── citas.py         # validación de citas textuales
+│   ├── clasificacion.py # clasificación local de tipo de contrato
+│   ├── extraccion.py    # extracción de texto PDF/DOCX (RF-01, RF-02)
+│   └── main.py          # endpoints de la API
 └── tests/
-    ├── conftest.py         ← genera PDF/DOCX sintéticos
-    ├── test_extraccion.py  ← pruebas del módulo
-    ├── test_api.py         ← pruebas de /extraer (con sesión)
-    └── test_auth.py        ← pruebas de autenticación (RF-00)
+    ├── conftest.py         # genera PDF/DOCX sintéticos
+    ├── test_analisis_ia.py # pruebas de análisis y configuración por env var
+    ├── test_api.py         # pruebas de /extraer (con sesión)
+    ├── test_auth.py        # pruebas de autenticación (RF-00)
+    ├── test_citas.py       # pruebas de citas textuales
+    └── test_extraccion.py  # pruebas del módulo de extracción
 ```
 
-> La guía de instalación oficial sigue siendo
-> [`docs/guia-instalacion.md`](../docs/guia-instalacion.md), que continúa
-> pendiente de verificar en un entorno limpio. Este README documenta lo
-> verificado hasta ahora.
+> La guía de instalación oficial y verificada está en
+> [`docs/guia-instalacion.md`](../docs/guia-instalacion.md).
