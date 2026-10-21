@@ -236,8 +236,8 @@
 
 **Descripción:** El contrato es claramente de prestación de servicios y el sistema lo clasifica correctamente.  
 **Resultado esperado:** El sistema clasifica localmente y de forma determinista el contrato como "Prestación de servicios", sin usar IA ni enviar texto a terceros.  
-**Resultado real:** 85 pruebas de backend pasaron (incluye `test_clasificacion.py`: clasificación de prestación de servicios).  
-**Estado:** Aprobado
+**Resultado real:** *(registrar durante las pruebas)*  
+**Estado:** Pendiente
 
 ---
 
@@ -434,6 +434,7 @@ Los siguientes casos no cuentan con evidencia suficiente para aprobarse en esta 
 - **CC-01, CC-02** (contratos con omisiones): no hay pruebas de detección de omisiones en el flujo completo.
 - **CD-01, CD-02** (contratos con contradicciones aparentes): no hay pruebas de detección de contradicciones en el flujo completo.
 - **CE-01, CE-02** (contratos con riesgos contractuales): no hay pruebas de detección de riesgos en el flujo completo.
+- **CF-01** (clasificación correcta de prestación de servicios): no hay evidencia de prueba de clasificación en los archivos de prueba existentes (`test_clasificacion.py` no existe).
 - **CF-02** (clasificación incorrecta corregida por el usuario): no se probó en flujo manual.
 - **CF-03** (documento que no es un contrato): no se probó específicamente.
 - **CH-01** (informe no afirma que el contrato es válido o ilegal): no hay prueba directa de esta restricción.
