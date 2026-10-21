@@ -205,5 +205,4 @@ backend/
     └── test_extraccion.py  # pruebas del módulo de extracción
 ```
 
-> La guía de instalación oficial y verificada está en
-> [`docs/guia-instalacion.md`](../docs/guia-instalacion.md).
+> La guía de instalación completa está en [`README.md`](../README.md).
