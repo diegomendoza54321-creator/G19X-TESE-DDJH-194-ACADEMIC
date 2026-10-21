@@ -18,6 +18,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app import auth
+import app.analisis_ia as analisis_ia_mod
 from app.analisis_ia import ErrorAnalisis, ResultadoAnalisisIA
 from app.auth import NOMBRE_COOKIE
 from app.citas import Hallazgo
@@ -306,3 +307,72 @@ def test_estado_fuente_desconocida_fail_safe(
     cuerpo = respuesta.json()
     assert cuerpo["ocupado"] is True
     assert cuerpo["fuente"] == "desconocida"
+
+
+# --------------------------------------------------------------------------
+# Configuración del servidor local de IA mediante variables de entorno
+# --------------------------------------------------------------------------
+
+
+def test_url_servidor_local_valor_por_defecto() -> None:
+    """Sin variable de entorno, la URL es http://127.0.0.1:9931."""
+    assert analisis_ia_mod.URL_SERVIDOR_LOCAL == "http://127.0.0.1:9931"
+
+
+def test_limite_contexto_valor_por_defecto() -> None:
+    """Sin variable de entorno, el límite de contexto es 2048."""
+    assert analisis_ia_mod.N_CTX == 2048
+
+
+def test_url_sobrescrita_por_variable_entorno(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """URL_SERVIDOR_IA sobrescribe la URL predeterminada."""
+    monkeypatch.setenv("URL_SERVIDOR_IA", "http://localhost:9931")
+    assert analisis_ia_mod._leer_url_servidor_local() == "http://localhost:9931"
+
+
+def test_limite_contexto_sobrescrito_por_variable_entorno(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """LIMITE_CONTEXTO_IA sobrescribe el límite predeterminado."""
+    monkeypatch.setenv("LIMITE_CONTEXTO_IA", "4096")
+    assert analisis_ia_mod._leer_limite_contexto() == 4096
+
+
+def test_host_no_local_es_rechazado(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Un host distinto de 127.0.0.1 o localhost lanza ValueError."""
+    monkeypatch.setenv("URL_SERVIDOR_IA", "http://example.com:9931")
+    with pytest.raises(ValueError, match="Host no permitido"):
+        analisis_ia_mod._leer_url_servidor_local()
+
+
+def test_localhost_es_valido(monkeypatch: pytest.MonkeyPatch) -> None:
+    """localhost es un host válido para el servidor local."""
+    monkeypatch.setenv("URL_SERVIDOR_IA", "http://localhost:9931")
+    assert analisis_ia_mod._leer_url_servidor_local() == "http://localhost:9931"
+
+
+def test_limite_contexto_no_entero_es_rechazado(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """LIMITE_CONTEXTO_IA con valor no entero lanza ValueError."""
+    monkeypatch.setenv("LIMITE_CONTEXTO_IA", "abc")
+    with pytest.raises(ValueError, match="entero positivo"):
+        analisis_ia_mod._leer_limite_contexto()
+
+
+def test_limite_contexto_cero_es_rechazado(monkeypatch: pytest.MonkeyPatch) -> None:
+    """LIMITE_CONTEXTO_IA igual a cero lanza ValueError."""
+    monkeypatch.setenv("LIMITE_CONTEXTO_IA", "0")
+    with pytest.raises(ValueError, match="entero positivo"):
+        analisis_ia_mod._leer_limite_contexto()
+
+
+def test_limite_contexto_negativo_es_rechazado(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """LIMITE_CONTEXTO_IA negativo lanza ValueError."""
+    monkeypatch.setenv("LIMITE_CONTEXTO_IA", "-100")
+    with pytest.raises(ValueError, match="entero positivo"):
+        analisis_ia_mod._leer_limite_contexto()

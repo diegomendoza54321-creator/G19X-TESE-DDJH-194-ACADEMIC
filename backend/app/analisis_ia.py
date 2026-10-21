@@ -9,19 +9,81 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 from dataclasses import dataclass
+from urllib.parse import urlparse
 
 import httpx
 
 from .citas import Hallazgo, filtrar_hallazgos
 from .clasificacion import ETIQUETAS
 
-#: Servidor local de inferencia. Hardcodeado a loopback: nunca apunta
-#: a un servicio externo (RNF-03.4).
-URL_SERVIDOR_LOCAL = "http://127.0.0.1:9931"
+#: Nombre de la variable de entorno para la URL del servidor local de IA.
+URL_SERVIDOR_IA_ENV = "URL_SERVIDOR_IA"
 
-#: Contexto efectivo del servidor en marcha (arrancado con ``-c 2048``).
-N_CTX = 2048
+#: Nombre de la variable de entorno para el límite de contexto.
+LIMITE_CONTEXTO_IA_ENV = "LIMITE_CONTEXTO_IA"
+
+#: Valor predeterminado de la URL del servidor local de IA.
+_URL_SERVIDOR_LOCAL_POR_DEFECTO = "http://127.0.0.1:9931"
+
+#: Valor predeterminado del límite de contexto.
+_LIMITE_CONTEXTO_POR_DEFECTO = 2048
+
+
+def _validar_host_local(url: str) -> None:
+    """Rechaza URLs cuyo host no sea ``127.0.0.1`` ni ``localhost``.
+
+    Mantiene la conexión estrictamente local: nunca apunta a un
+    servicio externo (RNF-03.4).
+    """
+    host = urlparse(url).hostname
+    if host not in ("127.0.0.1", "localhost"):
+        raise ValueError(
+            f"El servidor local de IA debe estar en loopback. "
+            f"Host no permitido: {host}"
+        )
+
+
+def _leer_url_servidor_local() -> str:
+    """Lee la URL del servidor local de IA desde el entorno.
+
+    Usa ``http://127.0.0.1:9931`` como valor predeterminado.
+    """
+    url = os.environ.get(URL_SERVIDOR_IA_ENV, _URL_SERVIDOR_LOCAL_POR_DEFECTO)
+    _validar_host_local(url)
+    return url
+
+
+def _leer_limite_contexto() -> int:
+    """Lee el límite de contexto desde el entorno.
+
+    Usa ``2048`` como valor predeterminado. Debe ser un entero positivo.
+    """
+    valor = os.environ.get(LIMITE_CONTEXTO_IA_ENV, str(_LIMITE_CONTEXTO_POR_DEFECTO))
+    try:
+        n = int(valor)
+    except (TypeError, ValueError):
+        raise ValueError(
+            f"LIMITE_CONTEXTO_IA debe ser un entero positivo, "
+            f"se recibió: {valor!r}"
+        )
+    if n <= 0:
+        raise ValueError(
+            f"LIMITE_CONTEXTO_IA debe ser un entero positivo, "
+            f"se recibió: {n}"
+        )
+    return n
+
+
+#: Servidor local de inferencia. Se lee de la variable de entorno
+#: ``URL_SERVIDOR_IA`` (predeterminado: ``http://127.0.0.1:9931``).
+#: Nunca apunta a un servicio externo (RNF-03.4).
+URL_SERVIDOR_LOCAL = _leer_url_servidor_local()
+
+#: Contexto efectivo del servidor en marcha. Se lee de la variable de
+#: entorno ``LIMITE_CONTEXTO_IA`` (predeterminado: ``2048``).
+N_CTX = _leer_limite_contexto()
 
 #: Reserva de tokens para la respuesta del modelo.
 MAX_TOKENS_SALIDA = 512
