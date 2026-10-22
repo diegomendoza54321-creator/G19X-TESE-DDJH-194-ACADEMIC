@@ -81,6 +81,14 @@ interface RespuestaEstadoAnalisis {
   fuente: string
 }
 
+interface RegistroHistorial {
+  id: number
+  fecha: string
+  tipo_confirmado: string
+  num_hallazgos: number
+  hallazgos: HallazgoAnalisis[]
+}
+
 const ETIQUETAS_HALLAZGO: Record<string, string> = {
   ambiguedad: 'Posible ambigüedad',
   omision: 'Posible omisión',
@@ -250,6 +258,48 @@ export default function App() {
     }
   }
 
+  /** Carga el historial privado del usuario autenticado (GET /historial). */
+  async function cargarHistorial(): Promise<void> {
+    setCargandoHistorial(true)
+    setErrorHistorial(null)
+    try {
+      const respuesta = await fetch('/historial')
+      if (respuesta.status === 401) {
+        volverALogin()
+        return
+      }
+      let cuerpo: {
+        ok: boolean
+        registros: RegistroHistorial[] | null
+        codigo: string | null
+        motivo: string | null
+      } | null = null
+      try {
+        cuerpo = (await respuesta.json()) as {
+          ok: boolean
+          registros: RegistroHistorial[] | null
+          codigo: string | null
+          motivo: string | null
+        }
+      } catch {
+        cuerpo = null
+      }
+      if (!cuerpo || !cuerpo.ok) {
+        setErrorHistorial(
+          cuerpo?.motivo ?? 'No se pudo cargar el historial.',
+        )
+        return
+      }
+      setHistorial(cuerpo.registros ?? [])
+    } catch {
+      setErrorHistorial(
+        'No se pudo conectar con el servidor para cargar el historial.',
+      )
+    } finally {
+      setCargandoHistorial(false)
+    }
+  }
+
   /**
    * Analiza las cláusulas con IA local (RF-04, prototipo).
    *
@@ -324,6 +374,9 @@ export default function App() {
   const [numDescartados, setNumDescartados] = useState(0)
   const [errorAnalisis, setErrorAnalisis] = useState<string | null>(null)
   const [servidorOcupado, setServidorOcupado] = useState(false)
+  const [historial, setHistorial] = useState<RegistroHistorial[] | null>(null)
+  const [cargandoHistorial, setCargandoHistorial] = useState(false)
+  const [errorHistorial, setErrorHistorial] = useState<string | null>(null)
   const idAnalisisRef = useRef(0)
   const controladorAnalisisRef = useRef<AbortController | null>(null)
   const [clasificando, setClasificando] = useState(false)
@@ -370,6 +423,13 @@ export default function App() {
       // Sin acceso al almacenamiento: el tema se aplica solo en memoria.
     }
   }, [tema])
+
+  // Carga el historial privado al abrir la vista Historial con sesion activa.
+  useEffect(() => {
+    if (vista === 'historial' && sesion === 'activa') {
+      void cargarHistorial()
+    }
+  }, [vista, sesion])
 
   function cambiarTema() {
     setTema((anterior) => (anterior === 'claro' ? 'oscuro' : 'claro'))
@@ -1037,10 +1097,71 @@ export default function App() {
       {vista === 'historial' && (
         <section className="tarjeta" aria-live="polite">
           <h2>Historial</h2>
-          <p>
-            Todavía no hay análisis registrados. El historial estará
-            disponible cuando el análisis y su registro estén implementados.
-          </p>
+          {cargandoHistorial && (
+            <p>Cargando tu historial de análisis…</p>
+          )}
+          {errorHistorial && (
+            <p className="aviso" role="alert">{errorHistorial}</p>
+          )}
+          {!cargandoHistorial && !errorHistorial && historial !== null && (
+            <>
+              {historial.length === 0 ? (
+                <p>
+                  No hay análisis registrados todavía. Analiza un contrato en{' '}
+                  <strong>Analizar contrato</strong> para que aparezca aquí.
+                </p>
+              ) : (
+                <ul>
+                  {historial.map((registro) => (
+                    <li key={registro.id}>
+                      <p>
+                        <strong>{registro.fecha}</strong> —{' '}
+                        {registro.tipo_confirmado}{' '}
+                        ({registro.num_hallazgos} hallazgo{
+                          registro.num_hallazgos !== 1 ? 'es' : ''
+                        })
+                      </p>
+                      {registro.hallazgos.length > 0 && (
+                        <ol className="lista-hallazgos">
+                          {registro.hallazgos.map((hallazgo, i) => (
+                            <li key={i}>
+                              <p>
+                                <strong>
+                                  {etiquetaHallazgo(hallazgo.tipo)}
+                                </strong>
+                                {' — '}
+                                {hallazgo.categoria}
+                              </p>
+                              <p>{hallazgo.descripcion}</p>
+                              {hallazgo.cita && (
+                                <blockquote>“{hallazgo.cita}”</blockquote>
+                              )}
+                              <p>
+                                <strong>Explicación:</strong>{' '}
+                                {hallazgo.explicacion}
+                              </p>
+                              <p>
+                                <strong>Posible consecuencia:</strong>{' '}
+                                {hallazgo.consecuencia}
+                              </p>
+                              <p>
+                                <strong>Recomendación:</strong>{' '}
+                                {hallazgo.recomendacion}
+                              </p>
+                              <p className="sugerencia">
+                                <strong>Limitaciones:</strong>{' '}
+                                {hallazgo.limitaciones}
+                              </p>
+                            </li>
+                          ))}
+                        </ol>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          )}
         </section>
       )}
 

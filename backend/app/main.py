@@ -44,6 +44,10 @@ Decisiones de diseño
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+import json
+import sqlite3
+
 from fastapi import Cookie, FastAPI, File, Form, Response, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -54,7 +58,7 @@ from .analisis_ia import (
     analizar_con_ia,
     consultar_ocupacion,
 )
-from .auth import NOMBRE_COOKIE
+from .auth import NOMBRE_COOKIE, obtener_usuario_id_por_token, ruta_bd
 from .clasificacion import ETIQUETAS, clasificar_tipo_contrato
 from .extraccion import (
     COD_ARCHIVO_NO_LEIBLE,
@@ -402,6 +406,10 @@ async def analizar_ia(
     if _usuario_de_sesion(sesion_mrl) is None:
         return _error_no_autenticado()
 
+    usuario_id = obtener_usuario_id_por_token(sesion_mrl)
+    if usuario_id is None:
+        return _error_no_autenticado()
+
     texto = solicitud.texto or ""
     if not texto.strip():
         return JSONResponse(
@@ -434,11 +442,96 @@ async def analizar_ia(
                 motivo=error.motivo,
             ).model_dump(),
         )
+
+    hallazgos_dicts = [_hallazgo_a_dict(h) for h in resultado.hallazgos]
+    _guardar_analisis(
+        usuario_id=usuario_id,
+        tipo_confirmado=solicitud.tipo_confirmado,
+        hallazgos=hallazgos_dicts,
+    )
+
     return JSONResponse(
         status_code=200,
         content=RespuestaAnalisis(
             ok=True,
-            hallazgos=[_hallazgo_a_dict(h) for h in resultado.hallazgos],
+            hallazgos=hallazgos_dicts,
             num_descartados=resultado.num_descartados,
         ).model_dump(),
+    )
+
+
+def _guardar_analisis(
+    *, usuario_id: int, tipo_confirmado: str, hallazgos: list[dict]
+) -> None:
+    """Persiste metadatos y hallazgos de un analisis (sin texto del contrato).
+
+    Se llama solo despues de validar las citas y completar el analisis con
+    exito. Nunca se guarda el texto del contrato, el prompt ni el archivo.
+    """
+    destino = ruta_bd()
+    auth.init_bd(destino)
+    conexion = sqlite3.connect(str(destino))
+    conexion.row_factory = sqlite3.Row
+    try:
+        conexion.execute(
+            "INSERT INTO analisis (usuario_id, fecha, tipo_confirmado, "
+            "num_hallazgos, hallazgos) VALUES (?, ?, ?, ?, ?)",
+            (
+                usuario_id,
+                datetime.now(timezone.utc).isoformat(),
+                tipo_confirmado,
+                len(hallazgos),
+                json.dumps(hallazgos, ensure_ascii=False),
+            ),
+        )
+        conexion.commit()
+    finally:
+        conexion.close()
+
+
+@app.get("/historial")
+def historial(
+    sesion_mrl: str | None = Cookie(default=None, alias=NOMBRE_COOKIE),
+) -> JSONResponse:
+    """Devuelve los analisis del usuario autenticado, mas reciente primero.
+
+    Nunca acepta un usuario_id del cliente: se deriva unicamente de la
+    sesion activa (cookie HttpOnly).
+    """
+    if _usuario_de_sesion(sesion_mrl) is None:
+        return _error_no_autenticado()
+
+    usuario_id = obtener_usuario_id_por_token(sesion_mrl)
+    if usuario_id is None:
+        return _error_no_autenticado()
+
+    destino = ruta_bd()
+    auth.init_bd(destino)
+    conexion = sqlite3.connect(str(destino))
+    conexion.row_factory = sqlite3.Row
+    try:
+        filas = conexion.execute(
+            "SELECT id, fecha, tipo_confirmado, num_hallazgos, hallazgos "
+            "FROM analisis WHERE usuario_id = ? "
+            "ORDER BY fecha DESC, id DESC",
+            (usuario_id,),
+        ).fetchall()
+    finally:
+        conexion.close()
+
+    registros = []
+    for fila in filas:
+        registros.append(
+            {
+                "id": fila["id"],
+                "fecha": fila["fecha"],
+                "tipo_confirmado": fila["tipo_confirmado"],
+                "num_hallazgos": fila["num_hallazgos"],
+                "hallazgos": json.loads(fila["hallazgos"]),
+            }
+        )
+
+    return JSONResponse(
+        status_code=200,
+        content={"ok": True, "registros": registros},
     )

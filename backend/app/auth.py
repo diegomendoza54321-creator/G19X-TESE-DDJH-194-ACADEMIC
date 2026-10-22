@@ -70,6 +70,20 @@ def init_bd(ruta: str | Path | None = None) -> Path:
             "CREATE INDEX IF NOT EXISTS idx_sesiones_expira "
             "ON sesiones(expira)"
         )
+        conexion.execute(
+            "CREATE TABLE IF NOT EXISTS analisis ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON "
+            "DELETE CASCADE, "
+            "fecha TEXT NOT NULL, "
+            "tipo_confirmado TEXT NOT NULL, "
+            "num_hallazgos INTEGER NOT NULL, "
+            "hallazgos TEXT NOT NULL)"
+        )
+        conexion.execute(
+            "CREATE INDEX IF NOT EXISTS idx_analisis_usuario_fecha "
+            "ON analisis(usuario_id, fecha DESC)"
+        )
         conexion.commit()
     finally:
         conexion.close()
@@ -228,6 +242,26 @@ def obtener_usuario_por_token(
     finally:
         conexion.close()
     return str(fila["nombre"]) if fila is not None else None
+
+
+def obtener_usuario_id_por_token(
+    token: str | None, ruta: str | Path | None = None
+) -> int | None:
+    """Devuelve el id de usuario de una sesion valida, o None."""
+    if not token:
+        return None
+    destino = init_bd(ruta)
+    resumen = hashlib.sha256(token.encode("utf-8")).hexdigest()
+    conexion = _conectar(destino)
+    try:
+        fila = conexion.execute(
+            "SELECT s.usuario_id FROM sesiones s "
+            "WHERE s.token_hash = ? AND s.expira > ?",
+            (resumen, _ahora().isoformat()),
+        ).fetchone()
+    finally:
+        conexion.close()
+    return int(fila["usuario_id"]) if fila is not None else None
 
 
 def cerrar_sesion(token: str | None, ruta: str | Path | None = None) -> None:
