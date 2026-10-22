@@ -931,39 +931,59 @@ export default function App() {
                       de problemas.
                     </p>
                   ) : (
-                    <ol className="lista-hallazgos">
-                      {hallazgos.map((hallazgo, i) => (
-                        <li key={i}>
-                          <p>
-                            <strong>
-                              {etiquetaHallazgo(hallazgo.tipo)}
-                            </strong>
-                            {' — '}
-                            {hallazgo.categoria}
-                          </p>
-                          <p>{hallazgo.descripcion}</p>
-                          {hallazgo.cita && (
-                            <blockquote>“{hallazgo.cita}”</blockquote>
-                          )}
-                          <p>
-                            <strong>Explicación:</strong>{' '}
-                            {hallazgo.explicacion}
-                          </p>
-                          <p>
-                            <strong>Posible consecuencia:</strong>{' '}
-                            {hallazgo.consecuencia}
-                          </p>
-                          <p>
-                            <strong>Recomendación:</strong>{' '}
-                            {hallazgo.recomendacion}
-                          </p>
-                          <p className="sugerencia">
-                            <strong>Limitaciones:</strong>{' '}
-                            {hallazgo.limitaciones}
-                          </p>
-                        </li>
-                      ))}
-                    </ol>
+                    <>
+                      {Object.values(
+                        hallazgos.reduce(
+                          (acc, hallazgo) => {
+                            (acc[hallazgo.categoria] =
+                              acc[hallazgo.categoria] || []).push(hallazgo);
+                            return acc;
+                          },
+                          {} as Record<string, HallazgoAnalisis[]>
+                        )
+                      )
+                        .filter((grupo) => grupo.length > 0)
+                        .map((grupo, gi) => (
+                          <section
+                            key={grupo[0]?.categoria ?? String(gi)}
+                          >
+                            <h3>{grupo[0]?.categoria ?? 'Sin categoría'}</h3>
+                            <ol className="lista-hallazgos">
+                              {grupo.map((hallazgo, i) => (
+                                <li key={i}>
+                                  <p>
+                                    <strong>
+                                      {etiquetaHallazgo(hallazgo.tipo)}
+                                    </strong>
+                                    {' — '}
+                                    {hallazgo.categoria}
+                                  </p>
+                                  <p>{hallazgo.descripcion}</p>
+                                  {hallazgo.cita && (
+                                    <blockquote>“{hallazgo.cita}”</blockquote>
+                                  )}
+                                  <p>
+                                    <strong>Explicación:</strong>{' '}
+                                    {hallazgo.explicacion}
+                                  </p>
+                                  <p>
+                                    <strong>Posible consecuencia:</strong>{' '}
+                                    {hallazgo.consecuencia}
+                                  </p>
+                                  <p>
+                                    <strong>Recomendación:</strong>{' '}
+                                    {hallazgo.recomendacion}
+                                  </p>
+                                  <p className="sugerencia">
+                                    <strong>Limitaciones:</strong>{' '}
+                                    {hallazgo.limitaciones}
+                                  </p>
+                                </li>
+                              ))}
+                            </ol>
+                          </section>
+                        ))}
+                    </>
                   )}
                   {numDescartados > 0 && (
                     <p className="sugerencia">
