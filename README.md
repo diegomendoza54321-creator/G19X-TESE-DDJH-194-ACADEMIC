@@ -287,7 +287,7 @@ Se ejecutan 94 pruebas cubriendo autenticación, extracción, citas, análisis d
 ## 9. Limitaciones reales
 
 - **Modelo local:** todo el análisis se ejecuta contra `llama-server` en `127.0.0.1:9931`; no se envía texto a servicios externos.
-- **Contexto 2048 tokens:** contratos extensos pueden excederlo; en ese caso el análisis se detiene y no se generan hallazgos inventados.
+- **Contexto 2048 tokens:** contratos extensos pueden excederlo; en ese caso el análisis se detiene y no se generan hallazgos inventados. Con el valor predeterminado de 2048, el prompt fijo con criterios ocupa aproximadamente 1.794–1.800 caracteres. La capacidad estimada para el texto del contrato es de aproximadamente 3.400–3.500 caracteres con la heurística conservadora de 3,5 caracteres por token; es una estimación, no una medición con el tokenizador de Phi-3. En esta máquina existe `D:\llama.cpp\llama-server.exe` (versión 0.7.0-dev, build 11683, commit a8d9a7e1e) y el modelo `D:\Modelos\Phi-3-mini-4k-instruct-q4.gguf` (contexto de entrenamiento 4096). Una instancia temporal en el puerto 9932 aceptó `-c 4096`; `/v1/models` y `/slots` reportaron contexto 4096, y el backend leyó `LIMITE_CONTEXTO_IA=4096`. Sin embargo, una solicitud sintética de 2.000 caracteres llegó al servidor pero la generación no produjo tokens ni completó, por lo que 4096 está comprobada a nivel de arranque, no validada de extremo a extremo.
 - **Idioma español:** el análisis está disponible solo en español.
 - **Citas textuales:** se validan contra el documento original; no se aceptan citas inventadas.
 - **Revisión jurídica humana:** los hallazgos son orientativos y requieren revisión humana. La herramienta no emite dictámenes jurídicos ni garantiza la validez de ningún contrato.
