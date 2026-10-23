@@ -376,3 +376,77 @@ def test_limite_contexto_negativo_es_rechazado(
     monkeypatch.setenv("LIMITE_CONTEXTO_IA", "-100")
     with pytest.raises(ValueError, match="entero positivo"):
         analisis_ia_mod._leer_limite_contexto()
+
+
+# --------------------------------------------------------------------------
+# Pruebas unitarias de ``construir_mensajes`` — integración de criterios
+# --------------------------------------------------------------------------
+
+
+def _mock_cargar_criterios(monkeypatch, datos: dict) -> None:
+    """Simula ``analisis_ia_mod._cargar_criterios`` devolviendo ``datos`` en memoria."""
+    monkeypatch.setattr("app.analisis_ia._cargar_criterios", lambda: datos)
+
+
+def test_construir_mensajes_incluye_criterios(monkeypatch) -> None:
+    """Para cada tipo de contrato, el prompt incluye sus criterios configurados."""
+    from app.analisis_ia import construir_mensajes
+
+    _mock_cargar_criterios(monkeypatch, {
+        "prestacion_de_servicios": ["Criterio A", "Criterio B"],
+        "proveedor": [],
+    })
+
+    texto = "CONTRATO DE PRESTACION DE SERVICIOS"
+    msgs = construir_mensajes(texto, "prestacion_de_servicios")
+    contenido = msgs[0]["content"]
+
+    # Los criterios deben aparecer en el prompt
+    assert "CRITERIOS DE REVISION" in contenido
+    assert "Criterio A" in contenido
+    assert "Criterio B" in contenido
+
+
+def test_construir_mensajes_no_mistura_criterios(monkeypatch) -> None:
+    """El prompt no mezcla criterios del otro tipo."""
+    from app.analisis_ia import construir_mensajes
+
+    _mock_cargar_criterios(monkeypatch, {
+        "prestacion_de_servicios": ["C1", "C2"],
+        "proveedor": ["C3", "C4"],
+    })
+
+    # Con tipo "prestacion_de_servicios", aparecen C1 y C2, no C3 ni C4
+    msgs = construir_mensajes("texto", "prestacion_de_servicios")
+    contenido = msgs[0]["content"]
+    assert "C1" in contenido
+    assert "C2" in contenido
+    assert "C3" not in contenido
+    assert "C4" not in contenido
+
+    # Con tipo "proveedor", aparecen C3 y C4, no C1 ni C2
+    msgs2 = construir_mensajes("texto", "proveedor")
+    contenido2 = msgs2[0]["content"]
+    assert "C3" in contenido2
+    assert "C4" in contenido2
+    assert "C1" not in contenido2
+    assert "C2" not in contenido2
+
+
+def test_construir_mensajes_sin_criterios_tipo_valido(monkeypatch) -> None:
+    """Si un tipo válido no tiene criterios configurados, construir_mensajes sigue funcionando."""
+    from app.analisis_ia import construir_mensajes
+
+    _mock_cargar_criterios(monkeypatch, {})
+
+    texto = "CONTRATO DE PRESTACION DE SERVICIOS"
+    msgs = construir_mensajes(texto, "prestacion_de_servicios")
+    contenido = msgs[0]["content"]
+
+    # No debe aparecer la sección CRITERIOS DE REVISION
+    assert "CRITERIOS DE REVISION" not in contenido
+    # Debe seguir conteniendo la instrucción y el texto
+    assert "Analizas un contrato sintético" in contenido
+    assert "TEXTO DEL CONTRATO" in contenido
+
+
