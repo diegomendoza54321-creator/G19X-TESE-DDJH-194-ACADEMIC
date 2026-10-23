@@ -8,9 +8,8 @@
  * servicios externos: el análisis usa solo el servidor local en loopback.
  *
  * Navegación (RF-07.1): tras iniciar sesión hay cuatro secciones, Inicio,
- * Analizar contrato, Resultados e Historial. La carga y extracción viven en
- * Analizar contrato. Resultados e Historial muestran estados vacíos honestos
- * mientras esas funciones no existan: no se inventa ningún análisis.
+ * Analizar contrato, Resultados e Historial. La carga y extracción ocurren en Analizar contrato.
+ * Resultados muestra los hallazgos del último análisis; Historial lista los análisis anteriores.
  *
  * Tema (RF-07.2 a RF-07.5): control claro/oscuro en la barra superior. La
  * preferencia se guarda en localStorage y se restaura al recargar; sin
@@ -871,9 +870,7 @@ export default function App() {
                         texto a terceros.
                       </p>
                       <p className="nota-rf04">
-                        RF-04: análisis de cláusulas pendiente. Los hallazgos y
-                        el informe de cláusulas se generarán en una fase
-                        posterior.
+                        RF-04: análisis de cláusulas con IA local. Los hallazgos y el informe de cláusulas se generan tras el análisis y requieren revisión humana.
                       </p>
                     </>
                   ) : (
@@ -1084,8 +1081,7 @@ export default function App() {
         <section className="tarjeta" aria-live="polite">
           <h2>Resultados</h2>
           <p>
-            Todavía no hay resultados para mostrar. El análisis de contratos
-            (clasificación, hallazgos e informe) aún no está implementado.
+            No hay resultados para mostrar todavía. Analiza un contrato en Analizar contrato para que aparezca aquí.
           </p>
           <p className="sugerencia">
             Mientras tanto, puedes extraer el texto de un contrato en{' '}

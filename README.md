@@ -26,7 +26,7 @@ El acceso es privado: solo pueden entrar cuentas autorizadas. No existe registro
 - Generar hallazgos respaldados por citas textuales del documento original.
 - Presentar por cada hallazgo: explicación, posible consecuencia, recomendación y limitaciones del análisis.
 - Mostrar el informe en pantalla. Las categorías sin hallazgos se ocultan; si no hay ninguno, se indica que no se identificaron hallazgos con los criterios aplicados.
-- Consultar análisis anteriores desde la sección **Historial** (pendiente: no implementado en este prototipo).
+- Consultar análisis anteriores desde la sección **Historial** (disponible en el prototipo).
 - Interfaz con **tema claro y oscuro**; la preferencia se recuerda en el navegador.
 - Navegación con: **Inicio**, **Analizar contrato**, **Resultados** e **Historial**. Las secciones *Cómo funciona* y *Criterios* pueden incluirse también.
 
@@ -56,8 +56,6 @@ El acceso es privado: solo pueden entrar cuentas autorizadas. No existe registro
 > **Fase actual:** Prototipo funcional (backend, frontend, análisis local de IA y pruebas automatizadas).
 
 El prototipo incluye backend (FastAPI), frontend (React/Vite), clasificación local de tipo de contrato, extracción de texto de PDF/DOCX y análisis de cláusulas contra un servidor local `llama-server` (llama.cpp) con modelo Phi-3 GGUF en `127.0.0.1:9931`. Las pruebas backend pasan con `pytest`.
-
-Algunos elementos del alcance inicial siguen pendientes: **historial de análisis**. No se prometen como terminados.
 
 ---
 
@@ -374,5 +372,5 @@ Este proyecto se desarrolla como parte de un programa de residencias profesional
 
 ---
 
-*Última actualización: alineación con el prototipo funcional (backend, frontend, análisis local de IA, variables de entorno y pruebas). Pendientes: historial de análisis.*
+*Última actualización: alineación con el prototipo funcional (backend, frontend, análisis local de IA, historial de análisis, variables de entorno y pruebas).*
 
