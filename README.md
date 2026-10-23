@@ -133,7 +133,9 @@ Esto instala las dependencias listadas en `backend/requirements.txt`:
 - `pypdf`, `python-docx` (extracción de texto)
 - `pytest`, `httpx`, `httpx2`, `fpdf2` (pruebas)
 
----## 3. Preparar llama.cpp y el modelo GGUF
+---
+
+## 3. Preparar llama.cpp y el modelo GGUF
 
 El análisis de cláusulas depende de **llama-server** (de llama.cpp) ejecutándose en `127.0.0.1:9931`.
 
@@ -180,6 +182,26 @@ Si no se dispone de `llama-server`, el backend arranca igualmente, pero el endpo
 
 ## 4. Configurar variables de entorno (`URL_SERVIDOR_IA` y `LIMITE_CONTEXTO_IA`)
 
+Las variables de entorno se pueden establecer directamente en PowerShell antes de iniciar el backend. No es necesario copiar `backend/.env.example` a `.env`, ya que el proyecto no carga `.env` automáticamente. Ejecuta cualquiera de las siguientes opciones en una terminal PowerShell:
+
+```powershell
+# Opción 1: Establecer una sola variable
+$env:URL_SERVIDOR_IA = "http://127.0.0.1:9931"
+
+# Opción 2: Establecer ambas variables
+$env:URL_SERVIDOR_IA = "http://127.0.0.1:9931"
+$env:LIMITE_CONTEXTO_IA = "2048"
+```
+
+Al iniciar el backend, las variables estarán disponibles. Ejemplo:
+
+```powershell
+# Desde la raíz del repositorio
+.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --reload
+```
+
+El archivo `backend/.env.example` sirve solo como referencia de nombres de variables; su contenido no se lee de forma automática.
+
 El archivo `backend/.env.example` es una **plantilla de referencia**:
 
 ```
@@ -207,7 +229,8 @@ Validación:
 - `URL_SERVIDOR_IA`: solo se aceptan hosts `127.0.0.1` o `localhost`. Cualquier otro host provoca error al iniciar el backend.
 - `LIMITE_CONTEXTO_IA`: debe ser un entero positivo (por defecto `2048`).
 
----## 5. Crear el primer usuario
+---
+## 5. Crear el primer usuario
 
 No existe registro público. Las cuentas las crea quien opera el servidor en la máquina local ejecutando `backend/crear_usuario.py`:
 
@@ -292,7 +315,8 @@ Se ejecutan 94 pruebas cubriendo autenticación, extracción, citas, análisis d
 - **Citas textuales:** se validan contra el documento original; no se aceptan citas inventadas.
 - **Revisión jurídica humana:** los hallazgos son orientativos y requieren revisión humana. La herramienta no emite dictámenes jurídicos ni garantiza la validez de ningún contrato.
 
----## Estructura del proyecto
+---
+## Estructura del proyecto
 
 ```
 MotorRevisionLegal/
