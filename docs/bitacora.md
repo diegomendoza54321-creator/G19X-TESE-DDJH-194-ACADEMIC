@@ -18,8 +18,8 @@ Esta bitácora registra el avance real del proyecto. Agregar una entrada por cad
 
 ## Entrada [NNN]
 
-**Fecha:** AAAA-MM-DD  
-**Autor:** [nombre o identificador]  
+**Fecha:**AAAA-MM-DD
+**Autor:**[nombre o identificador]
 **Sesión / Iteración:** [número o descripción breve]
 
 ### Objetivo de la sesión
@@ -64,6 +64,8 @@ Esta bitácora registra el avance real del proyecto. Agregar una entrada por cad
 
 ---
 
+**Autor:**Diego de Jesus Hurtado Mendoza
+**Autor:**Diego de Jesus Hurtado Mendoza
 ## Índice de entradas (actualizar manualmente)
 
 | # | Fecha | Actividad principal | Estado |
