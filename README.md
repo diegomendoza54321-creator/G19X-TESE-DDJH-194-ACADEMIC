@@ -57,6 +57,9 @@ El acceso es privado: solo pueden entrar cuentas autorizadas. No existe registro
 
 El prototipo incluye backend (FastAPI), frontend (React/Vite), clasificación local de tipo de contrato, extracción de texto de PDF/DOCX y análisis de cláusulas contra un servidor local `llama-server` (llama.cpp) con modelo Phi-3 GGUF en `127.0.0.1:9931`. Las pruebas backend pasan con `pytest`.
 
+### Desarrollo con asistencia de IA
+Desarrollado con asistencia de IA durante el proceso de desarrollo.
+
 ---
 
 ## Tecnologías
