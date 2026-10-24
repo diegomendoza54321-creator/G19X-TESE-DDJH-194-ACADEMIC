@@ -99,6 +99,54 @@ function etiquetaHallazgo(tipo: string): string {
   return ETIQUETAS_HALLAZGO[tipo] ?? tipo
 }
 
+function formatearFechaLocal(fechaISO: string): string {
+  if (!fechaISO) return ''
+  try {
+    const fecha = new Date(fechaISO)
+    if (isNaN(fecha.getTime())) return fechaISO
+    return fecha.toLocaleDateString('es-MX', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  } catch {
+    return fechaISO
+  }
+}
+
+interface HallazgoProps {
+  hallazgo: HallazgoAnalisis
+}
+
+function Hallazgo({ hallazgo }: HallazgoProps) {
+  return (
+    <li>
+      <p>
+        <strong>{etiquetaHallazgo(hallazgo.tipo)}</strong>{' — '}
+        {hallazgo.categoria}
+      </p>
+      <p>{hallazgo.descripcion}</p>
+      {hallazgo.cita && <blockquote>“{hallazgo.cita}”</blockquote>}
+      <p>
+        <strong>Explicación:</strong>{' '}
+        {hallazgo.explicacion}
+      </p>
+      <p>
+        <strong>Posible consecuencia:</strong>{' '}
+        {hallazgo.consecuencia}
+      </p>
+      <p>
+        <strong>Recomendación:</strong>{' '}
+        {hallazgo.recomendacion}
+      </p>
+      <p className="sugerencia">
+        <strong>Limitaciones:</strong>{' '}
+        {hallazgo.limitaciones}
+      </p>
+    </li>
+  )
+}
+
 type TipoOpcion = 'prestacion_de_servicios' | 'proveedor'
 
 const OPCIONES_TIPO: { id: TipoOpcion; etiqueta: string }[] = [
@@ -1007,41 +1055,13 @@ export default function App() {
                             <h3>{grupo[0]?.categoria ?? 'Sin categoría'}</h3>
                             <ol className="lista-hallazgos">
                               {grupo.map((hallazgo, i) => (
-                                <li key={i}>
-                                  <p>
-                                    <strong>
-                                      {etiquetaHallazgo(hallazgo.tipo)}
-                                    </strong>
-                                    {' — '}
-                                    {hallazgo.categoria}
-                                  </p>
-                                  <p>{hallazgo.descripcion}</p>
-                                  {hallazgo.cita && (
-                                    <blockquote>“{hallazgo.cita}”</blockquote>
-                                  )}
-                                  <p>
-                                    <strong>Explicación:</strong>{' '}
-                                    {hallazgo.explicacion}
-                                  </p>
-                                  <p>
-                                    <strong>Posible consecuencia:</strong>{' '}
-                                    {hallazgo.consecuencia}
-                                  </p>
-                                  <p>
-                                    <strong>Recomendación:</strong>{' '}
-                                    {hallazgo.recomendacion}
-                                  </p>
-                                  <p className="sugerencia">
-                                    <strong>Limitaciones:</strong>{' '}
-                                    {hallazgo.limitaciones}
-                                  </p>
-                                </li>
+                                <Hallazgo key={i} hallazgo={hallazgo} />
                               ))}
                             </ol>
                           </section>
                         ))}
                     </>
-                  )}
+                      )}
                   {numDescartados > 0 && (
                     <p className="sugerencia">
                       {numDescartados === 1
@@ -1111,47 +1131,19 @@ export default function App() {
                   {historial.map((registro) => (
                     <li key={registro.id}>
                       <p>
-                        <strong>{registro.fecha}</strong> —{' '}
+                        <strong>{formatearFechaLocal(registro.fecha)}</strong> —{' '}
                         {registro.tipo_confirmado}{' '}
                         ({registro.num_hallazgos} hallazgo{
                           registro.num_hallazgos !== 1 ? 'es' : ''
                         })
                       </p>
-                      {registro.hallazgos.length > 0 && (
+                      {registro.hallazgos?.length ? (
                         <ol className="lista-hallazgos">
-                          {registro.hallazgos.map((hallazgo, i) => (
-                            <li key={i}>
-                              <p>
-                                <strong>
-                                  {etiquetaHallazgo(hallazgo.tipo)}
-                                </strong>
-                                {' — '}
-                                {hallazgo.categoria}
-                              </p>
-                              <p>{hallazgo.descripcion}</p>
-                              {hallazgo.cita && (
-                                <blockquote>“{hallazgo.cita}”</blockquote>
-                              )}
-                              <p>
-                                <strong>Explicación:</strong>{' '}
-                                {hallazgo.explicacion}
-                              </p>
-                              <p>
-                                <strong>Posible consecuencia:</strong>{' '}
-                                {hallazgo.consecuencia}
-                              </p>
-                              <p>
-                                <strong>Recomendación:</strong>{' '}
-                                {hallazgo.recomendacion}
-                              </p>
-                              <p className="sugerencia">
-                                <strong>Limitaciones:</strong>{' '}
-                                {hallazgo.limitaciones}
-                              </p>
-                            </li>
+                          {(registro.hallazgos ?? []).map((hallazgo, i) => (
+                            <Hallazgo key={i} hallazgo={hallazgo} />
                           ))}
                         </ol>
-                      )}
+                       ) : null}
                     </li>
                   ))}
                 </ul>
