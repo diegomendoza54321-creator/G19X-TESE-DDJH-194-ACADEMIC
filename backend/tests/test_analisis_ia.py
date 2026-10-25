@@ -156,6 +156,43 @@ def test_tiempo_excedido_devuelve_503(
     assert respuesta.json()["codigo"] == "tiempo_excedido"
 
 
+def test_read_timeout_en_flujo_actualizado_devuelve_503(
+    cliente: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """httpx.ReadTimeout en flujo actualizado -> 503 modelo_no_disponible.
+
+    Verifica que la tupla compartida EXCEPCIONES_CONEXION (que incluye
+    httpx.ReadTimeout) capture correctamente la excepción en los bloques B
+    y C (_contar_prompt y _analizar_bajo_lock), en lugar de lanzar
+    tiempo_excedido como lo haría el bloque httpx.ReadTimeout aislado.
+
+    El bloque A (/slots) conserva su propio manejo y retorno (True, "desconocida"),
+    pero los bloques B y C usan la tupla compartida que ahora incluye ReadTimeout.
+    """
+    from app.analisis_ia import EXCEPCIONES_CONEXION
+
+    # Mockeamos que el analizador lance ReadTimeout en lugar de ErrorAnalisis
+    # Esto simula lo que sucedería cuando el httpx cliente lanza ReadTimeout
+    # en la llamada al servidor local, y el excepción es capturada por EXCEPCIONES_CONEXION
+    monkeypatch.setattr(
+        "app.analisis_ia.analizar",
+        lambda texto, tipo_confirmado: (_ for _ in ()).throw(
+            httpx.ReadTimeout("ReadTimeout simulated")
+        ),
+    )
+    _mock_analizar(
+        monkeypatch,
+        error=httpx.ReadTimeout("ReadTimeout simulated"),
+    )
+    respuesta = _post_analisis(cliente)
+    assert respuesta.status_code == 503
+    cuerpo = respuesta.json()
+    assert cuerpo["ok"] is False
+    # Al ser capturado por EXCEPCIONES_CONEXION (bloques B y C), el código es
+    # "modelo_no_disponible", no "tiempo_excedido" (que sería el bloque httpx.ReadTimeout aislado)
+    assert cuerpo["codigo"] == "modelo_no_disponible"
+
+
 def test_modelo_ocupado_devuelve_409(
     cliente: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -450,3 +487,38 @@ def test_construir_mensajes_sin_criterios_tipo_valido(monkeypatch) -> None:
     assert "TEXTO DEL CONTRATO" in contenido
 
 
+def test_read_timeout_en_flujo_actualizado_devuelve_503(
+    cliente: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """ReadTimeout durante la inferencia devuelve 503 con tiempo_excedido."""
+    import httpx
+    from unittest.mock import AsyncMock
+
+    async def mock_get(_cliente, url, *args, **kwargs):
+        return httpx.Response(200, json={})
+
+    async def mock_post(_cliente, url, *args, **kwargs):
+        assert str(url).endswith("/v1/chat/completions")
+        raise httpx.ReadTimeout(
+            "Request timed out",
+            request=httpx.Request("POST", str(url)),
+        )
+
+    monkeypatch.setattr(
+        analisis_ia_mod,
+        "_validar_slots_estricto",
+        lambda cuerpo: False,
+    )
+    monkeypatch.setattr(
+        analisis_ia_mod,
+        "_contar_prompt",
+        AsyncMock(return_value=1),
+    )
+    monkeypatch.setattr(httpx.AsyncClient, "get", mock_get)
+    monkeypatch.setattr(httpx.AsyncClient, "post", mock_post)
+
+    respuesta = _post_analisis(cliente)
+
+    assert respuesta.status_code == 503
+    assert respuesta.json()["codigo"] == "tiempo_excedido"

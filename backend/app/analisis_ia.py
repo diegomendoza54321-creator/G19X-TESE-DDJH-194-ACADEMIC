@@ -16,6 +16,17 @@ from urllib.parse import urlparse
 
 import httpx
 
+# Tupla compartida de excepciones de conexión para consistencia en el manejo de errores.
+# Usada por _contar_prompt y _analizar_bajo_lock; el bloque A de verificación de /slots
+# usa su propia firma porque devuelve (True, "desconocida").
+EXCEPCIONES_CONEXION = (
+    httpx.ConnectError,
+    httpx.ConnectTimeout,
+    httpx.WriteTimeout,
+    httpx.PoolTimeout,
+    httpx.ReadTimeout,
+)
+
 from .citas import Hallazgo, filtrar_hallazgos
 from .clasificacion import ETIQUETAS
 
@@ -336,8 +347,7 @@ async def _contar_prompt(
         r_plantilla = await cliente_aux.post(
             f"{URL_SERVIDOR_LOCAL}/apply-template", json={"messages": mensajes}
         )
-    except (httpx.ConnectError, httpx.ConnectTimeout, httpx.WriteTimeout,
-            httpx.PoolTimeout, httpx.ReadTimeout):
+    except EXCEPCIONES_CONEXION:
         raise _error(
             "modelo_no_disponible",
             "No se pudo conectar con el servidor local de análisis.",
@@ -476,8 +486,7 @@ async def _analizar_bajo_lock(
             "Reintente con un texto más corto.",
             503,
         )
-    except (httpx.ConnectError, httpx.ConnectTimeout, httpx.WriteTimeout,
-            httpx.PoolTimeout):
+    except EXCEPCIONES_CONEXION:
         raise _error(
             "modelo_no_disponible",
             "No se pudo conectar con el servidor local de análisis.",
