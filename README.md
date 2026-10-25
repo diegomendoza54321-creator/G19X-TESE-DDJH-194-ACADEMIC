@@ -55,7 +55,25 @@ El acceso es privado: solo pueden entrar cuentas autorizadas. No existe registro
 
 > **Fase actual:** Prototipo funcional (backend, frontend, análisis local de IA y pruebas automatizadas).
 
-El prototipo incluye backend (FastAPI), frontend (React/Vite), clasificación local de tipo de contrato, extracción de texto de PDF/DOCX y análisis de cláusulas contra un servidor local `llama-server` (llama.cpp) con modelo Phi-3 GGUF en `127.0.0.1:9931`. Las pruebas backend pasan con `pytest`.
+El prototipo incluye backend (FastAPI), frontend (React/Vite), clasificación local de tipo de contrato, extracción de texto de PDF/DOCX y análisis de cláusulas contra un servidor local `llama-server` (llama.cpp) con modelo Phi-3 GGUF en `127.0.0.1:9931`. **Véase la sección de instalación a continuación para la configuración completa del modelo y el servidor.** Las pruebas backend pasan con `pytest`.
+
+## Instalación y configuración del modelo
+
+El análisis de cláusulas requiere `llama-server` (llama.cpp) en ejecución localmente. Para arrancar el servidor con el modelo Phi-3:
+
+1. Descarga el modelo desde la página oficial: [Phi-3-mini-4k-instruct-q4.gguf Q4_K_M](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/blob/main/Phi-3-mini-4k-instruct-q4.gguf)
+   - El archivo es `Phi-3-mini-4k-instruct-q4.gguf` (cuantización **Q4_K_M**).
+   - **Nota:** el modelo no viene incluido en este repositorio; debe descargarse manualmente desde el enlace anterior.
+2. Coloca el archivo en la ruta `model\Phi-3-mini-4k-instruct-q4.gguf` relative to la ejecución del servidor (o ajusta la ruta en el comando).
+3. Ejecuta el servidor con el siguiente comando (PowerShell):
+
+```powershell
+.\llama-server.exe -m model\Phi-3-mini-4k-instruct-q4.gguf --host 127.0.0.1 --port 9931 -c 2048
+```
+
+4. Verifica que el backend esté accesible en `127.0.0.1:9931` (el endpoint `/v1/models` debería listar el modelo).
+
+Una vez el servidor en marcha, el prototipo frontend podrá conectarse para el análisis de cláusulas.
 
 ### Desarrollo con asistencia de IA
 Desarrollado con asistencia de IA durante el proceso de desarrollo.
@@ -90,7 +108,7 @@ Se necesita Windows con:
 
 - **Python 3.14** (incluye `pip`). Durante la instalación, marcar "Add Python to PATH".
 - **Node.js** (solo para el frontend; versión indicada en `frontend/package.json`).
-- **llama.cpp** con el ejecutable `llama-server` y un modelo GGUF (recomendado: Phi-3 mini 4K instruct, cuantificado q4_0).
+- **llama.cpp** con el ejecutable `llama-server` y un modelo GGUF (recomendado: Phi-3 mini 4K instruct, cuantificado q4).
 
 Todos los comandos de este documento se ejecutan desde la **raíz del repositorio** (donde está este `README.md`), en PowerShell, a menos que se indique lo contrario.
 
@@ -144,7 +162,7 @@ El análisis de cláusulas depende de **llama-server** (de llama.cpp) ejecutánd
 
 - Ejecutable `llama-server` de llama.cpp.
 - **Dato del entorno comprobado (no es requisito general):** en la máquina de desarrollo se verificó la presencia de `D:\llama.cpp\llama-server.exe` con la versión `0.7.0-dev (build 11683, commit a8d9a7e1e)`, compilado con Clang 20.1.8 para Windows x86_64. El proyecto no exige esta versión ni build concretos; cualquier binario compatible de llama.cpp que responda en `127.0.0.1:9931` es válido.
-- Modelo GGUF. El proyecto recomienda **Phi-3 mini 4K instruct, cuantificado q4_0** (por ejemplo: `model\Phi-3-mini-4k-instruct-q4_0.gguf`) como referencia. El repositorio **no incluye** ni especifica una URL de descarga ni una versión concreta de llama.cpp ni del modelo; el usuario debe proporcionar ambos archivos y ajustar la ruta `-m` al modelo que tenga disponible.
+- Modelo GGUF (cuantificación q4_0 de referencia): El proyecto registra la cuantificación q4_0 como ejemplo de archivo precedente (`model\Phi-3-mini-4k-instruct-q4_0.gguf`). Para instalación actual, se recomienda el modelo oficial `Phi-3-mini-4k-instruct-q4.gguf` con cuantización **Q4_K_M**. El repositorio **no incluye** ni especifica una URL de descarga ni una versión concreta de llama.cpp ni del modelo; el usuario debe proporcionar ambos archivos y ajustar la ruta `-m` al modelo que tenga disponible.
 
 ### Arrancar llama-server
 

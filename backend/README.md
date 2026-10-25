@@ -36,7 +36,7 @@ $env:LIMITE_CONTEXTO_IA="2048"
 El análisis de cláusulas requiere `llama-server` (llama.cpp) en marcha en `127.0.0.1:9931` con un modelo GGUF (Phi-3 recomendado) y contexto 2048:
 
 ```powershell
-.\llama-server.exe -m model\Phi-3-mini-4k-instruct-q4_0.gguf --host 127.0.0.1 --port 9931 -c 2048
+.\llama-server.exe -m model\Phi-3-mini-4k-instruct-q4.gguf --host 127.0.0.1 --port 9931 -c 2048
 ```
 
 El backend rechaza cualquier URL cuyo host no sea `127.0.0.1` ni `localhost` (conexión estrictamente local, sin red externa). Si `llama-server` no está disponible, el endpoint de análisis responde con error `modelo_no_disponible` (503).
