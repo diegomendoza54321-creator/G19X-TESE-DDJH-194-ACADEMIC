@@ -201,53 +201,22 @@ Si no se dispone de `llama-server`, el backend arranca igualmente, pero el endpo
 
 ## 4. Configurar variables de entorno (`URL_SERVIDOR_IA` y `LIMITE_CONTEXTO_IA`)
 
-Las variables de entorno se pueden establecer directamente en PowerShell antes de iniciar el backend. No es necesario copiar `backend/.env.example` a `.env`, ya que el proyecto no carga `.env` automáticamente. Ejecuta cualquiera de las siguientes opciones en una terminal PowerShell:
+Establece estas variables en PowerShell antes de iniciar el backend. El proyecto no carga archivos `.env` automáticamente:
 
 ```powershell
-# Opción 1: Establecer una sola variable
-$env:URL_SERVIDOR_IA = "http://127.0.0.1:9931"
-
-# Opción 2: Establecer ambas variables
 $env:URL_SERVIDOR_IA = "http://127.0.0.1:9931"
 $env:LIMITE_CONTEXTO_IA = "2048"
 ```
 
-Al iniciar el backend, las variables estarán disponibles. Ejemplo:
+Desde la raíz del repositorio, inicia el backend en esa misma terminal:
 
 ```powershell
-# Desde la raíz del repositorio
 .venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --reload
 ```
 
-El archivo `backend/.env.example` sirve solo como referencia de nombres de variables; su contenido no se lee de forma automática.
-
-El archivo `backend/.env.example` es una **plantilla de referencia**:
-
-```
-URL_SERVIDOR_IA=http://127.0.0.1:9931
-LIMITE_CONTEXTO_IA=2048
-```
-
-**`.env` no se carga automáticamente.** El backend lee las variables directamente del entorno del sistema operativo mediante `os.environ.get`.
-
-Opción A: crear archivo `.env`:
-
-```powershell
-copy backend\.env.example backend\.env
-# Editar backend\.env si es necesario
-```
-
-Opción B: establecer en PowerShell antes de iniciar el backend:
-
-```powershell
-$env:URL_SERVIDOR_IA="http://127.0.0.1:9931"
-$env:LIMITE_CONTEXTO_IA="2048"
-```
-
 Validación:
-- `URL_SERVIDOR_IA`: solo se aceptan hosts `127.0.0.1` o `localhost`. Cualquier otro host provoca error al iniciar el backend.
-- `LIMITE_CONTEXTO_IA`: debe ser un entero positivo (por defecto `2048`).
-
+- `URL_SERVIDOR_IA`: solo se aceptan hosts `127.0.0.1` o `localhost`. Cualquier otro host provoca un error al iniciar el backend.
+- `LIMITE_CONTEXTO_IA`: debe ser un entero positivo; el valor predeterminado es `2048`.
 ---
 ## 5. Crear el primer usuario
 
