@@ -1100,13 +1100,33 @@ export default function App() {
       {vista === 'resultados' && (
         <section className="tarjeta" aria-live="polite">
           <h2>Resultados</h2>
-          <p>
-            No hay resultados para mostrar todavía. Analiza un contrato en Analizar contrato para que aparezca aquí.
-          </p>
-          <p className="sugerencia">
-            Mientras tanto, puedes extraer el texto de un contrato en{' '}
-            <strong>Analizar contrato</strong>.
-          </p>
+          {hallazgos === null ? (
+            <>
+              <p>
+                No hay resultados para mostrar todavía. Analiza un contrato en{' '}
+                <strong>Analizar contrato</strong> para que aparezca aquí.
+              </p>
+              <p className="sugerencia">
+                Mientras tanto, puedes extraer el texto de un contrato en{' '}
+                <strong>Analizar contrato</strong>.
+              </p>
+            </>
+          ) : hallazgos.length === 0 ? (
+            <p>
+              El análisis se completó pero no se encontraron hallazgos.
+            </p>
+          ) : (
+            <>
+              <p>
+                {hallazgos.length} hallazgo{hallazgos.length !== 1 ? 'es' : ''}
+              </p>
+              <ol className="lista-hallazgos">
+                {hallazgos.map((hallazgo, i) => (
+                  <Hallazgo key={i} hallazgo={hallazgo} />
+                ))}
+              </ol>
+            </>
+          )}
         </section>
       )}
 
@@ -1132,7 +1152,7 @@ export default function App() {
                     <li key={registro.id}>
                       <p>
                         <strong>{formatearFechaLocal(registro.fecha)}</strong> —{' '}
-                        {registro.tipo_confirmado}{' '}
+                        {etiquetaDe(registro.tipo_confirmado as TipoOpcion)}{' '}
                         ({registro.num_hallazgos} hallazgo{
                           registro.num_hallazgos !== 1 ? 'es' : ''
                         })
