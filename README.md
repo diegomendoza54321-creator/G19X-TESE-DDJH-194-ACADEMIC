@@ -1,4 +1,4 @@
-﻿# MotorRevisionLegal
+# MotorRevisionLegal
 
 Herramienta web de revisión de cláusulas contractuales — Proyecto de Residencias Profesionales.
 
@@ -21,7 +21,7 @@ El acceso es privado: solo pueden entrar cuentas autorizadas. No existe registro
 - Cargar contratos en formato **PDF con texto seleccionable** o **DOCX**.
 - Proponer el tipo de contrato (prestación de servicios o proveedor) con una justificación breve basada en el texto.
 - Permitir que la persona usuaria **confirme o corrija la clasificación** antes de iniciar el análisis.
-- Aplicar una lista de verificación base y criterios condicionales según el tipo confirmado (la lista base está implementada y se integra al prompt).
+- Aplicar criterios de revisión por tipo de contrato (prestación de servicios y proveedor), definidos en backend/app/criterios.json e integrados al prompt de análisis.
 - Identificar posibles ambigüedades, omisiones, contradicciones aparentes y riesgos contractuales.
 - Generar hallazgos respaldados por citas textuales del documento original.
 - Presentar por cada hallazgo: explicación, posible consecuencia, recomendación y limitaciones del análisis.
@@ -272,7 +272,7 @@ Desde la raíz del repositorio:
 .venv\Scripts\python.exe -m pytest backend
 ```
 
-Se ejecutan 94 pruebas cubriendo autenticación, extracción, citas, análisis de IA y configuración por variables de entorno.
+Se ejecutan 102 pruebas cubriendo autenticación, extracción, citas, análisis de IA y configuración por variables de entorno (`test_analisis_ia.py` 29, `test_api.py` 10, `test_auth.py` 17, `test_citas.py` 28, `test_extraccion.py` 14, `test_historial.py` 4).
 
 ---
 

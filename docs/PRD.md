@@ -179,7 +179,7 @@ El MVP debe demostrar el flujo completo de extremo a extremo con las funciones e
 - El usuario puede abrir un análisis anterior y consultar su informe.
 - El historial no muestra ni permite descargar el archivo original del contrato.
 
-> **Diseño pendiente:** los campos exactos que se guardan por cada análisis, el motor de base de datos y la política de conservación de esos datos están pendientes de definir antes de implementar este módulo.
+> **Motor de base de datos:** SQLite (implementado en `backend/app/auth.py` y `backend/app/historial.py`; la ruta se configura con `MOTORREVISIONLEGAL_DB` o, por defecto, `backend/datos.db`). Los campos guardados por análisis pueden consultarse en la implementación actual; la política de conservación sigue pendiente de definición.
 
 ---
 
@@ -222,7 +222,7 @@ El MVP debe demostrar el flujo completo de extremo a extremo con las funciones e
 - [ ] Validar la API de IA: privacidad, costo por token, política de retención de datos, disponibilidad. No asumir que los contratos pueden enviarse a servicios externos sin autorización.
 - [ ] Mecanismo técnico de autenticación (sesiones, JWT u otro). La autenticación con usuario y contraseña está confirmada; el mecanismo de implementación no.
 - [ ] Creación y administración de cuentas autorizadas: quién las crea, cómo y con qué herramienta.
-- [ ] Motor de base de datos para persistencia del historial y las cuentas.
+- [x] Motor de base de datos: SQLite (implementado; ruta configurable vía MOTORREVISIONLEGAL_DB).
 - [ ] Datos exactos que guardará el historial por cada análisis y política de conservación.
 - [ ] Política de almacenamiento y eliminación de los documentos cargados.
 - [ ] Definir y ajustar internamente la lista de criterios de revisión base y condicional propuesta para cada tipo de contrato (prestación de servicios y proveedores).
