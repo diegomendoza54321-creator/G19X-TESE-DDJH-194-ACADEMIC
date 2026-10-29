@@ -16,9 +16,12 @@ from urllib.parse import urlparse
 
 import httpx
 
-# Tupla compartida de excepciones de conexión para consistencia en el manejo de errores.
-# Usada por _contar_prompt y _analizar_bajo_lock; el bloque A de verificación de /slots
-# usa su propia firma porque devuelve (True, "desconocida").
+from .citas import Hallazgo, filtrar_hallazgos
+from .clasificacion import ETIQUETAS
+
+
+# Tupla compartida de excepciones de conexión para un manejo coherente.
+# Se usa en consultar_ocupacion, _contar_prompt y _analizar_bajo_lock.
 EXCEPCIONES_CONEXION = (
     httpx.ConnectError,
     httpx.ConnectTimeout,
@@ -26,9 +29,6 @@ EXCEPCIONES_CONEXION = (
     httpx.PoolTimeout,
     httpx.ReadTimeout,
 )
-
-from .citas import Hallazgo, filtrar_hallazgos
-from .clasificacion import ETIQUETAS
 
 #: Nombre de la variable de entorno para la URL del servidor local de IA.
 URL_SERVIDOR_IA_ENV = "URL_SERVIDOR_IA"
@@ -174,8 +174,7 @@ async def consultar_ocupacion() -> tuple[bool, str]:
             timeout=httpx.Timeout(connect=3.0, read=10.0, write=10.0, pool=5.0)
         ) as cliente:
             respuesta = await cliente.get(f"{URL_SERVIDOR_LOCAL}/slots")
-    except (httpx.ConnectError, httpx.ConnectTimeout, httpx.WriteTimeout,
-            httpx.PoolTimeout, httpx.ReadTimeout):
+    except EXCEPCIONES_CONEXION:
         return True, "desconocida"
     if respuesta.status_code != 200:
         return True, "desconocida"
@@ -340,7 +339,7 @@ async def _contar_prompt(
     """Renderiza con /apply-template y cuenta con /tokenize."""
     motivo_ctx = (
         "No se pudo verificar que el texto quepa en el contexto local "
-        "(2048). No se analiza para evitar truncar o analizar solo una "
+        f"({N_CTX}). No se analiza para evitar truncar o analizar solo una "
         "parte."
     )
     try:
@@ -378,8 +377,7 @@ async def _contar_prompt(
             f"{URL_SERVIDOR_LOCAL}/tokenize",
             json={"content": prompt, "add_special": False},
         )
-    except (httpx.ConnectError, httpx.ConnectTimeout, httpx.WriteTimeout,
-            httpx.PoolTimeout, httpx.ReadTimeout):
+    except EXCEPCIONES_CONEXION:
         raise _error(
             "modelo_no_disponible",
             "No se pudo conectar con el servidor local de análisis.",
@@ -414,8 +412,7 @@ async def _analizar_bajo_lock(
             timeout=httpx.Timeout(connect=3.0, read=10.0, write=10.0, pool=5.0)
         ) as cliente_slots:
             r_slots = await cliente_slots.get(f"{URL_SERVIDOR_LOCAL}/slots")
-    except (httpx.ConnectError, httpx.ConnectTimeout, httpx.WriteTimeout,
-            httpx.PoolTimeout, httpx.ReadTimeout):
+    except EXCEPCIONES_CONEXION:
         raise _error(
             "modelo_no_disponible",
             "No se pudo conectar con el servidor local de análisis.",
