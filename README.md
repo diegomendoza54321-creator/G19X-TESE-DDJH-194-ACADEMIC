@@ -169,7 +169,7 @@ El análisis de cláusulas depende de **llama-server** (de llama.cpp) ejecutánd
 Desde la carpeta que contenga `llama-server.exe` y el modelo:
 
 ```powershell
-.\llama-server.exe -m 'C:\Modelos\modelo.gguf' --host 127.0.0.1 --port 9931 -c 2048
+.\llama-server.exe -m model\Phi-3-mini-4k-instruct-q4.gguf --host 127.0.0.1 --port 9931 -c 2048
 ```
 
 Parámetros clave:
