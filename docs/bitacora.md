@@ -585,3 +585,75 @@ N/A
 - Commit 46210be: docs(readme): limpiar configuración de variables de entorno
 - Commit a6ca012: chore: eliminar scripts obsoletos de Ollama
 ---
+
+
+## Entrada 017
+**Fecha:**2026-10-28
+**Autor:**Diego de Jesus Hurtado Mendoza
+**Sesión / Iteración:**#017 - Resultados del último análisis
+
+### Objetivo de la sesión
+
+Mostrar resultados del último análisis y completar el registro de la bitácora.
+
+### Actividades realizadas
+
+- Mostrar resultados del último análisis (commit fadc233)
+- Registrar avances del 14 al 23 de octubre (commit 55d5a5e)
+- Completar registro del 9 al 24 de octubre (commit fd496a4)
+
+### Resultado
+
+Resultados del último análisis visibles en la interfaz. Registro de bitácora completado para el periodo.
+
+### Problemas encontrados
+
+Ninguno reportado
+
+### Solución aplicada
+
+N/A
+
+### Evidencia
+- Commit fadc233: feat(frontend): mostrar resultados del último análisis
+- Commit 55d5a5e: docs(bitacora): registrar avances del 14 al 23 de octubre
+- Commit fd496a4: docs(bitacora): completar registro del 9 al 24 de octubre
+---
+
+
+## Entrada 018
+**Fecha:**2026-10-29
+**Autor:**Diego de Jesus Hurtado Mendoza
+**Sesión / Iteración:**#018 - Consolidar excepciones y documentación final
+
+### Objetivo de la sesión
+
+Consolidar excepciones de conexión y alinear documentación final.
+
+### Actividades realizadas
+
+- Consolidar excepciones de conexión (commit 1dd9cbe)
+- Alinear README y PRD con la implementación actual (commit 688c683)
+- Agregar evidencia de instalación limpia (commit fe91200)
+- Completar bitácora de octubre con evidencia (commit 45bf8f6)
+- Unificar ruta del modelo llama-server en README (commit 792a8a2)
+
+### Resultado
+
+Excepciones consolidadas y documentación alineada con la implementación.
+
+### Problemas encontrados
+
+Ninguno reportado
+
+### Solución aplicada
+
+N/A
+
+### Evidencia
+- Commit 1dd9cbe: fix(ia): consolidar excepciones de conexión
+- Commit 688c683: docs: alinear README y PRD con la implementación actual
+- Commit fe91200: docs: agregar evidencia de instalacion limpia
+- Commit 45bf8f6: docs: completar bitácora de octubre con evidencia
+- Commit 792a8a2: docs(readme): unificar ruta del modelo llama-server
+---

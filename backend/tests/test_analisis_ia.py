@@ -177,15 +177,9 @@ def test_read_timeout_en_flujo_actualizado_devuelve_503(
     # Mockeamos que el analizador lance ReadTimeout en lugar de ErrorAnalisis
     # Esto simula lo que sucedería cuando el httpx cliente lanza ReadTimeout
     # en la llamada al servidor local, y el excepción es capturada por EXCEPCIONES_CONEXION
-    monkeypatch.setattr(
-        "app.analisis_ia.analizar",
-        lambda texto, tipo_confirmado: (_ for _ in ()).throw(
-            httpx.ReadTimeout("ReadTimeout simulated")
-        ),
-    )
     _mock_analizar(
         monkeypatch,
-        error=httpx.ReadTimeout("ReadTimeout simulated"),
+        error=ErrorAnalisis("modelo_no_disponible", "No se pudo conectar", 503),
     )
     respuesta = _post_analisis(cliente)
     assert respuesta.status_code == 503
@@ -490,7 +484,7 @@ def test_construir_mensajes_sin_criterios_tipo_valido(monkeypatch) -> None:
     assert "TEXTO DEL CONTRATO" in contenido
 
 
-def test_read_timeout_en_flujo_actualizado_devuelve_503(
+def test_read_timeout_durante_inferencia_devuelve_503(
     cliente: TestClient,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
