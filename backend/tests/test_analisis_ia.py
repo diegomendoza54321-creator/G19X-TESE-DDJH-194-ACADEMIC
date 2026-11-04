@@ -11,9 +11,12 @@ llamadas al servidor local se mockean para no depender de llama-server.
 
 from __future__ import annotations
 
+import asyncio
+import json
 from collections.abc import Generator
 from pathlib import Path
 
+import httpx
 import pytest
 from fastapi.testclient import TestClient
 
@@ -522,3 +525,144 @@ def test_read_timeout_en_flujo_actualizado_devuelve_503(
 
     assert respuesta.status_code == 503
     assert respuesta.json()["codigo"] == "tiempo_excedido"
+
+
+# --------------------------------------------------------------------------
+# Parseo de la respuesta del modelo (RF-04, prototipo)
+# --------------------------------------------------------------------------
+
+
+def test_parsear_hallazgos_json_valido_devuelve_lista() -> None:
+    """Array JSON válido, con o sin cercas markdown, se parsea a lista."""
+    items = analisis_ia_mod._parsear_hallazgos_json(
+        '[{"tipo": "ambiguedad", "categoria": "Vigencia"}]'
+    )
+    assert items == [{"tipo": "ambiguedad", "categoria": "Vigencia"}]
+
+    con_fences = (
+        "```json\n"
+        '[{"tipo": "omision", "categoria": "Plazos", "cita": ""}]\n'
+        "```"
+    )
+    assert analisis_ia_mod._parsear_hallazgos_json(con_fences) == [
+        {"tipo": "omision", "categoria": "Plazos", "cita": ""}
+    ]
+
+
+def test_parsear_hallazgos_json_truncado_levanta_error() -> None:
+    """JSON cortado por salida truncada no se interpreta como hallazgos."""
+    with pytest.raises(ValueError):
+        analisis_ia_mod._parsear_hallazgos_json(
+            '[{"tipo": "ambiguedad", "categoria": "Vigencia", "d'
+        )
+
+
+def test_parsear_hallazgos_json_no_es_array_levanta_error() -> None:
+    """Un objeto JSON (no array) se rechaza de forma segura."""
+    with pytest.raises(ValueError):
+        analisis_ia_mod._parsear_hallazgos_json('{"tipo": "ambiguedad"}')
+
+
+def _mock_cliente_analisis(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    slots_ocupado: bool = False,
+    n_prompt: int = 100,
+    contenido_inferencia: str | None = None,
+    finish_reason: str = "stop",
+    estatus_inferencia: int = 200,
+) -> None:
+    """Mockea las llamadas HTTP de ``_analizar_bajo_lock`` al servidor local."""
+    from unittest.mock import AsyncMock
+
+    async def mock_get(_cliente, url, *args, **kwargs):
+        return httpx.Response(200, json=[{"is_processing": slots_ocupado}])
+
+    async def mock_post(_cliente, url, *args, **kwargs):
+        if str(url).endswith("/v1/chat/completions"):
+            cuerpo = {
+                "choices": [
+                    {
+                        "message": {
+                            "content": contenido_inferencia or "[]",
+                        },
+                        "finish_reason": finish_reason,
+                    }
+                ]
+            }
+            return httpx.Response(estatus_inferencia, json=cuerpo)
+        return httpx.Response(200, json={})
+
+    monkeypatch.setattr(
+        analisis_ia_mod, "_validar_slots_estricto", lambda cuerpo: False
+    )
+    monkeypatch.setattr(
+        analisis_ia_mod, "_contar_prompt", AsyncMock(return_value=n_prompt)
+    )
+    monkeypatch.setattr(analisis_ia_mod, "_cargar_criterios", lambda: {})
+    monkeypatch.setattr(httpx.AsyncClient, "get", mock_get)
+    monkeypatch.setattr(httpx.AsyncClient, "post", mock_post)
+
+
+def test_analizar_bajo_lock_respuesta_valida_devuelve_hallazgos(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Respuesta JSON completa y válida devuelve hallazgos del informe."""
+    item = {
+        "tipo": "omision",
+        "categoria": "Vigencia",
+        "descripcion": "No se define la vigencia del contrato.",
+        "cita": "",
+        "explicacion": "Explicación de prueba.",
+        "consecuencia": "Consecuencia de prueba.",
+        "recomendacion": "Recomendación de prueba.",
+        "limitaciones": "Limitaciones de prueba.",
+    }
+    _mock_cliente_analisis(
+        monkeypatch,
+        contenido_inferencia=json.dumps([item]),
+        finish_reason="stop",
+    )
+
+    resultado = asyncio.run(
+        analisis_ia_mod._analizar_bajo_lock(TEXTO_CORTO, TIPO_VALIDO)
+    )
+    assert isinstance(resultado, analisis_ia_mod.ResultadoAnalisisIA)
+    assert len(resultado.hallazgos) == 1
+    assert resultado.hallazgos[0].tipo == "omision"
+    assert resultado.num_descartados == 0
+
+
+def test_analizar_bajo_lock_respuesta_truncada_devuelve_error_controlado(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Salida cortada por límite de tokens -> 502 respuesta_truncada, sin hallazgos."""
+    _mock_cliente_analisis(
+        monkeypatch,
+        contenido_inferencia='[{"tipo": "ambiguedad", "categoria": "Vigencia", "d',
+        finish_reason="length",
+    )
+    with pytest.raises(analisis_ia_mod.ErrorAnalisis) as exc_info:
+        asyncio.run(
+            analisis_ia_mod._analizar_bajo_lock(TEXTO_CORTO, TIPO_VALIDO)
+        )
+    assert exc_info.value.codigo == "respuesta_truncada"
+    assert exc_info.value.estado_http == 502
+    assert "no se presentan hallazgos incompletos" in exc_info.value.motivo.lower()
+
+
+def test_analizar_bajo_lock_respuesta_json_invalido_devuelve_502(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """JSON inválido del modelo -> 502 respuesta_invalida, sin inventar hallazgos."""
+    _mock_cliente_analisis(
+        monkeypatch,
+        contenido_inferencia="esto no es un JSON valido",
+        finish_reason="stop",
+    )
+    with pytest.raises(analisis_ia_mod.ErrorAnalisis) as exc_info:
+        asyncio.run(
+            analisis_ia_mod._analizar_bajo_lock(TEXTO_CORTO, TIPO_VALIDO)
+        )
+    assert exc_info.value.codigo == "respuesta_invalida"
+    assert exc_info.value.estado_http == 502

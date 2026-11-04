@@ -97,9 +97,6 @@ URL_SERVIDOR_LOCAL = _leer_url_servidor_local()
 #: entorno ``LIMITE_CONTEXTO_IA`` (predeterminado: ``2048``).
 N_CTX = _leer_limite_contexto()
 
-#: Reserva de tokens para la respuesta del modelo.
-MAX_TOKENS_SALIDA = 512
-
 #: Margen para BOS/EOS que el servidor inserta al inferir y desviación
 #: del tokenizador. Pesimista a propósito hasta medirlo en vivo.
 MARGEN_TOKENS = 32
@@ -249,6 +246,10 @@ def construir_mensajes(texto: str, tipo_confirmado: str) -> list[dict]:
         '"recomendacion": "recomendación genérica de revisión, no '
         "vinculante\", "
         '"limitaciones": "qué no puede afirmar el sistema"}. '
+        "La cita debe ser una transcripción literal de un único fragmento "
+        "contiguo del contrato; debe existir exactamente en el documento; "
+        "está prohibido unir frases separadas, resumir o reconstruir texto; "
+        "si no existe una cita literal válida, no generes el hallazgo. "
         "Cada coincidencia es una señal para revisar, no una conclusión "
         "jurídica. No afirmes validez ni legalidad. "
         + criterios_texto
@@ -280,6 +281,29 @@ def _extraer_contenido_respuesta(cuerpo: object) -> str:
     return contenido
 
 
+def _obtener_finish_reason(cuerpo: object) -> str | None:
+    """Devuelve el ``finish_reason`` de la primera elección, o ``None``.
+
+    ``"length"`` indica que el servidor cortó la generación por el límite
+    de ``max_tokens``: la respuesta está incompleta.
+    """
+    if not isinstance(cuerpo, dict):
+        return None
+    opciones = cuerpo.get("choices")
+    if not isinstance(opciones, list) or len(opciones) == 0:
+        return None
+    primera = opciones[0]
+    if not isinstance(primera, dict):
+        return None
+    mensaje = primera.get("message")
+    if isinstance(mensaje, dict):
+        valor = mensaje.get("finish_reason")
+        if isinstance(valor, str):
+            return valor
+    valor = primera.get("finish_reason")
+    return valor if isinstance(valor, str) else None
+
+
 def _parsear_hallazgos_json(texto_json: str) -> list:
     """Parsea el array JSON del modelo, tolerando cercas markdown."""
     limpio = texto_json.strip()
@@ -297,6 +321,31 @@ def _parsear_hallazgos_json(texto_json: str) -> list:
 _TIPOS_VALIDOS: frozenset = frozenset(
     {"ambiguedad", "omision", "contradiccion", "riesgo"}
 )
+
+#: Esquema JSON (JSON Schema) exigido al modelo vía ``response_format``.
+#: Debe coincidir exactamente con los campos y tipos aceptados por
+#: ``_convertir_hallazgo``.
+_ESQUEMA_HALLAZGOS: dict = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "tipo": {"enum": sorted(_TIPOS_VALIDOS)},
+            "categoria": {"type": "string"},
+            "descripcion": {"type": "string"},
+            "cita": {"type": "string"},
+            "explicacion": {"type": "string"},
+            "consecuencia": {"type": "string"},
+            "recomendacion": {"type": "string"},
+            "limitaciones": {"type": "string"},
+        },
+        "required": [
+            "tipo", "categoria", "descripcion", "cita", "explicacion",
+            "consecuencia", "recomendacion", "limitaciones",
+        ],
+        "additionalProperties": False,
+    },
+}
 
 
 def _convertir_hallazgo(item: object) -> Hallazgo | None:
@@ -453,13 +502,16 @@ async def _analizar_bajo_lock(
     timeout_aux = httpx.Timeout(connect=3.0, read=10.0, write=10.0, pool=5.0)
     async with httpx.AsyncClient(timeout=timeout_aux) as cliente_aux:
         n_prompt = await _contar_prompt(mensajes, cliente_aux)
-    if n_prompt + MAX_TOKENS_SALIDA + MARGEN_TOKENS > N_CTX:
+    # Cupo de generación: todo lo que reste del contexto tras el prompt y
+    # el margen. Nunca se pide al modelo más tokens de los que caben en
+    # N_CTX, así que la respuesta nunca excede la ventana configurada.
+    max_tokens_salida = N_CTX - n_prompt - MARGEN_TOKENS
+    if max_tokens_salida < 1:
         raise _error(
             "contexto_excedido",
-            f"El texto necesita {n_prompt} tokens de prompt más "
-            f"{MAX_TOKENS_SALIDA} de salida y el contexto local es de "
-            f"{N_CTX}. Use un documento sintético más corto. No se trunca "
-            "ni se analiza por partes en este prototipo.",
+            f"El prompt usa {n_prompt} tokens y el contexto local es de "
+            f"{N_CTX}; no queda cupo para generar una respuesta. Use un "
+            "documento más corto.",
             422,
         )
 
@@ -467,7 +519,15 @@ async def _analizar_bajo_lock(
         "messages": mensajes,
         "temperature": 0,
         "stream": False,
-        "max_tokens": MAX_TOKENS_SALIDA,
+        "max_tokens": max_tokens_salida,
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "hallazgos",
+                "schema": _ESQUEMA_HALLAZGOS,
+                "strict": True,
+            },
+        },
     }
     timeout_inf = httpx.Timeout(connect=5.0, write=10.0, read=330.0, pool=5.0)
     try:
@@ -497,7 +557,36 @@ async def _analizar_bajo_lock(
         )
     try:
         cuerpo_resp = r_inf.json()
+    except ValueError:
+        raise _error(
+            "respuesta_invalida",
+            "El servidor local devolvió una respuesta que no es un JSON "
+            "válido.",
+            502,
+        )
+    try:
         contenido = _extraer_contenido_respuesta(cuerpo_resp)
+    except ValueError:
+        raise _error(
+            "respuesta_invalida",
+            "El servidor local devolvió una respuesta sin contenido "
+            "interpretable.",
+            502,
+        )
+    # Si el servidor cortó la generación al alcanzar el límite de tokens,
+    # la respuesta está incompleta. Nunca se presentan hallazgos parciales
+    # como si fuera un informe válido.
+    finish_reason = _obtener_finish_reason(cuerpo_resp)
+    if finish_reason == "length":
+        raise _error(
+            "respuesta_truncada",
+            "La respuesta del modelo se cortó al alcanzar el límite de "
+            f"generación ({max_tokens_salida} tokens, contexto {N_CTX}). "
+            "No se presentan hallazgos incompletos como informe válido. "
+            "Use un texto más corto.",
+            502,
+        )
+    try:
         items = _parsear_hallazgos_json(contenido)
     except (ValueError, json.JSONDecodeError):
         raise _error(
