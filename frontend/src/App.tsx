@@ -1116,7 +1116,7 @@ export default function App() {
           ) : (
             <>
               <p>
-                {hallazgos.length} hallazgo{hallazgos.length !== 1 ? 'es' : ''}
+                {hallazgos.length} hallazgo{hallazgos.length !== 1 ? 's' : ''}
               </p>
               <ol className="lista-hallazgos">
                 {hallazgos.map((hallazgo, i) => (
@@ -1152,7 +1152,7 @@ export default function App() {
                         <strong>{formatearFechaLocal(registro.fecha)}</strong> —{' '}
                         {etiquetaDe(registro.tipo_confirmado as TipoOpcion)}{' '}
                         ({registro.num_hallazgos} hallazgo{
-                          registro.num_hallazgos !== 1 ? 'es' : ''
+                          registro.num_hallazgos !== 1 ? 's' : ''
                         })
                       </p>
                       {registro.hallazgos?.length ? (
