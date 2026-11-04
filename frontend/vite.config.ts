@@ -12,7 +12,8 @@ export default defineConfig({
       "/logout": "http://127.0.0.1:8000",
       "/extraer": "http://127.0.0.1:8000",
       "/clasificar": "http://127.0.0.1:8000",
-      "/analizar-con-ia": "http://127.0.0.1:8000"
+      "/analizar-con-ia": "http://127.0.0.1:8000",
+      "/historial": "http://127.0.0.1:8000"
     } }
 });
 

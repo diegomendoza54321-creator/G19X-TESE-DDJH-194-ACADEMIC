@@ -385,6 +385,7 @@ export default function App() {
       if (!datos.ok) {
         setErrorAnalisis(datos.motivo ?? 'No se pudo completar el análisis.')
         await consultarEstadoAnalisis()
+        setServidorOcupado(false)
         return
       }
       setHallazgos(datos.hallazgos ?? [])
@@ -404,6 +405,7 @@ export default function App() {
           + 'Comprueba que el backend esté en marcha e inténtalo de nuevo.',
       )
       await consultarEstadoAnalisis()
+      setServidorOcupado(false)
     } finally {
       if (idAnalisis === idAnalisisRef.current) {
         controladorAnalisisRef.current = null
@@ -805,10 +807,6 @@ export default function App() {
             Revisión de cláusulas contractuales. Para empezar, abre{' '}
             <strong>Analizar contrato</strong> y carga un contrato en PDF con
             texto seleccionable o en DOCX para extraer su texto.
-          </p>
-          <p className="sugerencia">
-            Las secciones de Resultados e Historial estarán disponibles cuando
-            el análisis y el historial estén implementados.
           </p>
         </section>
       )}
