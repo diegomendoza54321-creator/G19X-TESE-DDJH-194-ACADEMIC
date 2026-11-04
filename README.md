@@ -1,4 +1,4 @@
-# MotorRevisionLegal
+﻿# MotorRevisionLegal
 
 Herramienta web de revisión de cláusulas contractuales — Proyecto de Residencias Profesionales.
 
@@ -57,40 +57,22 @@ El acceso es privado: solo pueden entrar cuentas autorizadas. No existe registro
 
 El prototipo incluye backend (FastAPI), frontend (React/Vite), clasificación local de tipo de contrato, extracción de texto de PDF/DOCX y análisis de cláusulas contra un servidor local `llama-server` (llama.cpp) con modelo Phi-3 GGUF en `127.0.0.1:9931`. **Véase la sección de instalación a continuación para la configuración completa del modelo y el servidor.** Las pruebas backend pasan con `pytest`.
 
-## Instalación y configuración del modelo
-
-El análisis de cláusulas requiere `llama-server` (llama.cpp) en ejecución localmente. Para arrancar el servidor con el modelo Phi-3:
-
-1. Descarga el modelo desde la página oficial: [Phi-3-mini-4k-instruct-q4.gguf Q4_K_M](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/blob/main/Phi-3-mini-4k-instruct-q4.gguf)
-   - El archivo es `Phi-3-mini-4k-instruct-q4.gguf` (cuantización **Q4_K_M**).
-   - **Nota:** el modelo no viene incluido en este repositorio; debe descargarse manualmente desde el enlace anterior.
-2. Coloca el archivo en la ruta `model\Phi-3-mini-4k-instruct-q4.gguf` relative to la ejecución del servidor (o ajusta la ruta en el comando).
-3. Ejecuta el servidor con el siguiente comando (PowerShell):
-
-```powershell
-.\llama-server.exe -m model\Phi-3-mini-4k-instruct-q4.gguf --host 127.0.0.1 --port 9931 -c 2048
-```
-
-4. Verifica que el backend esté accesible en `127.0.0.1:9931` (el endpoint `/v1/models` debería listar el modelo).
-
-Una vez el servidor en marcha, el prototipo frontend podrá conectarse para el análisis de cláusulas.
-
-### Desarrollo con asistencia de IA
 Desarrollado con asistencia de IA durante el proceso de desarrollo.
 
----
 
-## Tecnologías
+Se utilizaron asistentes de IA (**Cline** y **Codex**) como apoyo durante el desarrollo de este proyecto. Sus tareas incluyen:
 
-| Componente | Tecnología | Estado |
-|---|---|---|
-| Backend | Python 3.14 + FastAPI | Implementado |
-| Frontend | React 19 + TypeScript + Vite | Implementado |
-| Estilos | CSS (tema claro/oscuro) | Implementado |
-| Base de datos | SQLite | Implementado |
-| Extracción de texto | pypdf, python-docx | Implementado |
-| IA / LLM | llama-server (llama.cpp) con Phi-3 GGUF local | Implementado (loopback) |
-| Autenticación | Sesiones SQLite, PBKDF2-SHA256 | Implementado |
+- **RevisiÃ³n de cÃ³digo**: asistencia para revisar y modificar cÃ³digo en ackend/app/analisis_ia.py, docs/bitacora.md, docs/plan-de-pruebas.md, README.md, ackend/.env.example y docs/PRD.md.
+- **Pruebas**: apoyo para ejecutar y revisar pruebas automatizadas del backend (pytest backend).
+- **DocumentaciÃ³n**: ayuda para redactar y corregir README.md, docs/bitacora.md, docs/plan-de-pruebas.md, docs/PRD.md y docs/plan-de-pruebas.md.
+
+**Lo que verificÃ³ la persona desarrolladora:**
+
+- RevisÃ³ todos los cambios y diffs generados por la asistencia de IA antes de aplicarlos.
+- EjecutÃ³ pruebas manualmente (pytest backend) y verificÃ³ los resultados.
+- DecidiÃ³ quÃ© cambios conservar y cuÃ¡ndo realizar commits.
+
+**No se afirma que todos los cambios fueron generados por IA.** Cada modificaciÃ³n fue revisada, validada y aprobada por la persona desarrolladora antes de integrarse al proyecto. La asistencia de IA se limitÃ³ a sugerencias y borradores; la responsabilidad final de cada cambio recae en la persona desarrolladora.
 | Pruebas backend | pytest, httpx, httpx2, fpdf2 | Implementado |
 | Control de versiones | Git + GitHub | En uso |
 
@@ -120,6 +102,8 @@ MotorRevisionLegal/
 │   ├── app/
 │   │   ├── analisis_ia.py
 │   │   ├── auth.py
+│   │   ├── criterios.json
+│   │   ├── historial.py
 │   │   ├── citas.py
 │   │   ├── clasificacion.py
 │   │   ├── extraccion.py
@@ -143,7 +127,7 @@ MotorRevisionLegal/
 Desde la raíz del repositorio:
 
 ```powershell
-python -m venv .venv
+py -3.14 -m venv .venv
 .venv\Scripts\python.exe -m pip install -r backend\requirements.txt
 ```
 
@@ -160,6 +144,11 @@ El análisis de cláusulas depende de **llama-server** (de llama.cpp) ejecutánd
 
 ### Archivos necesarios
 
+- Descarga `llama-server` (build **cpu-x64**) desde las releases oficiales de llama.cpp: https://github.com/ggerganov/llama.cpp/releases
+
+
+
+
 - Ejecutable `llama-server` de llama.cpp.
 - **Dato del entorno comprobado (no es requisito general):** en la máquina de desarrollo se verificó la presencia de `D:\llama.cpp\llama-server.exe` con la versión `0.7.0-dev (build 11683, commit a8d9a7e1e)`, compilado con Clang 20.1.8 para Windows x86_64. El proyecto no exige esta versión ni build concretos; cualquier binario compatible de llama.cpp que responda en `127.0.0.1:9931` es válido.
 - Modelo GGUF (cuantificación q4_0 de referencia): El proyecto registra la cuantificación q4_0 como ejemplo de archivo precedente (`model\Phi-3-mini-4k-instruct-q4_0.gguf`). Para instalación actual, se recomienda el modelo oficial `Phi-3-mini-4k-instruct-q4.gguf` con cuantización **Q4_K_M**. El repositorio **no incluye** ni especifica una URL de descarga ni una versión concreta de llama.cpp ni del modelo; el usuario debe proporcionar ambos archivos y ajustar la ruta `-m` al modelo que tenga disponible.
@@ -174,7 +163,6 @@ Desde la carpeta que contenga `llama-server.exe` y el modelo:
 
 Parámetros clave:
 
-- `-m`: ruta al archivo `.gguf` del modelo (requerido, sin valor predeterminado en el repositorio). Sustituya `'C:\Modelos\modelo.gguf'` por la ruta real de su archivo GGUF.
 - `--host 127.0.0.1`: escucha solo en loopback (sin red externa).
 - `--port 9931`: puerto que el backend espera por defecto.
 - `-c 2048`: contexto de 2048 tokens.
@@ -258,7 +246,7 @@ npm install
 npm run dev
 ```
 
-Vite queda disponible en `http://localhost:5173` (o el puerto que asigne).
+Vite queda disponible en `http://localhost:5173` (puerto fijo: `strictPort: true`).
 
 Compruebe que ambos servicios responden antes de usar la aplicación.
 
@@ -306,36 +294,7 @@ Se ejecutan 102 pruebas cubriendo autenticación, extracción, citas, análisis 
 ---
 ## Estructura del proyecto
 
-```
-MotorRevisionLegal/
-├── backend/           # API y lógica de análisis (Python / FastAPI)
-│   ├── app/
-│   │   ├── analisis_ia.py   # Cliente del servidor local de IA (llama-server)
-│   │   ├── auth.py          # Sesiones SQLite, PBKDF2 (RF-00)
-│   │   ├── citas.py         # Validación de citas textuales
-│   │   ├── clasificacion.py # Clasificación local de tipo de contrato
-│   │   ├── extraccion.py    # Extracción de texto PDF/DOCX (RF-01, RF-02)
-│   │   └── main.py          # Endpoints de la API
-│   ├── requirements.txt
-│   ├── pytest.ini
-│   ├── crear_usuario.py     # Alta local de usuarios autorizados (RF-00.5)
-│   ├── .env.example         # Plantilla de variables de entorno
-│   └── tests/               # Pruebas automatizadas (pytest)
-├── frontend/          # Interfaz de usuario (React / TypeScript / Vite)
-├── docs/              # Documentación del proyecto
-│   ├── MVP.md
-│   ├── PRD.md
-│   ├── requisitos.md
-│   ├── arquitectura.md
-│   ├── plan-de-pruebas.md
-│   ├── bitacora.md
-│   ├── entregables.md
-│   ├── guia-instalacion.md
-│   ├── manual-usuario.md
-│   └── manual-tecnico.md
-├── .gitignore
-└── README.md
-```
+``
 
 ---
 

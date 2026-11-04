@@ -58,7 +58,7 @@ Proporcionar un análisis estructurado de contratos de prestación de servicios 
 - Interfaz web con navegación que incluye: Inicio, Analizar contrato, Resultados e Historial. Pueden incluirse también Cómo funciona y Criterios.
 - Tema claro y oscuro con memoria de la preferencia en el navegador del usuario.
 - Generación de un informe de hallazgos en pantalla.
-- Historial de análisis anteriores. El historial es parte del alcance; permitirá consultar análisis realizados previamente. El motor de base de datos, los campos exactos que se guardarán y la política de conservación de esos datos están pendientes de definir. El archivo original del contrato no se asume guardado.
+- Historial de análisis anteriores. El historial es parte del alcance; permitirá consultar análisis realizados previamente. El motor de base de datos es SQLite (implementado en backend/app/auth.py y backend/app/historial.py); los campos exactos que se guardarán y la política de conservación de esos datos están pendientes de definir. El archivo original del contrato no se asume guardado.
 
 ### Excluido del alcance inicial
 
