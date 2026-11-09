@@ -246,6 +246,24 @@ def construir_mensajes(texto: str, tipo_confirmado: str) -> list[dict]:
         '"recomendacion": "recomendación genérica de revisión, no '
         "vinculante\", "
         '"limitaciones": "qué no puede afirmar el sistema"}. '
+
+        "CLASIFICA cada hallazgo en una de estas cuatro categorías "
+        "según su naturaleza: "
+        "1) AMBIGÜEDAD: términos vagos, indefinidos o abiertos que dejan "
+        "la obligación sin determinar (ej. \"mientras las partes lo "
+        "decidan\", \"de común acuerdo\", \"precio a convenir\"). "
+        "2) OMISIÓN: cláusula típica ausente que el contrato debería "
+        "incluir según su tipo (ej. falta de cláusula de confidencialidad, "
+        "falta de cláusula de terminación, falta de ley aplicable). "
+        "3) CONTRADICCIÓN: dos cláusulas del mismo contrato que "
+        "establecen valores incompatibles para la misma obligación "
+        "(ej. plazo de entrega 30 días vs 60 días, monto distinto en "
+        "letras y números). "
+        "4) RIESGO: cláusula desequilibrada, onerosa o potencialmente "
+        "perjudicial para una de las partes (ej. exclusividad sin "
+        "contraprestación, responsabilidad ilimitada, penalización "
+        "desproporcionada). "
+
         "La cita debe ser una transcripción literal de un único fragmento "
         "contiguo del contrato; debe existir exactamente en el documento; "
         "está prohibido unir frases separadas, resumir o reconstruir texto; "

@@ -9,7 +9,12 @@
     "Propiedad intelectual: titularidad de los resultados y entregables.",
     "Terminación: causas de resolución, preaviso y efectos de la terminación.",
     "Responsabilidad: limitaciones, exclusiones y seguros.",
-    "Fuerza mayor: supuestos de exención y procedimiento de notificación."
+    "Fuerza mayor: supuestos de exención y procedimiento de notificación.",
+    "CATEGORÍAS DE HALLAZGO:",
+    "  - AMBIGÜEDAD: plazos sin fechas concretas, precios no definidos, obligaciones vagas o abiertas.",
+    "  - OMISIÓN: falta de cláusula de confidencialidad, falta de cláusula de terminación, falta de ley aplicable, falta de cláusula de fuerza mayor.",
+    "  - CONTRADICCIÓN: dos cláusulas con plazos diferentes para la misma entrega, montos distintos en letras y números, dos fechas de término incompatibles.",
+    "  - RIESGO: exclusividad sin contraprestación, responsabilidad ilimitada, penalización desproporcionada, cláusula que limita derechos de forma excesiva."
   ],
   "proveedor": [
     "Objeto: bienes o productos a suministrar con especificaciones técnicas.",
@@ -21,6 +26,11 @@
     "Penalizaciones: por incumplimiento de plazos, calidad o cantidad.",
     "Terminación: causas de resolución, preaviso y efectos de la terminación.",
     "Confidencialidad: tratamiento de información comercial o técnica.",
-    "Fuerza mayor: supuestos de exención y procedimiento de notificación."
+    "Fuerza mayor: supuestos de exención y procedimiento de notificación.",
+    "CATEGORÍAS DE HALLAZGO:",
+    "  - AMBIGÜEDAD: especificaciones técnicas vagas, cantidades sin umbral definido, fechas de entrega sin concretar.",
+    "  - OMISIÓN: falta de cláusula de garantías, falta de cláusula de penalizaciones, falta de cláusula de recepción de mercancía, falta de ley aplicable.",
+    "  - CONTRADICCIÓN: precio unitario distinto en dos cláusulas, fecha de entrega incompatible con plazo de garantía, dos fechas de vencimiento diferentes.",
+    "  - RIESGO: penalización desproporcionada, responsabilidad ilimitada por defectos, exclusividad de suministro sin contraprestación, cláusula que traslada todos los riesgos al proveedor."
   ]
 }
