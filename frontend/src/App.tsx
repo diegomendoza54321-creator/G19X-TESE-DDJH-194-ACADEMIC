@@ -29,6 +29,7 @@ import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import LayoutPrincipal from './components/LayoutPrincipal'
 import DashboardInicio from './components/DashboardInicio'
+import TarjetaResultado from './components/TarjetaResultado'
 
 /** Formatos aceptados por el backend, según RF-01.1 y RF-01.2. */
 const EXTENSIONES_ACEPTADAS = ['.pdf', '.docx']
@@ -58,6 +59,12 @@ interface RespuestaClasificacion {
   motivo: string | null
 }
 
+type TipoOpcion = 'prestacion_de_servicios' | 'proveedor'
+
+const OPCIONES_TIPO: { id: TipoOpcion; etiqueta: string }[] = [
+  { id: 'prestacion_de_servicios', etiqueta: 'Prestación de servicios' },
+  { id: 'proveedor', etiqueta: 'Contrato de proveedor' },
+]
 interface HallazgoAnalisis {
   tipo: string
   categoria: string
@@ -90,17 +97,6 @@ interface RegistroHistorial {
   hallazgos: HallazgoAnalisis[]
 }
 
-const ETIQUETAS_HALLAZGO: Record<string, string> = {
-  ambiguedad: 'Posible ambigüedad',
-  omision: 'Posible omisión',
-  contradiccion: 'Posible contradicción',
-  riesgo: 'Posible riesgo',
-}
-
-function etiquetaHallazgo(tipo: string): string {
-  return ETIQUETAS_HALLAZGO[tipo] ?? tipo
-}
-
 function formatearFechaLocal(fechaISO: string): string {
   if (!fechaISO) return ''
   try {
@@ -115,46 +111,6 @@ function formatearFechaLocal(fechaISO: string): string {
     return fechaISO
   }
 }
-
-interface HallazgoProps {
-  hallazgo: HallazgoAnalisis
-}
-
-function Hallazgo({ hallazgo }: HallazgoProps) {
-  return (
-    <li>
-      <p>
-        <strong>{etiquetaHallazgo(hallazgo.tipo)}</strong>{' — '}
-        {hallazgo.categoria}
-      </p>
-      <p>{hallazgo.descripcion}</p>
-      {hallazgo.cita && <blockquote>“{hallazgo.cita}”</blockquote>}
-      <p>
-        <strong>Explicación:</strong>{' '}
-        {hallazgo.explicacion}
-      </p>
-      <p>
-        <strong>Posible consecuencia:</strong>{' '}
-        {hallazgo.consecuencia}
-      </p>
-      <p>
-        <strong>Recomendación:</strong>{' '}
-        {hallazgo.recomendacion}
-      </p>
-      <p className="sugerencia">
-        <strong>Limitaciones:</strong>{' '}
-        {hallazgo.limitaciones}
-      </p>
-    </li>
-  )
-}
-
-type TipoOpcion = 'prestacion_de_servicios' | 'proveedor'
-
-const OPCIONES_TIPO: { id: TipoOpcion; etiqueta: string }[] = [
-  { id: 'prestacion_de_servicios', etiqueta: 'Prestación de servicios' },
-  { id: 'proveedor', etiqueta: 'Contrato de proveedor' },
-]
 
 function etiquetaDe(tipo: TipoOpcion | null): string {
   if (!tipo) return ''
@@ -758,11 +714,7 @@ return (
     onLogout={alCerrarSesion}
   >
 
-    <header className="cabecera">
-        <h1>MotorRevisionLegal</h1>
-      </header>
-
-      {vista === 'inicio' && (
+    {vista === 'inicio' && (
         <DashboardInicio
           usuario={usuario}
           historial={historial}
@@ -1013,7 +965,7 @@ return (
                             <h3>{grupo[0]?.categoria ?? 'Sin categoría'}</h3>
                             <ol className="lista-hallazgos">
                               {grupo.map((hallazgo, i) => (
-                                <Hallazgo key={i} hallazgo={hallazgo} />
+                                <TarjetaResultado key={i} hallazgo={hallazgo} />
                               ))}
                             </ol>
                           </section>
@@ -1080,7 +1032,7 @@ return (
               </p>
               <ol className="lista-hallazgos">
                 {hallazgos.map((hallazgo, i) => (
-                  <Hallazgo key={i} hallazgo={hallazgo} />
+                  <TarjetaResultado key={i} hallazgo={hallazgo} />
                 ))}
               </ol>
             </>
@@ -1118,7 +1070,7 @@ return (
                       {registro.hallazgos?.length ? (
                         <ol className="lista-hallazgos">
                           {(registro.hallazgos ?? []).map((hallazgo, i) => (
-                            <Hallazgo key={i} hallazgo={hallazgo} />
+                            <TarjetaResultado key={i} hallazgo={hallazgo} />
                           ))}
                         </ol>
                        ) : null}

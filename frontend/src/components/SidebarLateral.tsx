@@ -1,8 +1,8 @@
-const VISTAS: { id: string; etiqueta: string }[] = [
-  { id: 'inicio', etiqueta: 'Inicio' },
-  { id: 'analizar', etiqueta: 'Analizar contrato' },
-  { id: 'resultados', etiqueta: 'Resultados' },
-  { id: 'historial', etiqueta: 'Historial' },
+const VISTAS: { id: string; etiqueta: string; icono: string }[] = [
+  { id: 'inicio', etiqueta: 'Inicio', icono: '🏠' },
+  { id: 'analizar', etiqueta: 'Analizar contrato', icono: '📄' },
+  { id: 'resultados', etiqueta: 'Resultados', icono: '📊' },
+  { id: 'historial', etiqueta: 'Historial', icono: '🕒' },
 ]
 
 interface SidebarLateralProps {
@@ -36,6 +36,7 @@ export default function SidebarLateral({
                 onClick={() => setVista(opcion.id)}
                 aria-current={vista === opcion.id ? 'page' : undefined}
               >
+                <span className="icono">{opcion.icono}</span>
                 {opcion.etiqueta}
               </button>
             </li>

@@ -15,6 +15,10 @@
   --color-ok-fondo: #e8f5e9;
   --color-aviso: #5f4700;
   --color-aviso-fondo: #fff6d6;
+  --color-info: #1a5fb4;
+  --color-info-fondo: #e7f3ff;
+  --color-riesgo: #c2410c;
+  --color-riesgo-fondo: #fde3cf;
 }
 
 /* El tema oscuro se activa con data-tema="oscuro". Sin preferencia
@@ -30,6 +34,10 @@
   --color-ok-fondo: #1b2a1c;
   --color-aviso: #f0d089;
   --color-aviso-fondo: #332a12;
+  --color-info: #4da6ff;
+  --color-info-fondo: #0a1a26;
+  --color-riesgo: #ff8c42;
+  --color-riesgo-fondo: #2a1408;
 }
 
 * {
