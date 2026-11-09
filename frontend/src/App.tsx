@@ -27,6 +27,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import './App.css'
+import LayoutPrincipal from './components/LayoutPrincipal'
+import DashboardInicio from './components/DashboardInicio'
 
 /** Formatos aceptados por el backend, según RF-01.1 y RF-01.2. */
 const EXTENSIONES_ACEPTADAS = ['.pdf', '.docx']
@@ -216,13 +218,6 @@ type Estado = 'inicio' | 'cargando' | 'exito' | 'error'
 
 /** Secciones de la navegación principal (RF-07.1). */
 type Vista = 'inicio' | 'analizar' | 'resultados' | 'historial'
-
-const VISTAS: { id: Vista; etiqueta: string }[] = [
-  { id: 'inicio', etiqueta: 'Inicio' },
-  { id: 'analizar', etiqueta: 'Analizar contrato' },
-  { id: 'resultados', etiqueta: 'Resultados' },
-  { id: 'historial', etiqueta: 'Historial' },
-]
 
 /** Temas disponibles (RF-07.2). */
 type Tema = 'claro' | 'oscuro'
@@ -479,10 +474,6 @@ export default function App() {
       void cargarHistorial()
     }
   }, [vista, sesion])
-
-  function cambiarTema() {
-    setTema((anterior) => (anterior === 'claro' ? 'oscuro' : 'claro'))
-  }
 
   function volverALogin() {
     setSesion('sin-sesion')
@@ -757,58 +748,27 @@ export default function App() {
     )
   }
 
-  return (
-    <main className="contenedor">
-      <div className="barra-superior">
-        <nav className="navegacion" aria-label="Navegación principal">
-          <ul>
-            {VISTAS.map((opcion) => (
-              <li key={opcion.id}>
-                <button
-                  type="button"
-                  onClick={() => setVista(opcion.id)}
-                  aria-current={vista === opcion.id ? 'page' : undefined}
-                >
-                  {opcion.etiqueta}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <div className="acciones-sesion">
-          <span>
-            Sesión iniciada como <strong>{usuario}</strong>
-          </span>
-          <button
-            type="button"
-            onClick={cambiarTema}
-            aria-label={
-              tema === 'claro'
-                ? 'Cambiar a tema oscuro'
-                : 'Cambiar a tema claro'
-            }
-          >
-            {tema === 'claro' ? 'Tema oscuro' : 'Tema claro'}
-          </button>
-          <button type="button" onClick={() => void alCerrarSesion()}>
-            Cerrar sesión
-          </button>
-        </div>
-      </div>
+return (
+  <LayoutPrincipal
+    vista={vista}
+    setVista={(id: string) => setVista(id as Vista)}
+    tema={tema}
+    setTema={(t: string) => setTema(t as Tema)}
+    usuario={usuario}
+    onLogout={alCerrarSesion}
+  >
 
-      <header className="cabecera">
+    <header className="cabecera">
         <h1>MotorRevisionLegal</h1>
       </header>
 
       {vista === 'inicio' && (
-        <section className="tarjeta" aria-live="polite">
-          <h2>Bienvenido</h2>
-          <p>
-            Revisión de cláusulas contractuales. Para empezar, abre{' '}
-            <strong>Analizar contrato</strong> y carga un contrato en PDF con
-            texto seleccionable o en DOCX para extraer su texto.
-          </p>
-        </section>
+        <DashboardInicio
+          usuario={usuario}
+          historial={historial}
+          onAnalizar={() => setVista('analizar')}
+          onHistorial={() => setVista('historial')}
+        />
       )}
 
       {vista === 'analizar' && (
@@ -1177,6 +1137,6 @@ export default function App() {
           ser revisados por una persona con formación jurídica.
         </p>
       </footer>
-    </main>
-  )
+  </LayoutPrincipal>
+)
 }
