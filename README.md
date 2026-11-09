@@ -1,4 +1,4 @@
-﻿# MotorRevisionLegal
+# MotorRevisionLegal
 
 Herramienta web de revisión de cláusulas contractuales — Proyecto de Residencias Profesionales.
 
@@ -62,17 +62,17 @@ Desarrollado con asistencia de IA durante el proceso de desarrollo.
 
 Se utilizaron asistentes de IA (**Cline** y **Codex**) como apoyo durante el desarrollo de este proyecto. Sus tareas incluyen:
 
-- **RevisiÃ³n de cÃ³digo**: asistencia para revisar y modificar cÃ³digo en ackend/app/analisis_ia.py, docs/bitacora.md, docs/plan-de-pruebas.md, README.md, ackend/.env.example y docs/PRD.md.
+- **Revisión de código**: asistencia para revisar y modificar código en backend/app/analisis_ia.py, docs/bitacora.md, docs/plan-de-pruebas.md, README.md, backend/.env.example y docs/PRD.md.
 - **Pruebas**: apoyo para ejecutar y revisar pruebas automatizadas del backend (pytest backend).
-- **DocumentaciÃ³n**: ayuda para redactar y corregir README.md, docs/bitacora.md, docs/plan-de-pruebas.md, docs/PRD.md y docs/plan-de-pruebas.md.
+- **Documentación**: ayuda para redactar y corregir README.md, docs/bitacora.md, docs/plan-de-pruebas.md, docs/PRD.md.
 
-**Lo que verificÃ³ la persona desarrolladora:**
+**Lo que verificó la persona desarrolladora:**
 
-- RevisÃ³ todos los cambios y diffs generados por la asistencia de IA antes de aplicarlos.
-- EjecutÃ³ pruebas manualmente (pytest backend) y verificÃ³ los resultados.
-- DecidiÃ³ quÃ© cambios conservar y cuÃ¡ndo realizar commits.
+- Revisó todos los cambios y diffs generados por la asistencia de IA antes de aplicarlos.
+- Ejecutó pruebas manualmente (pytest backend) y verificó los resultados.
+- Decidió qué cambios conservar y cuándo realizar commits.
 
-**No se afirma que todos los cambios fueron generados por IA.** Cada modificaciÃ³n fue revisada, validada y aprobada por la persona desarrolladora antes de integrarse al proyecto. La asistencia de IA se limitÃ³ a sugerencias y borradores; la responsabilidad final de cada cambio recae en la persona desarrolladora.
+**No se afirma que todos los cambios fueron generados por IA.** Cada modificación fue revisada, validada y aprobada por la persona desarrolladora antes de integrarse al proyecto. La asistencia de IA se limitó a sugerencias y borradores; la responsabilidad final de cada cambio recae en la persona desarrolladora.
 | Pruebas backend | pytest, httpx, httpx2, fpdf2 | Implementado |
 | Control de versiones | Git + GitHub | En uso |
 
@@ -260,7 +260,7 @@ Desde la raíz del repositorio:
 .venv\Scripts\python.exe -m pytest backend
 ```
 
-Se ejecutan 102 pruebas cubriendo autenticación, extracción, citas, análisis de IA y configuración por variables de entorno (`test_analisis_ia.py` 29, `test_api.py` 10, `test_auth.py` 17, `test_citas.py` 28, `test_extraccion.py` 14, `test_historial.py` 4).
+Se ejecutan 109 pruebas cubriendo autenticación, extracción, citas, análisis de IA y configuración por variables de entorno. El conteo incluye casos parametrizados (pytest cuenta cada combinación como prueba independiente). Distribución por archivo (`grep ^def test_`): `test_analisis_ia.py` 36, `test_api.py` 10, `test_auth.py` 15, `test_citas.py` 24, `test_extraccion.py` 14, `test_historial.py` 4; pytest reporta 109 debido a parametrización en `test_auth.py` (3 rutas) y `test_citas.py` (6 casos).
 
 ---
 
@@ -286,15 +286,40 @@ Se ejecutan 102 pruebas cubriendo autenticación, extracción, citas, análisis 
 ## 9. Limitaciones reales
 
 - **Modelo local:** todo el análisis se ejecuta contra `llama-server` en `127.0.0.1:9931`; no se envía texto a servicios externos.
-- **Contexto 2048 tokens:** contratos extensos pueden excederlo; en ese caso el análisis se detiene y no se generan hallazgos inventados. Con el valor predeterminado de 2048, el prompt fijo con criterios ocupa aproximadamente 1.794–1.800 caracteres. La capacidad estimada para el texto del contrato es de aproximadamente 3.400–3.500 caracteres con la heurística conservadora de 3,5 caracteres por token; es una estimación, no una medición con el tokenizador de Phi-3. En esta máquina existe `D:\llama.cpp\llama-server.exe` (versión 0.7.0-dev, build 11683, commit a8d9a7e1e) y el modelo `D:\Modelos\Phi-3-mini-4k-instruct-q4.gguf` (contexto de entrenamiento 4096). Una instancia temporal en el puerto 9932 aceptó `-c 4096`; `/v1/models` y `/slots` reportaron contexto 4096, y el backend leyó `LIMITE_CONTEXTO_IA=4096`. Sin embargo, una solicitud sintética de 2.000 caracteres llegó al servidor pero la generación no produjo tokens ni completó, por lo que 4096 está comprobada a nivel de arranque, no validada de extremo a extremo.
+- **Contexto 2048 tokens:** contratos extensos pueden excederlo; en ese caso el análisis se detiene y no se generan hallazgos inventados. Con el valor predeterminado de 2048, el prompt fijo con criterios ocupa aproximadamente 1.794–1.800 caracteres. La capacidad estimada para el texto del contrato es de aproximadamente 3.400–3.500 caracteres con la heurística conservadora de 3,5 caracteres por token; es una estimación, no una medición con el tokenizador de Phi-3. Se probó arranque con `-c 4096` en `llama-server` (context 4096 reportado por `/v1/models` y `/slots`), pero una solicitud sintética de 2.000 caracteres no produjo tokens ni completó la generación; por tanto, 4096 está comprobada a nivel de arranque, no validada de extremo a extremo.
 - **Idioma español:** el análisis está disponible solo en español.
 - **Citas textuales:** se validan contra el documento original; no se aceptan citas inventadas.
 - **Revisión jurídica humana:** los hallazgos son orientativos y requieren revisión humana. La herramienta no emite dictámenes jurídicos ni garantiza la validez de ningún contrato.
+- **Clasificación de hallazgos por el modelo local:** el sistema utiliza Phi-3-mini-4k-instruct ejecutado localmente mediante `llama-server` por motivos de privacidad. Las categorías de hallazgo (ambigüedad, omisión, contradicción y riesgo) están implementadas y soportadas por el sistema, pero su clasificación depende de la interpretación realizada por el modelo de lenguaje. Los modelos de lenguaje son probabilísticos y pueden producir resultados distintos entre ejecuciones. El sistema valida que las citas reportadas existan literalmente en el documento analizado; los hallazgos cuya evidencia textual no pueda verificarse son descartados automáticamente. Esta decisión prioriza trazabilidad, verificabilidad y reducción de falsos positivos. La variación observada corresponde a una limitación inherente del modelo local utilizado y no a un fallo de la arquitectura del sistema.
 
 ---
 ## Estructura del proyecto
 
-``
+```
+MotorRevisionLegal/
+├── backend/
+│   ├── app/
+│   │   ├── analisis_ia.py
+│   │   ├── auth.py
+│   │   ├── criterios.json
+│   │   ├── historial.py
+│   │   ├── citas.py
+│   │   ├── clasificacion.py
+│   │   ├── extraccion.py
+│   │   └── main.py
+│   ├── requirements.txt
+│   ├── pytest.ini
+│   ├── crear_usuario.py
+│   ├── .env.example
+│   └── tests/
+├── frontend/
+│   ├── src/
+│   │   └── App.tsx
+│   └── package.json
+├── docs/
+├── .gitignore
+└── README.md
+```
 
 ---
 
@@ -305,12 +330,10 @@ Se ejecutan 102 pruebas cubriendo autenticación, extracción, citas, análisis 
 | [docs/MVP.md](docs/MVP.md) | Alcance del MVP: funciones, flujo, criterios de aceptación y condiciones de término |
 | [docs/PRD.md](docs/PRD.md) | Documento de requisitos del producto |
 | [docs/requisitos.md](docs/requisitos.md) | Requisitos funcionales y no funcionales |
-| [docs/arquitectura.md](docs/arquitectura.md) | Arquitectura propuesta del sistema |
+| [docs/arquitectura.md](docs/arquitectura.md) | Arquitectura del sistema |
 | [docs/plan-de-pruebas.md](docs/plan-de-pruebas.md) | Plan de pruebas y casos de prueba |
 | [docs/bitacora.md](docs/bitacora.md) | Bitácora de avance del proyecto |
 | [docs/entregables.md](docs/entregables.md) | Lista de control de entregables de la residencia |
-| [docs/guia-instalacion.md](docs/guia-instalacion.md) | Guía de instalación y arranque |
-| [docs/manual-usuario.md](docs/manual-usuario.md) | Manual de usuario |
 | [docs/manual-tecnico.md](docs/manual-tecnico.md) | Manual técnico |
 
 ---

@@ -25,7 +25,7 @@
    - Resultado: dependencias instaladas sin errores.
 
 5. `.venv\Scripts\python.exe -m pytest backend -q`
-   - Resultado: 102 pruebas aprobadas (`[100%]`).
+   - Resultado: 109 pruebas aprobadas (`[100%]`).
 
 ## Ejecución de llama-server
 

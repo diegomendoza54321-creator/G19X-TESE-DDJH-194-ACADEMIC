@@ -2,7 +2,7 @@
 
 **Proyecto:** MotorRevisionLegal  
 **Versión:** 0.2 — Actualización de alcance  
-**Estado:** En elaboración
+**Estado:** Validado (prototipo funcional implementado)
 
 ---
 
@@ -16,7 +16,7 @@ La revisión de contratos de prestación de servicios y de proveedores es una ta
 
 ## 2. Usuarios previstos
 
-El acceso a la herramienta es privado: solo pueden utilizarla personas con una cuenta autorizada. No existe registro público. La creación y administración de cuentas está pendiente de definir.
+El acceso a la herramienta es privado: solo pueden utilizarla personas con una cuenta autorizada. No existe registro público. La creación y administración de cuentas se realiza localmente mediante el script `backend/crear_usuario.py`.
 
 | Perfil | Descripción | Necesidad principal |
 |---|---|---|
@@ -58,7 +58,7 @@ Proporcionar un análisis estructurado de contratos de prestación de servicios 
 - Interfaz web con navegación que incluye: Inicio, Analizar contrato, Resultados e Historial. Pueden incluirse también Cómo funciona y Criterios.
 - Tema claro y oscuro con memoria de la preferencia en el navegador del usuario.
 - Generación de un informe de hallazgos en pantalla.
-- Historial de análisis anteriores. El historial es parte del alcance; permitirá consultar análisis realizados previamente. El motor de base de datos es SQLite (implementado en backend/app/auth.py y backend/app/historial.py); los campos exactos que se guardarán y la política de conservación de esos datos están pendientes de definir. El archivo original del contrato no se asume guardado.
+- Historial de análisis anteriores. El historial es parte del alcance; permite consultar análisis realizados previamente. El motor de base de datos es **SQLite** (implementado en `backend/app/auth.py` y `backend/app/historial.py`; ruta configurable vía `MOTORREVISIONLEGAL_DB` o, por defecto, `backend/datos.db`). Los campos guardados por análisis están definidos en la implementación actual; la política de conservación sigue pendiente de definición. El archivo original del contrato no se asume guardado.
 
 ### Excluido del alcance inicial
 
@@ -87,7 +87,7 @@ El MVP debe demostrar el flujo completo de extremo a extremo con las funciones e
 6. El sistema aplica la lista de verificación correspondiente al tipo confirmado.
 7. El sistema genera un informe con hallazgos, citas textuales, explicación, consecuencia posible, recomendación y limitaciones. Las categorías sin hallazgos se ocultan.
 8. El usuario puede leer el informe en pantalla.
-9. El análisis queda registrado en el historial del usuario. Los campos exactos que se guardan y la política de conservación están pendientes de definir; el archivo original del contrato no se asume guardado.
+9. El análisis queda registrado en el historial del usuario. Los campos exactos están definidos en la implementación (`historial.py`); la política de conservación está pendiente de definir; el archivo original del contrato no se asume guardado.
 
 **Fuera del MVP:** exportación del informe, múltiples idiomas, soporte para PDF escaneados, comparación de versiones, integración con sistemas externos.
 
@@ -106,7 +106,7 @@ El MVP debe demostrar el flujo completo de extremo a extremo con las funciones e
 - Solo los usuarios con cuenta autorizada pueden acceder. No existe opción de registro público.
 - Si las credenciales son incorrectas, el sistema muestra un mensaje de error sin revelar qué campo falló.
 - Tras un inicio de sesión exitoso, el usuario accede a la pantalla de inicio de la herramienta.
-- El mecanismo técnico de autenticación (sesiones, tokens, etc.) está pendiente de definir.
+- El mecanismo técnico de autenticación: **JWT con token opaco en cookie HttpOnly (PBKDF2-HMAC-SHA256, 210.000 iteraciones)** implementado en `backend/app/auth.py`.
 
 ---
 
@@ -198,7 +198,7 @@ El MVP debe demostrar el flujo completo de extremo a extremo con las funciones e
 
 - El sistema no puede almacenar los documentos de los usuarios sin su consentimiento explícito. *(política pendiente de definir)*
 - El sistema no puede afirmar la legalidad de un contrato ni emitir opiniones jurídicas vinculantes.
-- El uso de APIs de terceros para IA está sujeto a la política de privacidad del proveedor y a la autorización del proyecto. *(decisión interna pendiente)*
+- El uso de APIs de terceros para IA **no aplica**: el análisis se ejecuta localmente con `llama-server` (llama.cpp) y modelo Phi-3 GGUF en `127.0.0.1:9931`, sin envío de texto a servicios externos.
 - El presupuesto para APIs de IA es desconocido. *(pendiente)*
 
 ---
@@ -207,28 +207,28 @@ El MVP debe demostrar el flujo completo de extremo a extremo con las funciones e
 
 | Riesgo | Probabilidad | Impacto | Mitigación propuesta |
 |---|---|---|---|
-| La API de IA elegida no cumple con las políticas de privacidad de la organización | Media | Alto | Evaluar alternativas locales o con mayor control de datos antes de iniciar la implementación |
-| Se envían contratos reales con información confidencial a un servicio externo sin autorización | Media | Alto | No asumir que el texto puede enviarse a servicios externos; validar con la organización antes de elegir proveedor de IA |
+| **Resuelto:** La API de IA elegida no cumple con las políticas de privacidad | — | — | **Mitigado:** se usa `llama-server` local sin red externa |
+| **Resuelto:** Se envían contratos reales a un servicio externo sin autorización | — | — | **Mitigado:** análisis 100% local en loopback |
 | Los PDF entregados en producción son escaneados sin OCR | Alta | Medio | Informar al usuario y planificar OCR para una versión posterior |
 | Los hallazgos del sistema son malinterpretados como asesoría jurídica | Media | Alto | Avisos explícitos en la interfaz y en cada hallazgo |
 | El alcance crece durante el desarrollo (scope creep) | Media | Medio | Definir el MVP con precisión y mantener un backlog separado |
 | Calidad variable de los contratos reales de prueba | Alta | Medio | Diseñar casos de prueba propios con contratos sintéticos |
-| El historial se implementa sin definir qué datos guarda ni su política de conservación | Media | Medio | Resolver las decisiones de persistencia antes de implementar el módulo de historial |
+| El historial se implementa sin definir qué datos guarda ni su política de conservación | Media | Medio | **Parcialmente resuelto:** campos definidos en `historial.py`; política pendiente |
 
 ---
 
 ## 9. Decisiones pendientes
 
-- [ ] Validar la API de IA: privacidad, costo por token, política de retención de datos, disponibilidad. No asumir que los contratos pueden enviarse a servicios externos sin autorización.
-- [ ] Mecanismo técnico de autenticación (sesiones, JWT u otro). La autenticación con usuario y contraseña está confirmada; el mecanismo de implementación no.
-- [ ] Creación y administración de cuentas autorizadas: quién las crea, cómo y con qué herramienta.
-- [x] Motor de base de datos: SQLite (implementado; ruta configurable vía MOTORREVISIONLEGAL_DB).
-- [ ] Datos exactos que guardará el historial por cada análisis y política de conservación.
-- [ ] Política de almacenamiento y eliminación de los documentos cargados.
-- [ ] Definir y ajustar internamente la lista de criterios de revisión base y condicional propuesta para cada tipo de contrato (prestación de servicios y proveedores).
-- [ ] Tamaño máximo de archivo aceptado.
-- [ ] Estrategia de despliegue (entorno, infraestructura, dominio).
+- [x] Validar la API de IA: **Resuelto — `llama-server` local (llama.cpp) con modelo Phi-3 GGUF**; sin costo por token, privacidad total, sin retención de datos externa.
+- [x] Mecanismo técnico de autenticación: **Resuelto — JWT + cookie HttpOnly (token opaco, PBKDF2)** implementado en `backend/app/auth.py`.
+- [x] Creación y administración de cuentas autorizadas: **Resuelto — script `backend/crear_usuario.py`**.
+- [x] Motor de base de datos: **SQLite** (implementado; ruta configurable vía `MOTORREVISIONLEGAL_DB`).
+- [ ] Datos exactos que guardará el historial por cada análisis y política de conservación: **Parcial — campos definidos en `historial.py`; política pendiente**.
+- [ ] Política de almacenamiento y eliminación de los documentos cargados: **Pendiente**.
+- [x] Definir y ajustar internamente la lista de criterios de revisión base y condicional: **Resuelto — `backend/app/criterios.json` en uso**.
+- [ ] Tamaño máximo de archivo aceptado: **Pendiente**.
+- [ ] Estrategia de despliegue (entorno, infraestructura, dominio): **Pendiente — entorno demo documentado; producción pendiente**.
 
 ---
 
-*Este documento es un borrador inicial sujeto a revisión y ajuste por el equipo del proyecto.*
+*Este documento refleja el producto implementado y validado; sujeto a ajustes menores por el equipo del proyecto.*

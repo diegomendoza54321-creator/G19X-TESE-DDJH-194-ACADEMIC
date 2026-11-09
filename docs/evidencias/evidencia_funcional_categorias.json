@@ -1,0 +1,122 @@
+{
+  "fecha": "2026-11-08T22:03:33.782250",
+  "servidor_ia": "http://127.0.0.1:9931",
+  "modelo": "Phi-3-mini-4k-instruct-q4.gguf",
+  "categorias": {
+    "ambiguedad": {
+      "archivo": "ambiguedad.pdf",
+      "texto_extraido": "CONTRATO DE PRESTACION DE SERVICIOS\nCLAUSULA PRIMERA. OBJETO. El PRESTADOR se obliga a prestar los servicios de asesoria descritos en el Anexo 1.\nCLAUSULA SEGUNDA. VIGENCIA. El presente contrato tendra vigencia mientras las partes lo decidan, sin fecha de\ninicio ni de termino específicas.\nCLAUSULA TERCERA. CONTRA PRESTACION. El CLIENTE pagara al PRESTADOR el monto acordado de comun\nacuerdo en el momento oportuno.",
+      "clasificacion": {
+        "ok": true,
+        "tipo": "prestacion_de_servicios",
+        "etiqueta": "Prestación de servicios",
+        "confianza": "alta",
+        "evidencias": [
+          "CONTRATO DE PRESTACION DE SERVICIOS\nCLAUSULA PRIMERA. OBJETO. El PRESTADOR",
+          "CONTRATO DE PRESTACION DE SERVICIOS\nCLAUSULA PRIMERA. OBJETO. El PRESTADOR",
+          "CLAUSULA PRIMERA. OBJETO. El PRESTADOR se obliga a prestar los servicios de"
+        ],
+        "motivo": null
+      },
+      "analisis": {
+        "ok": true,
+        "hallazgos": [],
+        "num_descartados": 1,
+        "codigo": null,
+        "motivo": null
+      },
+      "hallazgo_detectado": null,
+      "cita_valida": false,
+      "en_historial": true,
+      "observaciones": [
+        "No se encontró hallazgo 'ambiguedad'. Hallazgos obtenidos: []"
+      ]
+    },
+    "omision": {
+      "archivo": "omision.pdf",
+      "texto_extraido": "CONTRATO DE PRESTACION DE SERVICIOS\nCLAUSULA PRIMERA. OBJETO. El PRESTADOR se obliga a prestar servicios de consultoria.\nCLAUSULA SEGUNDA. VIGENCIA. El contrato entra en vigor al firmarse y dura doce meses.\nCLAUSULA TERCERA. CONTRA PRESTACION. El CLIENTE pagara 5000 mensuales al PRESTADOR.",
+      "clasificacion": {
+        "ok": true,
+        "tipo": "prestacion_de_servicios",
+        "etiqueta": "Prestación de servicios",
+        "confianza": "alta",
+        "evidencias": [
+          "CONTRATO DE PRESTACION DE SERVICIOS\nCLAUSULA PRIMERA. OBJETO. El PRESTADOR",
+          "CONTRATO DE PRESTACION DE SERVICIOS\nCLAUSULA PRIMERA. OBJETO. El PRESTADOR",
+          "CLAUSULA PRIMERA. OBJETO. El PRESTADOR se obliga a prestar servicios de consultoria."
+        ],
+        "motivo": null
+      },
+      "analisis": {
+        "ok": true,
+        "hallazgos": [],
+        "num_descartados": 1,
+        "codigo": null,
+        "motivo": null
+      },
+      "hallazgo_detectado": null,
+      "cita_valida": false,
+      "en_historial": true,
+      "observaciones": [
+        "No se encontró hallazgo 'omision'. Hallazgos obtenidos: []"
+      ]
+    },
+    "contradiccion": {
+      "archivo": "contradiccion.pdf",
+      "texto_extraido": "CONTRATO DE PRESTACION DE SERVICIOS\nCLAUSULA PRIMERA. OBJETO. Servicios de desarrollo de software.\nCLAUSULA SEGUNDA. PLAZO DE ENTREGA. El entregable se pondra a disposicion del CLIENTE dentro de los 30\ndias habiles siguientes a la firma.\nCLAUSULA CUARTA. PLAZO DE ENTREGA. El entregable se pondra a disposicion del CLIENTE dentro de los 60 dias\nhabiles siguientes a la firma.",
+      "clasificacion": {
+        "ok": true,
+        "tipo": "prestacion_de_servicios",
+        "etiqueta": "Prestación de servicios",
+        "confianza": "alta",
+        "evidencias": [
+          "CONTRATO DE PRESTACION DE SERVICIOS\nCLAUSULA PRIMERA. OBJETO. Servicios",
+          "CONTRATO DE PRESTACION DE SERVICIOS\nCLAUSULA PRIMERA. OBJETO. Servicios"
+        ],
+        "motivo": null
+      },
+      "analisis": {
+        "ok": true,
+        "hallazgos": [],
+        "num_descartados": 1,
+        "codigo": null,
+        "motivo": null
+      },
+      "hallazgo_detectado": null,
+      "cita_valida": false,
+      "en_historial": true,
+      "observaciones": [
+        "No se encontró hallazgo 'contradiccion'. Hallazgos obtenidos: []"
+      ]
+    },
+    "riesgo": {
+      "archivo": "riesgo.pdf",
+      "texto_extraido": "CONTRATO DE PRESTACION DE SERVICIOS\nCLAUSULA PRIMERA. OBJETO. Servicios de limpieza de oficinas.\nCLAUSULA SEGUNDA. EXCLUSIVIDAD. El PRESTADOR se obliga a no prestar servicios de limpieza a ningun otro\ncliente durante la vigencia de este contrato, sin contraprestacion adicional por esta exclusividad.\nCLAUSULA TERCERA. RESPONSABILIDAD. El PRESTADOR respondra ilimitadamente por todos los danos y\nperjuicios que se deriven de la prestacion de los servicios, sin limite monetario alguno.",
+      "clasificacion": {
+        "ok": true,
+        "tipo": "prestacion_de_servicios",
+        "etiqueta": "Prestación de servicios",
+        "confianza": "alta",
+        "evidencias": [
+          "CONTRATO DE PRESTACION DE SERVICIOS\nCLAUSULA PRIMERA. OBJETO. Servicios",
+          "CONTRATO DE PRESTACION DE SERVICIOS\nCLAUSULA PRIMERA. OBJETO. Servicios",
+          "CLAUSULA SEGUNDA. EXCLUSIVIDAD. El PRESTADOR se obliga a no prestar servicios de"
+        ],
+        "motivo": null
+      },
+      "analisis": {
+        "ok": true,
+        "hallazgos": [],
+        "num_descartados": 1,
+        "codigo": null,
+        "motivo": null
+      },
+      "hallazgo_detectado": null,
+      "cita_valida": false,
+      "en_historial": true,
+      "observaciones": [
+        "No se encontró hallazgo 'riesgo'. Hallazgos obtenidos: []"
+      ]
+    }
+  }
+}

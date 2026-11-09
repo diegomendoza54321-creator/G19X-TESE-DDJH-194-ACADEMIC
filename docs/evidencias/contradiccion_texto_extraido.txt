@@ -1,0 +1,6 @@
+CONTRATO DE PRESTACION DE SERVICIOS
+CLAUSULA PRIMERA. OBJETO. Servicios de desarrollo de software.
+CLAUSULA SEGUNDA. PLAZO DE ENTREGA. El entregable se pondra a disposicion del CLIENTE dentro de los 30
+dias habiles siguientes a la firma.
+CLAUSULA CUARTA. PLAZO DE ENTREGA. El entregable se pondra a disposicion del CLIENTE dentro de los 60 dias
+habiles siguientes a la firma.

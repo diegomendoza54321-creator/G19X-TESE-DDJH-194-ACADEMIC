@@ -1,0 +1,28 @@
+{
+  "categorias": {
+    "ambiguedad": {
+      "detectada": false,
+      "cita_valida": false,
+      "historial": true,
+      "observaciones": "No se encontró hallazgo de tipo 'ambiguedad'"
+    },
+    "omision": {
+      "detectada": false,
+      "cita_valida": false,
+      "historial": true,
+      "observaciones": "No se encontró hallazgo de tipo 'omision';   Hallazgo obtenido: tipo=ambiguedad, categoria=Obligaciones del prestador"
+    },
+    "contradiccion": {
+      "detectada": false,
+      "cita_valida": false,
+      "historial": true,
+      "observaciones": "No se encontró hallazgo de tipo 'contradiccion'"
+    },
+    "riesgo": {
+      "detectada": false,
+      "cita_valida": false,
+      "historial": true,
+      "observaciones": "No se encontró hallazgo de tipo 'riesgo';   Hallazgo obtenido: tipo=omision, categoria=Exclusividad"
+    }
+  }
+}

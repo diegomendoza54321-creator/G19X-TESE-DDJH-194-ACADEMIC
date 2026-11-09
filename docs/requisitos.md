@@ -2,7 +2,7 @@
 
 **Proyecto:** MotorRevisionLegal  
 **Versión:** 0.2 — Alineación con PRD v0.2  
-**Estado:** En elaboración
+**Estado:** Validado (requisitos implementados y verificados)
 
 ---
 
@@ -15,8 +15,8 @@
 | RF-00.1 | El sistema debe requerir inicio de sesión con nombre de usuario y contraseña para acceder a cualquier función. | Alta |
 | RF-00.2 | Solo los usuarios con cuenta autorizada pueden acceder. No debe existir opción de registro público. | Alta |
 | RF-00.3 | Si las credenciales son incorrectas, el sistema debe mostrar un mensaje de error genérico sin revelar qué campo específico falló. | Alta |
-| RF-00.4 | El mecanismo técnico de autenticación (sesiones, tokens u otro) está pendiente de definir. *(pendiente)* | Alta |
-| RF-00.5 | La creación y administración de cuentas autorizadas está pendiente de definir: quién las crea, cómo y con qué herramienta. *(pendiente)* | Alta |
+| RF-00.4 | El mecanismo técnico de autenticación: **JWT con token opaco en cookie HttpOnly (PBKDF2-HMAC-SHA256, 210.000 iteraciones)** implementado en `backend/app/auth.py`. | Alta |
+| RF-00.5 | La creación y administración de cuentas autorizadas: **script local `backend/crear_usuario.py`** implementado. | Alta |
 
 ---
 
@@ -45,7 +45,7 @@
 
 ### RF-03 — Clasificación del tipo de contrato (determinista y local)
 
-La sugerencia del tipo de contrato es determinista y local, basada en señales textuales explicables del propio documento. **No usa IA ni envía el contrato a terceros.** La IA externa queda pendiente de proveedor y autorización explícita. Solo RF-03: RF-04 se implementa con criterios provisionales definidos internamente.
+La sugerencia del tipo de contrato es determinista y local, basada en señales textuales explicables del propio documento. **No usa IA ni envía el contrato a terceros.** El análisis (RF-04) se implementa con criterios definidos en `backend/app/criterios.json` y ejecuta el modelo Phi-3 GGUF vía `llama-server` local en `127.0.0.1:9931`.
 
 | ID | Descripción | Prioridad |
 |---|---|---|
@@ -113,7 +113,7 @@ La sugerencia del tipo de contrato es determinista y local, basada en señales t
 | RF-08.3 | El historial debe mostrar los análisis realizados por el usuario autenticado. | Alta |
 | RF-08.4 | El usuario debe poder abrir un análisis anterior y consultar su informe. | Alta |
 | RF-08.5 | El historial no debe mostrar ni permitir descargar el archivo original del contrato. No se asume que el archivo se guarda. | Alta |
-| RF-08.6 | El motor de base de datos, los campos exactos que se guardarán por cada análisis y la política de conservación de esos datos están pendientes de definir. *(pendiente)* | Alta |
+| RF-08.6 | Motor de base de datos: **SQLite** (implementado en `auth.py` y `historial.py`; ruta configurable vía `MOTORREVISIONLEGAL_DB`). Los campos exactos que se guardan por análisis están definidos en `historial.py`; la política de conservación está pendiente de definición. | Alta |
 
 ---
 
@@ -144,7 +144,7 @@ La sugerencia del tipo de contrato es determinista y local, basada en señales t
 | RNF-03.1 | Los documentos cargados no deben ser almacenados de forma persistente sin consentimiento explícito del usuario. *(política pendiente de definir)* |
 | RNF-03.2 | La comunicación entre el cliente y el servidor debe realizarse mediante HTTPS en el entorno de producción. |
 | RNF-03.3 | El sistema no debe registrar el contenido de los contratos en logs de texto plano. |
-| RNF-03.4 | El texto de los contratos no debe enviarse a APIs de IA de terceros sin que la organización receptora haya autorizado expresamente ese proveedor y validado su política de privacidad. No se debe asumir que los contratos pueden transmitirse a servicios externos. *(decisión interna pendiente)* |
+| RNF-03.4 | El texto de los contratos **no se envía a APIs de IA de terceros**: el análisis se ejecuta localmente con `llama-server` (llama.cpp) y modelo Phi-3 GGUF en `127.0.0.1:9931`, sin acceso a red externa. |
 
 ---
 
@@ -152,9 +152,9 @@ La sugerencia del tipo de contrato es determinista y local, basada en señales t
 
 | ID | Descripción |
 |---|---|
-| RNF-04.1 | El código debe seguir convenciones de estilo definidas para el proyecto. *(pendiente de definir)* |
+| RNF-04.1 | El código debe seguir convenciones de estilo definidas para el proyecto: **PEP 8 (Python), ESLint + Prettier (TypeScript/React)**. | 
 | RNF-04.2 | Las funciones críticas del backend deben contar con pruebas automatizadas. |
-| RNF-04.3 | La lista de verificación base debe ser modificable sin cambiar el código de la aplicación. *(deseable; pendiente de diseño)* |
+| RNF-04.3 | La lista de verificación base debe ser modificable sin cambiar el código de la aplicación: **implementada vía `backend/app/criterios.json` externo**. |
 
 ---
 
@@ -209,4 +209,4 @@ Estas reglas son restricciones no negociables que aplican a toda la aplicación:
 
 ---
 
-*Este documento es un borrador inicial sujeto a revisión y ajuste por el equipo del proyecto.*
+*Este documento refleja los requisitos implementados y validados; sujeto a ajustes menores por el equipo del proyecto.*

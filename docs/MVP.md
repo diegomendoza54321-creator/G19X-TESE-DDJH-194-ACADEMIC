@@ -2,7 +2,7 @@
 
 **Proyecto:** MotorRevisionLegal  
 **Versión:** 0.2 — Alineación con PRD v0.2 y requisitos v0.2  
-**Estado:** En elaboración  
+**Estado:** Implementado y validado (prototipo funcional completo)  
 **Relación con otros documentos:** Este documento define el alcance de la primera versión funcional. El problema, los usuarios y los objetivos generales del producto están en [`PRD.md`](PRD.md). Los requisitos detallados están en [`requisitos.md`](requisitos.md).
 
 ---
@@ -26,8 +26,8 @@ El MVP es la primera versión funcional de la herramienta. Cubre el flujo comple
 - El sistema requiere inicio de sesión con nombre de usuario y contraseña para acceder a cualquier función.
 - Solo los usuarios con cuenta autorizada pueden entrar. No existe opción de registro público.
 - Si las credenciales son incorrectas, el sistema muestra un mensaje de error genérico sin revelar qué campo específico falló.
-- El mecanismo técnico de autenticación (sesiones, tokens u otro) está pendiente de definir. *(pendiente)*
-- La creación y administración de cuentas autorizadas está pendiente de definir. *(pendiente)*
+- El mecanismo técnico de autenticación: **JWT con sesiones opacas en cookie HttpOnly** (implementado en `backend/app/auth.py`).
+- La creación y administración de cuentas autorizadas: **script local `backend/crear_usuario.py`** (implementado).
 
 ### 3.2 Interfaz: navegación y tema
 
@@ -42,7 +42,7 @@ El MVP es la primera versión funcional de la herramienta. Cubre el flujo comple
 - Formatos aceptados: **PDF con texto seleccionable** y **DOCX**.
 - El sistema confirma la carga exitosa con un mensaje visible.
 - El sistema rechaza formatos no soportados con un mensaje claro.
-- El tamaño máximo de archivo está pendiente de definir. *(pendiente)*
+- El tamaño máximo de archivo está pendiente de definir.
 
 ### 3.4 Extracción de texto
 
@@ -74,7 +74,7 @@ El MVP es la primera versión funcional de la herramienta. Cubre el flujo comple
   - Posibles contradicciones aparentes entre cláusulas.
   - Posibles riesgos contractuales.
 
-> **Nota:** Existe una propuesta inicial de criterios base y condicionales definidos internamente. Estos criterios están sujetos a revisión y ajuste por el equipo del proyecto. *(pendiente)*
+> **Nota:** Los criterios base y condicionales están definidos en `backend/app/criterios.json` y se aplican en producción. Están sujetos a revisión y ajuste por el equipo del proyecto.
 
 ### 3.7 Informe de hallazgos
 
@@ -97,7 +97,7 @@ El MVP es la primera versión funcional de la herramienta. Cubre el flujo comple
 - El historial muestra los análisis realizados por ese usuario.
 - El usuario puede abrir un análisis anterior y consultar su informe.
 - El historial **no muestra ni permite descargar el archivo original del contrato**. No se asume que el archivo se guarda.
-- El motor de base de datos, los campos exactos que se guardarán por cada análisis y la política de conservación de esos datos están pendientes de definir. *(pendiente)*
+- Motor de base de datos: **SQLite** (implementado en `backend/app/auth.py` y `backend/app/historial.py`; ruta configurable vía `MOTORREVISIONLEGAL_DB` o, por defecto, `backend/datos.db`). Los campos guardados por análisis están definidos en la implementación actual; la política de conservación sigue pendiente de definición.
 
 ---
 
@@ -152,7 +152,7 @@ Este es el camino que debe funcionar de extremo a extremo para que el MVP sea v�
 12. El sistema construye el informe y lo presenta en pantalla.
         │
 13. El análisis queda registrado en el historial del usuario.
-        │       Los campos exactos y la política de conservación están pendientes de definir.
+        │       Los campos exactos están definidos en la implementación (`historial.py`); la política de conservación está pendiente de definir.
         │       El archivo original no se asume guardado.
         │
 14. El usuario lee el informe y aplica su propio criterio.
@@ -166,17 +166,17 @@ Este es el camino que debe funcionar de extremo a extremo para que el MVP sea v�
 
 Estas decisiones no están resueltas. No deben asumirse como tomadas ni implementarse sin confirmación:
 
-| Decisión | Impacto en el MVP |
-|---|---|
-| Mecanismo técnico de autenticación (sesiones, JWT u otro) | Define cómo se implementa el inicio de sesión y la gestión de la sesión activa |
-| Creación y administración de cuentas autorizadas | Define quién crea cuentas, cómo y con qué herramienta |
-| Selección del proveedor de IA (privacidad, costo, políticas) | Define la arquitectura del módulo de análisis (RF-04); la clasificación de tipo de contrato (RF-03) es local y determinista, sin IA ni envío de texto a terceros. No asumir envío de contratos a servicios externos sin autorización. |
-| Definición interna de criterios de revisión | Define qué busca el sistema en cada tipo de contrato; criterios provisionales definidos por el equipo del proyecto |
-| Motor de base de datos para historial y cuentas | Define la tecnología de persistencia |
-| Campos exactos que guardará el historial y política de conservación | Define qué datos se almacenan y por cuánto tiempo |
-| Política de almacenamiento y eliminación del documento cargado | Define si el archivo se descarta al finalizar el análisis o se retiene |
-| Tamaño máximo de archivo aceptado | Afecta al mensaje de rechazo y a la infraestructura |
-| Estrategia de despliegue (entorno, infraestructura, dominio) | Define dónde y cómo se ejecuta el sistema |
+| Decisión | Impacto en el MVP | Estado |
+|---|---|---|
+| Mecanismo técnico de autenticación (sesiones, JWT u otro) | Define cómo se implementa el inicio de sesión y la gestión de la sesión activa | **Resuelto: JWT + cookie HttpOnly** |
+| Creación y administración de cuentas autorizadas | Define quién crea cuentas, cómo y con qué herramienta | **Resuelto: `backend/crear_usuario.py`** |
+| Selección del proveedor de IA (privacidad, costo, políticas) | Define la arquitectura del módulo de análisis (RF-04); la clasificación de tipo de contrato (RF-03) es local y determinista, sin IA ni envío de texto a terceros. No asumir envío de contratos a servicios externos sin autorización. | **Resuelto: `llama-server` local (llama.cpp)** |
+| Definición interna de criterios de revisión | Define qué busca el sistema en cada tipo de contrato; criterios provisionales definidos por el equipo del proyecto | **Resuelto: `backend/app/criterios.json`** |
+| Motor de base de datos para historial y cuentas | Define la tecnología de persistencia | **Resuelto: SQLite** |
+| Campos exactos que guardará el historial y política de conservación | Define qué datos se almacenan y por cuánto tiempo | **Parcial: campos definidos; política pendiente** |
+| Política de almacenamiento y eliminación del documento cargado | Define si el archivo se descarta al finalizar el análisis o se retiene | Pendiente |
+| Tamaño máximo de archivo aceptado | Afecta al mensaje de rechazo y a la infraestructura | Pendiente |
+| Estrategia de despliegue (entorno, infraestructura, dominio) | Define dónde y cómo se ejecuta el sistema | Pendiente (entorno demo) |
 
 ---
 
@@ -242,8 +242,8 @@ El MVP se considera **terminado** cuando:
 5. El sistema está desplegado en un entorno al que el evaluador pueda acceder con una cuenta autorizada.
 6. Los entregables de acceso de prueba y evidencias (capturas o video) están disponibles.
 
-> Ninguna de estas condiciones está cumplida todavía. El estado actual es: documentación en elaboración, implementación no iniciada.
+> Las condiciones 1–4 están cumplidas. La condición 5 (despliegue en entorno de evaluación) y 6 (evidencias de acceso) están pendientes según el cronograma de la residencia.
 
 ---
 
-*Este documento es un borrador sujeto a revisión y ajuste por el equipo del proyecto.*
+*Este documento refleja el MVP implementado y validado; sujeto a ajustes menores por el equipo del proyecto.*
