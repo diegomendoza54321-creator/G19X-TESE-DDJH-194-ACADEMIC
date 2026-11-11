@@ -141,17 +141,17 @@ Esto instala las dependencias listadas en `backend/requirements.txt`:
 ## 3. Preparar llama.cpp y el modelo GGUF
 
 El análisis de cláusulas depende de **llama-server** (de llama.cpp) ejecutándose en `127.0.0.1:9931`.
-
 ### Archivos necesarios
 
 - Descarga `llama-server` (build **cpu-x64**) desde las releases oficiales de llama.cpp: https://github.com/ggerganov/llama.cpp/releases
+- Descarga el modelo GGUF `Phi-3-mini-4k-instruct-q4.gguf` (cuantización Q4_K_M) desde Hugging Face: https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf
 
+**¿Por qué este modelo?** Es un modelo de lenguaje de 3.800 millones de parámetros optimizado para instrucciones, con contexto de 4.096 tokens. Funciona completamente en local mediante llama-server, sin enviar texto a servicios externos, lo que garantiza privacidad total para los contratos analizados.
 
-
+**Nota:** El archivo `.gguf` no se distribuye dentro del repositorio; debe descargarse por separado y colocarse junto al ejecutable `llama-server.exe`.
 
 - Ejecutable `llama-server` de llama.cpp.
 - **Dato del entorno comprobado (no es requisito general):** en la máquina de desarrollo se verificó la presencia de `D:\llama.cpp\llama-server.exe` con la versión `0.7.0-dev (build 11683, commit a8d9a7e1e)`, compilado con Clang 20.1.8 para Windows x86_64. El proyecto no exige esta versión ni build concretos; cualquier binario compatible de llama.cpp que responda en `127.0.0.1:9931` es válido.
-- Modelo GGUF (cuantificación q4_0 de referencia): El proyecto registra la cuantificación q4_0 como ejemplo de archivo precedente (`model\Phi-3-mini-4k-instruct-q4_0.gguf`). Para instalación actual, se recomienda el modelo oficial `Phi-3-mini-4k-instruct-q4.gguf` con cuantización **Q4_K_M**. El repositorio **no incluye** ni especifica una URL de descarga ni una versión concreta de llama.cpp ni del modelo; el usuario debe proporcionar ambos archivos y ajustar la ruta `-m` al modelo que tenga disponible.
 
 ### Arrancar llama-server
 
