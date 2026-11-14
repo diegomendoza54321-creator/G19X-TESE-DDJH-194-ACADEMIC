@@ -28,7 +28,7 @@ export default function TarjetaResultado({ hallazgo }: TarjetaResultadoProps) {
           {tipoLabel}
         </span>
         <span className="badge categoria">
-          {hallazgo.categoria}
+          {hallazgo.categoria.charAt(0).toUpperCase() + hallazgo.categoria.slice(1)}
         </span>
       </div>
       <div className="tarjeta-resultado-contenido">

@@ -643,16 +643,19 @@ export default function App() {
 
   if (sesion === 'sin-sesion') {
     return (
-      <main className="contenedor">
-        <header className="cabecera">
-          <h1>MotorRevisionLegal</h1>
-          <p className="descripcion">
-            Revisión de cláusulas contractuales. Inicia sesión con tu cuenta
-            autorizada para continuar.
-          </p>
-        </header>
+      <main className="login-contenedor">
+        <section className="login-tarjeta">
+          <div className="login-header">
+            <div className="login-logo" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="20" x2="6" y2="20"></line>
+                <path d="M12 4v11M4 20h16m-4-8v7m-4-7v8m-8 0V8m12 4v8"></path>
+              </svg>
+            </div>
+            <h1 className="login-titulo">MotorRevisionLegal</h1>
+          </div>
+          <p className="login-subtitulo">Revisión de cláusulas contractuales con IA local</p>
 
-        <section className="tarjeta login-tarjeta">
           <form onSubmit={alIniciarSesion} className="login-form">
             <label className="etiqueta" htmlFor="usuario">
               Usuario
@@ -684,25 +687,22 @@ export default function App() {
               className="login-input"
             />
 
-            <button type="submit" disabled={entrando} className="btn-primario-moderno btn-pequeno-moderno">
+            <button type="submit" disabled={entrando} className="btn-primario-moderno">
               <span className="icono-accion" aria-hidden="true">🔐</span>
               {entrando ? 'Iniciando sesión…' : 'Iniciar sesión'}
             </button>
-          </form>
 
-          {errorLogin && (
-            <p className="aviso" role="alert">
-              {errorLogin}
+            {errorLogin && (
+              <p className="aviso" role="alert">
+                {errorLogin}
+              </p>
+            )}
+
+            <p className="mensaje-acceso">
+              Acceso privado: solo cuentas autorizadas. Si necesitas acceso, contacta con quien administre el sistema.
             </p>
-          )}
+          </form>
         </section>
-
-        <footer className="pie">
-          <p>
-            Acceso privado: solo cuentas autorizadas. Si necesitas acceso,
-            contacta con quien administre el sistema.
-          </p>
-        </footer>
       </main>
     )
   }
