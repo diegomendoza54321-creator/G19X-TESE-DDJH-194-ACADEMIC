@@ -88,11 +88,11 @@ export default function DashboardInicio({
       <div className="acciones-rapidas">
         <h2 className="acciones-titulo">Acciones rápidas</h2>
         <div className="acciones-botones">
-          <button type="button" onClick={onAnalizar} className="btn-primario">
+          <button type="button" onClick={onAnalizar} className="btn-primario-moderno btn-pequeno-moderno">
             <span className="icono-accion" aria-hidden="true">📄</span>
             Analizar contrato
           </button>
-          <button type="button" onClick={onHistorial} className="btn-secundario">
+          <button type="button" onClick={onHistorial} className="btn-secundario-moderno btn-pequeno-moderno">
             <span className="icono-accion" aria-hidden="true">📋</span>
             Ver historial
           </button>

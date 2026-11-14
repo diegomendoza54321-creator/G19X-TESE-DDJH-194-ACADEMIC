@@ -9,6 +9,13 @@ const TIPO_LABEL: Record<string, string> = {
   riesgo: 'Riesgo',
 }
 
+const TIPO_BADGE: Record<string, string> = {
+  ambiguedad: 'badge-ambiguedad',
+  omision: 'badge-omision',
+  contradiccion: 'badge-contradiccion',
+  riesgo: 'badge-riesgo',
+}
+
 export default function TarjetaResultado({ hallazgo }: TarjetaResultadoProps) {
   const tipo = hallazgo.tipo
   const tipoLabel = TIPO_LABEL[tipo] || tipo
@@ -17,7 +24,7 @@ export default function TarjetaResultado({ hallazgo }: TarjetaResultadoProps) {
   return (
     <article className="tarjeta-resultado">
       <div className="tarjeta-resultado-header">
-        <span className={`badge badge-${tipo}`}>
+        <span className={`badge-categoria ${TIPO_BADGE[tipo]}`}>
           {tipoLabel}
         </span>
         <span className="badge categoria">
@@ -27,10 +34,8 @@ export default function TarjetaResultado({ hallazgo }: TarjetaResultadoProps) {
       <div className="tarjeta-resultado-contenido">
         <p className="tarjeta-resultado-descripcion">{hallazgo.descripcion}</p>
         {tieneCita && (
-          <blockquote className="tarjeta-resultado-cita">
-            <span className="marca-cita" aria-hidden="true">“</span>
+          <blockquote className="tarjeta-resultado-cita cita-destacada">
             {hallazgo.cita}
-            <span className="marca-cita-final" aria-hidden="true">”</span>
           </blockquote>
         )}
         <div className="detalles-grid">

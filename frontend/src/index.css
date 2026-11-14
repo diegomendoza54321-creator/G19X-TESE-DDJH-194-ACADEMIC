@@ -218,3 +218,323 @@ blockquote {
 .opaco {
   opacity: 0.7;
 }
+
+/* ============================================================
+   Citas destacadas (evidencia textual jurídica)
+   ============================================================ */
+.cita-destacada {
+  position: relative;
+  margin: 0.75rem 0;
+  padding: 0.75rem 1rem 0.75rem 1.5rem;
+  border-left: 4px solid var(--color-borde-omision);
+  background: var(--color-fondo-omision);
+  border-radius: 0 0.5rem 0.5rem 0;
+  font-style: italic;
+  font-size: 0.925rem;
+  color: var(--color-texto-suave);
+  line-height: 1.55;
+  quotes: "“" "”";
+}
+
+[data-tema='claro'] .tarjeta-resultado-cita.cita-destacada,
+.cita-destacada {
+  background: var(--color-fondo-omision);
+  border-left-color: var(--color-borde-omision);
+  color: var(--color-texto-suave);
+}
+
+[data-tema='oscuro'] .tarjeta-resultado-cita.cita-destacada {
+  background: #162742;
+  border-left-color: #60A5FA;
+  color: var(--color-texto-omision);
+}
+
+.cita-destacada::before {
+  content: open-quote;
+  font-size: 1.5rem;
+  line-height: 1;
+  vertical-align: middle;
+  margin-right: 0.25rem;
+  opacity: 0.6;
+}
+
+.cita-destacada::after {
+  content: close-quote;
+  font-size: 1.5rem;
+  line-height: 1;
+  vertical-align: middle;
+  margin-left: 0.25rem;
+  opacity: 0.6;
+}
+
+/* ============================================================
+   Botones con estilo profesional
+   ============================================================ */
+.btn-moderno {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.6rem;
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-moderno:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primario-moderno {
+  background: var(--color-primario);
+  color: var(--color-primario-texto);
+  border: 1px solid var(--color-primario);
+  box-shadow: var(--sombra-suave);
+}
+
+.btn-primario-moderno:hover:not(:disabled) {
+  background: var(--color-primario-hover);
+  border-color: var(--color-primario-hover);
+  box-shadow: var(--sombra-media);
+  transform: translateY(-1px);
+}
+
+.btn-secundario-moderno {
+  background: var(--color-secundario);
+  color: var(--color-secundario-texto);
+  border: 1px solid var(--color-borde-suave);
+  box-shadow: var(--sombra-suave);
+}
+
+.btn-secundario-moderno:hover:not(:disabled) {
+  background: var(--color-secundario-hover);
+  border-color: var(--color-borde-enfocado);
+  transform: translateY(-1px);
+}
+
+.btn-pequeno-moderno {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+/* ============================================================
+   Badges de categorías de hallazgo
+   ============================================================ */
+.badge-categoria {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badge-ambiguedad {
+  background: var(--color-fondo-ambiguedad);
+  color: var(--color-texto-ambiguedad);
+  border: 1px solid var(--color-borde-ambiguedad);
+}
+
+.badge-omision {
+  background: var(--color-fondo-omision);
+  color: var(--color-texto-omision);
+  border: 1px solid var(--color-borde-omision);
+}
+
+.badge-contradiccion {
+  background: var(--color-fondo-contradiccion);
+  color: var(--color-texto-contradiccion);
+  border: 1px solid var(--color-borde-contradiccion);
+}
+
+.badge-riesgo {
+  background: var(--color-fondo-riesgo);
+  color: var(--color-texto-riesgo);
+  border: 1px solid var(--color-borde-riesgo);
+}
+
+/* ============================================================
+   Selector de archivo como tarjeta moderna
+   ============================================================ */
+.selector-archivo-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  border: 2px dashed var(--color-borde-suave);
+  border-radius: 0.75rem;
+  padding: 2rem 1rem;
+  background: var(--color-fondo-cuerpo);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.selector-archivo-card:hover {
+  border-color: var(--color-borde-enfocado);
+  background: var(--color-estado-hover);
+  transform: translateY(-2px);
+}
+
+.selector-archivo-card:active {
+  border-color: var(--color-primario);
+  background: var(--color-estado-activo);
+}
+
+.icono-archivo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-estado-hover);
+  color: var(--color-texto-suavemente);
+}
+
+.nombre-archivo {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-texto);
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tamano-archivo {
+  font-size: 0.8rem;
+  color: var(--color-texto-suavemente);
+}
+
+input[type='file'].selector-input {
+  position: absolute;
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.selector-secundario {
+  font-size: 0.8rem;
+  color: var(--color-texto-suavemente);
+  margin-top: 0.25rem;
+}
+
+/* ============================================================
+   Dashboard - tarjetas métricas mejoradas
+   ============================================================ */
+.metrica-tarjeta {
+  border: 1px solid var(--color-borde);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  background: var(--color-fondo-cuerpo);
+  box-shadow: var(--sombra-suave);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.metrica-tarjeta:hover {
+  box-shadow: var(--sombra-media);
+  border-color: var(--color-borde-suave);
+  transform: translateY(-2px);
+}
+
+.metrica-icono {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.75rem;
+  background: var(--color-estado-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.metrica-valor {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-texto);
+}
+
+.metrica-label {
+  font-size: 0.75rem;
+  color: var(--color-texto-suavemente);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Énfasis en contratos analizados y hallazgos detectados */
+.metrica-tarjeta:nth-child(1) .metrica-valor,
+.metrica-tarjeta:nth-child(2) .metrica-valor {
+  font-size: 2.5rem;
+  color: var(--color-primario);
+}
+
+.metrica-tarjeta:nth-child(1) .metrica-icono,
+.metrica-tarjeta:nth-child(2) .metrica-icono {
+  background: var(--color-primario-texto);
+  color: var(--color-primario);
+  box-shadow: 0 2px 4px -1px rgb(37 99 235 / 0.3);
+}
+
+.metrica-tarjeta:nth-child(1):hover .metrica-valor,
+.metrica-tarjeta:nth-child(2):hover .metrica-valor {
+  color: var(--color-primario-hover);
+}
+
+/* ============================================================
+   Login form styling
+   ============================================================ */
+.login-tarjeta {
+  display: flex;
+  justify-content: center;
+}
+
+.login-tarjeta form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.login-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-borde);
+  border-radius: 0.5rem;
+  background: var(--color-fondo-cuerpo);
+  color: var(--color-texto);
+  font: inherit;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: var(--color-borde-enfocado);
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+}
+
+.login-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+

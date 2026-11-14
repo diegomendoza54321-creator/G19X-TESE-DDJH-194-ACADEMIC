@@ -652,8 +652,8 @@ export default function App() {
           </p>
         </header>
 
-        <section className="tarjeta">
-          <form onSubmit={alIniciarSesion}>
+        <section className="tarjeta login-tarjeta">
+          <form onSubmit={alIniciarSesion} className="login-form">
             <label className="etiqueta" htmlFor="usuario">
               Usuario
             </label>
@@ -666,6 +666,7 @@ export default function App() {
               onChange={(event) => setNombre(event.target.value)}
               disabled={entrando}
               required
+              className="login-input"
             />
 
             <label className="etiqueta" htmlFor="contrasena">
@@ -680,9 +681,11 @@ export default function App() {
               onChange={(event) => setClave(event.target.value)}
               disabled={entrando}
               required
+              className="login-input"
             />
 
-            <button type="submit" disabled={entrando}>
+            <button type="submit" disabled={entrando} className="btn-primario-moderno btn-pequeno-moderno">
+              <span className="icono-accion" aria-hidden="true">🔐</span>
               {entrando ? 'Iniciando sesión…' : 'Iniciar sesión'}
             </button>
           </form>
@@ -734,25 +737,30 @@ return (
           <label className="etiqueta" htmlFor="archivo">
             Archivo del contrato
           </label>
-          <input
-            id="archivo"
-            name="archivo"
-            type="file"
-            accept=".pdf,.docx"
-            onChange={alElegirArchivo}
-            disabled={estado === 'cargando'}
-          />
+          <label className="selector-archivo-card" htmlFor="archivo">
+            <span className="icono-archivo" aria-hidden="true">📄</span>
+            <input
+              id="archivo"
+              name="archivo"
+              type="file"
+              accept=".pdf,.docx"
+              className="selector-input"
+              onChange={alElegirArchivo}
+              disabled={estado === 'cargando'}
+            />
+            {archivo ? (
+              <>
+                <div className="nombre-archivo">{archivo.name}</div>
+                <div className="tamano-archivo">{tamanoLegible(archivo.size)}</div>
+              </>
+            ) : (
+              <p className="texto-pequeno opaco">Haz clic para seleccionar un PDF o DOCX</p>
+            )}
+          </label>
 
           {avisoArchivo && <p className="aviso">{avisoArchivo}</p>}
 
-          {archivo && (
-            <p className="detalle-archivo">
-              <strong>Archivo seleccionado:</strong> {archivo.name} ·{' '}
-              {tamanoLegible(archivo.size)}
-            </p>
-          )}
-
-          <button type="submit" disabled={!archivo || estado === 'cargando'}>
+          <button type="submit" disabled={!archivo || estado === 'cargando'} className="btn-primario-moderno btn-pequeno-moderno">
             {estado === 'cargando' ? 'Extrayendo texto…' : 'Extraer texto'}
           </button>
         </form>
@@ -886,8 +894,8 @@ return (
                 type="button"
                 disabled={!tipoSeleccionado || clasificando}
                 onClick={alConfirmarTipo}
+                className="btn-primario-moderno btn-pequeno-moderno"
               >
-
 
                 {clasificando ? 'Confirmando…' : 'Confirmar tipo de contrato'}
               </button>
@@ -910,7 +918,9 @@ return (
                   analizando || servidorOcupado || !resultado?.texto
                 }
                 onClick={alAnalizarClausulas}
+                className="btn-primario-moderno"
               >
+                <span className="icono-accion" aria-hidden="true">🔍</span>
                 {analizando
                   ? 'Analizando…'
                   : 'Analizar cláusulas con IA local'}
@@ -921,7 +931,7 @@ return (
                     Analizando localmente, puede tardar varios minutos. No
                     cierre esta vista.
                   </p>
-                  <button type="button" onClick={alDejarDeEsperar}>
+                  <button type="button" onClick={alDejarDeEsperar} className="btn-secundario-moderno btn-pequeno-moderno">
                     Dejar de esperar
                   </button>
                 </>
