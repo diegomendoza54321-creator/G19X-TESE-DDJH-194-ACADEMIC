@@ -1057,23 +1057,29 @@ return (
                   <strong>Analizar contrato</strong> para que aparezca aquí.
                 </p>
               ) : (
-                <ul>
+                <ul className="lista-historial">
                   {historial.map((registro) => (
-                    <li key={registro.id}>
-                      <p>
-                        <strong>{formatearFechaLocal(registro.fecha)}</strong> —{' '}
-                        {etiquetaDe(registro.tipo_confirmado as TipoOpcion)}{' '}
-                        ({registro.num_hallazgos} hallazgo{
-                          registro.num_hallazgos !== 1 ? 's' : ''
-                        })
-                      </p>
+                    <li key={registro.id} className="item-historial">
+                      <div className="item-historial-header">
+                        <span className="fecha-historial">
+                          {formatearFechaLocal(registro.fecha)}
+                        </span>
+                        <span className="tipo-historial">
+                          {etiquetaDe(registro.tipo_confirmado as TipoOpcion)}
+                        </span>
+                        <span className="contador-historial">
+                          {registro.num_hallazgos} hallazgo{
+                            registro.num_hallazgos !== 1 ? 's' : ''
+                          }
+                        </span>
+                      </div>
                       {registro.hallazgos?.length ? (
                         <ol className="lista-hallazgos">
                           {(registro.hallazgos ?? []).map((hallazgo, i) => (
                             <TarjetaResultado key={i} hallazgo={hallazgo} />
                           ))}
                         </ol>
-                       ) : null}
+                      ) : null}
                     </li>
                   ))}
                 </ul>

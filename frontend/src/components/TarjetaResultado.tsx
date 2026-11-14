@@ -2,71 +2,55 @@ interface TarjetaResultadoProps {
   hallazgo: any
 }
 
-const COLORES_POR_TIPO: Record<string, { fondo: string; borde: string; texto: string }> = {
-  ambiguedad: {
-    fondo: 'var(--color-aviso-fondo)',
-    borde: 'var(--color-aviso)',
-    texto: 'var(--color-aviso)',
-  },
-  omision: {
-    fondo: 'var(--color-info-fondo)',
-    borde: 'var(--color-info)',
-    texto: 'var(--color-info)',
-  },
-  contradiccion: {
-    fondo: 'var(--color-error-fondo)',
-    borde: 'var(--color-error)',
-    texto: 'var(--color-error)',
-  },
-  riesgo: {
-    fondo: 'var(--color-riesgo-fondo)',
-    borde: 'var(--color-riesgo)',
-    texto: 'var(--color-riesgo)',
-  },
-}
-
-function obtenerColores(tipo: string) {
-  return COLORES_POR_TIPO[tipo] ?? {
-    fondo: 'var(--color-fondo-bloque)',
-    borde: 'var(--color-borde)',
-    texto: 'var(--color-texto)',
-  }
+const TIPO_LABEL: Record<string, string> = {
+  ambiguedad: 'Ambigüedad',
+  omision: 'Omisión',
+  contradiccion: 'Contradicción',
+  riesgo: 'Riesgo',
 }
 
 export default function TarjetaResultado({ hallazgo }: TarjetaResultadoProps) {
-  const colores = obtenerColores(hallazgo.tipo)
+  const tipo = hallazgo.tipo
+  const tipoLabel = TIPO_LABEL[tipo] || tipo
+  const tieneCita = hallazgo.cita && hallazgo.cita.trim().length > 0
 
   return (
-    <article
-      className="tarjeta-resultado"
-      style={{
-        backgroundColor: colores.fondo,
-        borderColor: colores.borde,
-      }}
-    >
+    <article className="tarjeta-resultado">
       <div className="tarjeta-resultado-header">
-        <span className="tarjeta-resultado-tipo" style={{ color: colores.texto }}>
-          {hallazgo.tipo.charAt(0).toUpperCase() + hallazgo.tipo.slice(1)}
+        <span className={`badge badge-${tipo}`}>
+          {tipoLabel}
         </span>
-        <span className="tarjeta-resultado-categoria">{hallazgo.categoria}</span>
+        <span className="badge categoria">
+          {hallazgo.categoria}
+        </span>
       </div>
       <div className="tarjeta-resultado-contenido">
         <p className="tarjeta-resultado-descripcion">{hallazgo.descripcion}</p>
-        {hallazgo.cita && (
-          <blockquote className="tarjeta-resultado-cita">“{hallazgo.cita}”</blockquote>
+        {tieneCita && (
+          <blockquote className="tarjeta-resultado-cita">
+            <span className="marca-cita" aria-hidden="true">“</span>
+            {hallazgo.cita}
+            <span className="marca-cita-final" aria-hidden="true">”</span>
+          </blockquote>
         )}
-        <p className="tarjeta-resultado-explicacion">
-          <strong>Explicación:</strong> {hallazgo.explicacion}
-        </p>
-        <p className="tarjeta-resultado-consecuencia">
-          <strong>Posible consecuencia:</strong> {hallazgo.consecuencia}
-        </p>
-        <p className="tarjeta-resultado-recomendacion">
-          <strong>Recomendación:</strong> {hallazgo.recomendacion}
-        </p>
-        <p className="tarjeta-resultado-limitaciones">
-          <strong>Limitaciones:</strong> {hallazgo.limitaciones}
-        </p>
+        <div className="detalles-grid">
+          <div className="detalle">
+            <span className="etiqueta-detalle">Explicación</span>
+            <span className="valor-detalle">{hallazgo.explicacion}</span>
+          </div>
+          <div className="detalle">
+            <span className="etiqueta-detalle">Consecuencia</span>
+            <span className="valor-detalle">{hallazgo.consecuencia}</span>
+          </div>
+          <div className="detalle">
+            <span className="etiqueta-detalle">Recomendación</span>
+            <span className="valor-detalle">{hallazgo.recomendacion}</span>
+          </div>
+          <div className="detalle">
+            <span className="etiqueta-detalle">Limitaciones</span>
+            <span className="valor-detalle">{hallazgo.limitaciones}</span>
+          </div>
+        </div>
       </div>
     </article>
   )

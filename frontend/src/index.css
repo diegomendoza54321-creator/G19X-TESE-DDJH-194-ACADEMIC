@@ -1,47 +1,138 @@
 /* Estilos base. Tema claro/oscuro (RF-07): el tema activo se aplica con el
  * atributo data-tema en <html>, que React fija desde localStorage. */
 
+/* Colores semánticos por categoría de hallazgo (mismo valor en ambos temas
+ * para mantener consistencia de significado). */
+
 :root,
 :root[data-tema='claro'] {
   --fuente: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
     sans-serif;
-  --color-texto: #1a1a1a;
-  --color-fondo: #ffffff;
-  --color-borde: #d4d4d4;
-  --color-fondo-bloque: #f6f6f6;
-  --color-error: #b3261e;
-  --color-error-fondo: #fdecea;
-  --color-ok: #1b5e20;
-  --color-ok-fondo: #e8f5e9;
-  --color-aviso: #5f4700;
-  --color-aviso-fondo: #fff6d6;
-  --color-info: #1a5fb4;
-  --color-info-fondo: #e7f3ff;
-  --color-riesgo: #c2410c;
-  --color-riesgo-fondo: #fde3cf;
+
+  /* Superficies */
+  --color-fondo: #f8fafc;
+  --color-fondo-cuerpo: #ffffff;
+  --color-fondo-bloque: #f1f5f9;
+  --color-fondo-bloque-suave: #f8fafc;
+
+  /* Texto */
+  --color-texto: #0f172a;
+  --color-texto-suave: #475569;
+  --color-texto-suavemente: #64748b;
+  --color-texto-en-fondo: #ffffff;
+
+  /* Bordes y división */
+  --color-borde: #e2e8f0;
+  --color-borde-suave: #cbd5e1;
+  --color-borde-enfocado: #2563eb;
+
+  /* Sombras */
+  --sombra-suave: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --sombra-media: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --sombra-fuerte: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Estados */
+  --color-estado-hover: #f1f5f9;
+  --color-estado-activo: #e2e8f0;
+
+  /* Semánticas de categoría */
+  --color-texto-ambiguedad: #d97706;
+  --color-fondo-ambiguedad: #fef3c7;
+  --color-borde-ambiguedad: #f59e0b;
+
+  --color-texto-omision: #2563eb;
+  --color-fondo-omision: #dbeafe;
+  --color-borde-omision: #3b82f6;
+
+  --color-texto-contradiccion: #dc2626;
+  --color-fondo-contradiccion: #fecaca;
+  --color-borde-contradiccion: #ef4444;
+
+  --color-texto-riesgo: #ea580c;
+  --color-fondo-riesgo: #ffedd5;
+  --color-borde-riesgo: #fb923c;
+
+  /* Acciones */
+  --color-primario: #2563eb;
+  --color-primario-hover: #1d4ed8;
+  --color-primario-activo: #1e40af;
+  --color-primario-texto: #ffffff;
+
+  --color-secundario: #f1f5f9;
+  --color-secundario-hover: #e2e8f0;
+  --color-secundario-texto: #0f172a;
+
+  --color-texto-sobre-primario: #ffffff;
 }
 
 /* El tema oscuro se activa con data-tema="oscuro". Sin preferencia
  * guardada, el navegador aporta el valor inicial (ver App.tsx). */
 :root[data-tema='oscuro'] {
-  --color-texto: #ededed;
-  --color-fondo: #161616;
-  --color-borde: #3d3d3d;
-  --color-fondo-bloque: #202020;
-  --color-error: #f2b8b5;
-  --color-error-fondo: #3a1a18;
-  --color-ok: #a5d6a7;
-  --color-ok-fondo: #1b2a1c;
-  --color-aviso: #f0d089;
-  --color-aviso-fondo: #332a12;
-  --color-info: #4da6ff;
-  --color-info-fondo: #0a1a26;
-  --color-riesgo: #ff8c42;
-  --color-riesgo-fondo: #2a1408;
+  --fuente: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+
+  /* Superficies */
+  --color-fondo: #0f172a;
+  --color-fondo-cuerpo: #0f172a;
+  --color-fondo-bloque: #1e293b;
+  --color-fondo-bloque-suave: #1e293b;
+
+  /* Texto */
+  --color-texto: #f8fafc;
+  --color-texto-suave: #cbd5e1;
+  --color-texto-suavemente: #94a3b8;
+  --color-texto-en-fondo: #0f172a;
+
+  /* Bordes y división */
+  --color-borde: #334155;
+  --color-borde-suave: #475569;
+  --color-borde-enfocado: #60a5fa;
+
+  /* Sombras */
+  --sombra-suave: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --sombra-media: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --sombra-fuerte: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+
+  /* Estados */
+  --color-estado-hover: #1e293b;
+  --color-estado-activo: #334155;
+
+  /* Semánticas de categoría */
+  --color-texto-ambiguedad: #fbbf24;
+  --color-fondo-ambiguedad: #451a03;
+  --color-borde-ambiguedad: #d97706;
+
+  --color-texto-omision: #93c5fd;
+  --color-fondo-omision: #1e3a8a;
+  --color-borde-omision: #3b82f6;
+
+  --color-texto-contradiccion: #fca5a5;
+  --color-fondo-contradiccion: #450a0a;
+  --color-borde-contradiccion: #dc2626;
+
+  --color-texto-riesgo: #fdba74;
+  --color-fondo-riesgo: #451a03;
+  --color-borde-riesgo: #ea580c;
+
+  /* Acciones */
+  --color-primario: #3b82f6;
+  --color-primario-hover: #60a5fa;
+  --color-primario-activo: #2563eb;
+  --color-primario-texto: #ffffff;
+
+  --color-secundario: #1e293b;
+  --color-secundario-hover: #334155;
+  --color-secundario-texto: #f8fafc;
+
+  --color-texto-sobre-primario: #ffffff;
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -50,4 +141,80 @@ body {
   background: var(--color-fondo);
   color: var(--color-texto);
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: 700;
+  color: var(--color-texto);
+  line-height: 1.25;
+}
+
+p {
+  margin: 0;
+  color: var(--color-texto-suave);
+}
+
+ul, ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+blockquote {
+  margin: 0;
+}
+
+/* Utilidades de layout */
+.fila {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.columna {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.centrado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.texto-pequeno {
+  font-size: 0.875rem;
+}
+
+.texto-mediano {
+  font-size: 1rem;
+}
+
+.texto-grande {
+  font-size: 1.125rem;
+}
+
+.peso-medio {
+  font-weight: 600;
+}
+
+.peso-fuerte {
+  font-weight: 700;
+}
+
+.opaco {
+  opacity: 0.7;
 }
