@@ -101,6 +101,12 @@ N_CTX = _leer_limite_contexto()
 #: del tokenizador. Pesimista a propósito hasta medirlo en vivo.
 MARGEN_TOKENS = 32
 
+#: Número mínimo de tokens de salida requeridos para aceptar el análisis.
+#: Si tras restar el prompt y el margen del contexto no quedan al menos
+#: este número de tokens, se rechaza con contexto_excedido antes de llamar
+#: al modelo.
+MIN_TOKENS_SALIDA = 1
+
 #: Un solo vuelo a la vez desde este backend (un proceso uvicorn en el
 #: prototipo; con N workers el lock es por proceso y se documenta).
 _LOCK_ANALISIS = asyncio.Lock()
@@ -347,6 +353,7 @@ _ESQUEMA_HALLAZGOS: dict = {
     "type": "array",
     "items": {
         "type": "object",
+        "maxItems": 4,
         "properties": {
             "tipo": {"enum": sorted(_TIPOS_VALIDOS)},
             "categoria": {"type": "string"},
@@ -524,7 +531,7 @@ async def _analizar_bajo_lock(
     # el margen. Nunca se pide al modelo más tokens de los que caben en
     # N_CTX, así que la respuesta nunca excede la ventana configurada.
     max_tokens_salida = N_CTX - n_prompt - MARGEN_TOKENS
-    if max_tokens_salida < 1:
+    if max_tokens_salida < MIN_TOKENS_SALIDA:
         raise _error(
             "contexto_excedido",
             f"El prompt usa {n_prompt} tokens y el contexto local es de "

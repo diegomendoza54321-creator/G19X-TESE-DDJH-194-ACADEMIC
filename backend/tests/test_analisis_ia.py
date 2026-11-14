@@ -660,3 +660,38 @@ def test_analizar_bajo_lock_respuesta_json_invalido_devuelve_502(
         )
     assert exc_info.value.codigo == "respuesta_invalida"
     assert exc_info.value.estado_http == 502
+
+
+def test_analizar_bajo_lock_contexto_excedido_devuelve_422(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Prompt demasiado grande para el contexto -> 422 contexto_excedido,
+    antes de llamar al modelo."""
+    from unittest.mock import AsyncMock
+
+    async def mock_get(_cliente, url, *args, **kwargs):
+        return httpx.Response(200, json=[{"is_processing": False}])
+
+    async def mock_post(_cliente, url, *args, **kwargs):
+        return httpx.Response(200, json={})
+
+    # n_prompt = 2020 > N_CTX - MARGEN_TOKENS = 2016, por lo que
+    # max_tokens_salida = 2048 - 2020 - 32 = -4 < MIN_TOKENS_SALIDA = 1
+    monkeypatch.setattr(
+        analisis_ia_mod, "_validar_slots_estricto", lambda cuerpo: False
+    )
+    monkeypatch.setattr(
+        analisis_ia_mod,
+        "_contar_prompt",
+        AsyncMock(return_value=2020),
+    )
+    monkeypatch.setattr(analisis_ia_mod, "_cargar_criterios", lambda: {})
+    monkeypatch.setattr(httpx.AsyncClient, "get", mock_get)
+    monkeypatch.setattr(httpx.AsyncClient, "post", mock_post)
+
+    with pytest.raises(analisis_ia_mod.ErrorAnalisis) as exc_info:
+        asyncio.run(
+            analisis_ia_mod._analizar_bajo_lock(TEXTO_CORTO, TIPO_VALIDO)
+        )
+    assert exc_info.value.codigo == "contexto_excedido"
+    assert exc_info.value.estado_http == 422
